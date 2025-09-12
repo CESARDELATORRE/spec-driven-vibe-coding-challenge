@@ -4,7 +4,7 @@
 
 ### Goals for Day 1 
 
-- Create the repo structure, the reasoning journal log approach and basic "north-star" goals and approaches baseline document":
+- Create the repo structure, initial co-pilot instruction files, helper MCP servers config and the reasoning journal log approach and basic "north-star" goals and approaches baseline document":
 
     --> PR #1
 
@@ -185,7 +185,7 @@ Each goal includes specific approaches that balance the need for a quick AMG pro
 This will serve as your baseline for developing the vision, scope, and architecture in future iterations while keeping the focus on creating an end-to-end prototype quickly.
 
 
-#### My action after prompt 2
+#### My actions after prompt 2
 
 I reviewed the **02-plain-goals-and-approaches.md** and made some manual updates:
 
@@ -208,6 +208,18 @@ I also added this comment at the begining of this doc:
 
 The **02-plain-goals-and-approaches.md** is 
 *basically the north-star document to be taken into account always, while generating the detailed idea/vision-scope, architecture definition and implementation code.*
+
+
+
+
+### Create PR for repo structure and merge into main branch
+
+At this point we have the foundational repo structure, initial co-pilot instruction files, helper MCP servers config (Perplexity, Context7 and GitHub MCP servers) and this reasoning journal log approach plus the simplified "north-star" goals and approaches baseline document, all ready to start hacking with spec-driven vibing approaches.
+
+Before moving forward, let's merge this branch content with a PR into the main branch.
+
+![alt text](images-journey/task-repo-structure-branch.png)
+
 
 
 
