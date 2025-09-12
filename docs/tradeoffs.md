@@ -14,6 +14,6 @@ But since this is an exercise, the confirmed assumption is that we can use any e
 
 In a real feature/product, that content would be provided for real. In this prototype we can simply use a "sampling" approach, as tradeoff.
 
-It's interesting, however, that the approach taken for the KB/content should proably be based on an interface/tool that in the future could be improved with more content without impacting the function of the prototype.
+It's interesting, however, that the approach taken for the KB/content should probably be based on an interface/tool that in the future could be improved with more content without impacting the function of the prototype.
 
 Even further, make the prototype generic so today it can target content from Azure Managed Grafana (AMG) but tomorrow it can handle content for a different domain.
