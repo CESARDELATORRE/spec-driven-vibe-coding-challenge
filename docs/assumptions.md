@@ -7,6 +7,6 @@
 
 # Assumption: Hypothesis validation
 
-Again, since this is an excersie, we assume that the main hypothesis was validated by hypothetical customers/users.
+Again, since this is an exercise, we assume that the main hypothesis was validated by hypothetical customers/users.
 
 
