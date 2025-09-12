@@ -1,0 +1,27 @@
+{
+    // .NET Test Explorer Configuration (for formulahendry.dotnet-test-explorer)
+    "dotnet-test-explorer.testProjectPath": "tests/**/*.csproj",
+    "dotnet-test-explorer.enableTelemetry": false,
+    "dotnet-test-explorer.showCodeLens": true,
+    "dotnet-test-explorer.codeLens": true,
+    
+    // .NET Test Adapter Configuration (for derivitec-ltd.vscode-dotnet-adapter)
+    "dotnetTestExplorer.testProjectPath": "tests/**/*.csproj",
+    
+    // Official C# extension test settings (for ms-dotnettools.csharp)
+    "dotnet.unitTests.enabled": true,
+    "dotnet.test.verbosity": "normal",
+    
+    // C# Dev Kit test settings (for ms-dotnettools.csdevkit)
+    "dotnet.projects.enableAutomaticRestore": true,
+    
+    // Workspace settings for better test discovery
+    "testExplorer.useNativeTesting": true,
+    
+    // Exclude certain directories from search to improve performance
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/.git": true
+    }
+}
