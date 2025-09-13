@@ -19,7 +19,7 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
     - `src/mcp-server-kb-content-fetcher/mcp-server-kb-content-fetcher.csproj`: Console app project file with MCP SDK dependency
     - `src/mcp-server-kb-content-fetcher/Program.cs`: Main entry point using Host.CreateApplicationBuilder with MCP SDK fluent configuration and stderr logging
     - `src/mcp-server-kb-content-fetcher/appsettings.json`: Configuration for knowledge base file path and basic settings
-  - **Dependencies**: .NET 10 Preview or .NET 9 as backup plan, Microsoft MCP SDK for .NET (latest popular/stable version, even if in preview state, since MCP is evolving very fast)
+  - **Dependencies**: .NET 10 Preview 6+ or .NET 9 as fallback, Microsoft MCP SDK for .NET (latest popular/stable version, even if in preview state, since MCP is evolving very fast)
   - **Configuration Reasoning**: Using appsettings.json is simplest because it follows standard .NET configuration patterns, requires no command-line parsing logic, and automatically binds to strongly-typed options classes
 
 - [ ] Step 2: Create Knowledge Base Service
@@ -150,7 +150,7 @@ builder.Logging.AddConsole(options =>
 - Integrates seamlessly with Host.CreateApplicationBuilder
 
 ### .NET Dependencies Summary
-- .NET 10 Preview runtime or .NET 9 as backup plan
+- .NET 10 Preview 6+ runtime or .NET 9 as fallback
 - Microsoft MCP SDK for .NET (ModelContextProtocol package) - Latest stable/popular version, even if in preview state
 - Built-in .NET hosting and configuration abstractions
 - xUnit for testing framework

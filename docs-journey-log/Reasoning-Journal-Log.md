@@ -977,9 +977,9 @@ If there's any additional reason, explain it, too.
 
 **Cesar's complementary/iteration PROMPT:**
 ```
-Please, follow my coding-reules.md. Review that the implementation plan is complaint with it.
-For example, the folder "Tools" should be named "tools" or "configuration" instread of "Configuration".
-Only the leaf level of files (i.e. class names) should be capitalized. All folders and even project's filenames should be lowercase, as explained in the coding-reules.md 
+Please, follow my csharp.instructions.md. Review that the implementation plan is compliant with it.
+For example, the folder "Tools" should be named "tools" or "configuration" instead of "Configuration".
+Only the leaf level of files (i.e. class names) should be capitalized. All folders and even project's filenames should be lowercase, as explained in the csharp.instructions.md 
 ```
 
 **Cesar's complementary/iteration PROMPT:**
@@ -987,7 +987,20 @@ Only the leaf level of files (i.e. class names) should be capitalized. All folde
 Move out the technical/framework sections from the "Key Design Principles". For example the "MCP SDK Integration", "MCP STDIO Logging Configuration", "Configuration Strategy", ".NET Dependencies Summary"  should be in a different "technical implementation guidelines" or something similar. THose are not "Design Principles"
 ```
 
-GHCP updated the implementation plan to comply with coding rules by:
+**Cesar's final check iteration PROMPT:**
+
+**Using Claude Opus 4** for better analysis.
+![alt text](images-journey/prompt-06-finel-check-point-with-claude-opus.png)
+
+```
+As final check-point before starting to code, let's to an end-to-end review of all the documents in the repo, making sure they are consistent agaist each other, it's related information, etc.
+```
+
+If found minor inconsistencies that I fixed:
+![alt text](images-journey/prompt-06-final-minor-updates.png)
+
+
+Therefore, GHCP updated the implementation plan to comply with coding rules by:
 - Changing folder names from PascalCase to kebab-case: `Tools` → `tools`, `Configuration` → `configuration`, `Services` → `services`, `Models` → `models`, `Extensions` → `extensions`
 - Keeping class filenames in PascalCase as they represent C# class names
 - Maintaining lowercase project filenames with kebab-case convention

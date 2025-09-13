@@ -4,8 +4,18 @@
 
 ## Build & Test
 
+```bash
+# Build commands (to be updated after implementation)
+dotnet build src/mcp-server-kb-content-fetcher/mcp-server-kb-content-fetcher.csproj
+dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/mcp-server-kb-content-fetcher.unit-tests.csproj
+```
 
 ## Run (Local)
+
+```bash
+# Run commands (to be updated after implementation)
+dotnet run --project src/mcp-server-kb-content-fetcher/mcp-server-kb-content-fetcher.csproj
+```
 
 ## Style & Architecture
 - Agents and Workflow: C# and Python using Semantic Kernel SDKs for .NET and Python, with MCP protocol for cross-agent communication.

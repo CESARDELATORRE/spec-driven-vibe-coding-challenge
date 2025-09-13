@@ -84,13 +84,13 @@ The architecture centers on .NET/C# with Microsoft's AI development ecosystem:
 
 #### .NET Version Strategy
 
-Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel projects when preview risk is acceptable, while production workloads should remain on **.NET 8 LTS** until .NET 10 GA.
+Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel projects when preview risk is acceptable, while production workloads should use **.NET 9** as a stable fallback until .NET 10 GA.
 
 | Track | Runtime | Use Case |
 |-------|---------|----------|
 | Innovation | **.NET 10 Preview 6+** | New development, experimental projects |
-| Stability | **.NET 8 LTS** | Production workloads, risk-averse environments |
-| Transitional | .NET 9 | Legacy bridge only |
+| Stability | **.NET 9** | Production workloads, risk-averse environments |
+| Legacy | .NET 8 LTS | Existing projects only |
 
 > **Note**: .NET 10 previews lack official MCP templates—teams scaffold manually.
 
@@ -123,7 +123,7 @@ Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel
 ### Variant 1: Initial Prototype/POC
 
 **Technology Stack:**
-- .NET 10 (Preview 6+) / C# — fallback: .NET 8 LTS
+- .NET 10 (Preview 6+) / C# — fallback: .NET 9
 - MCP SDK for .NET (STDIO transport)
 - Semantic Kernel for agent orchestration
 - Azure AI Foundry for LLM capabilities
@@ -139,7 +139,7 @@ Console applications communicating via STDIO transport. KB MCP Server reads from
 ### Variant 2: Local Decoupled Solution (Testing/QA)
 
 **Technology Stack:**
-- Previous stack (.NET 10 Preview where feasible; .NET 8 acceptable)
+- Previous stack (.NET 10 Preview where feasible; .NET 9 acceptable)
 - MCP HTTP/SSE transport + STDIO for local tooling
 - Docker + Docker Compose for orchestration
 - Enhanced configuration management

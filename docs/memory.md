@@ -64,6 +64,14 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Template prompt for generating feature implementation plans
 **Details**: Generic prompt template for creating detailed implementation plans from feature specifications, with rules for prototype/POC simplicity and references to updated coding rules
 
+### `/.github/prompts/new.idea.vision.scope.prompt.md`
+**Purpose**: Template prompt for creating new project idea and vision scope documents
+**Details**: Comprehensive prompt template that guides the creation of idea documents with structured sections including executive summary, context, product overview, and risk assessment
+
+### `/.github/prompts/architecture-technology.prompt.md`
+**Purpose**: Template prompt for generating architecture and technology decision documents
+**Details**: Prompt template for creating comprehensive architecture documents with technology stack recommendations, evolution paths, and integration with Perplexity MCP server for research
+
 ### `/AGENTS.md`
 **Purpose**: Repository map and development guidelines for agents and workflow
 **Details**: Defines style, architecture constraints, PR rules, and contact information
@@ -73,3 +81,7 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/docs-journey-log/Reasoning-Journal-Log.md`
 **Purpose**: Complete reasoning and decision-making log throughout the project development
 **Details**: Documents all prompts, outputs, decisions, and iterations for transparency and learning
+
+### `/docs-journey-log/approaches-for-reasoning-journal-logging/`
+**Purpose**: Research outputs on different approaches for documenting the reasoning process
+**Details**: Contains analysis from M365 Copilot, ChatGPT, and Claude on best practices for logging development reasoning and decision-making processes
