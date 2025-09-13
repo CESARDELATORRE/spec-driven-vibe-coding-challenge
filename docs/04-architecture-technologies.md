@@ -12,7 +12,7 @@ The architectural analysis addresses three critical deployment scenarios: initia
 
 ### System Overview
 
-The proposed architecture implements a modular AI agent system built around three core components that interact through standardized protocols to provide domain-specific conversational capabilities. The Knowledge Base MCP Server manages access to AMG-specific information through MCP-compliant interfaces, enabling flexible data source integration while maintaining security boundaries. The Intelligent Chat Agent provides conversational AI capabilities through Azure Foundry OpenAI integration, implementing sophisticated natural language processing for user interaction. The Orchestration Agent coordinates between knowledge sources and chat capabilities, implementing complex workflow management through Semantic Kernel's advanced orchestration patterns.
+The proposed architecture implements a modular AI agent system built around three core components that interact through standardized protocols to provide domain-specific conversational capabilities. The Knowledge Base MCP Server manages access to AMG-specific information through MCP-compliant interfaces, enabling flexible data source integration while maintaining security boundaries. The Chat Agent (previously described as the "Intelligent Chat Agent"—single consolidated naming used from here forward) provides conversational AI capabilities through Azure Foundry OpenAI integration, implementing sophisticated natural language processing for user interaction. The Orchestration Agent coordinates between knowledge sources and chat capabilities, implementing complex workflow management through Semantic Kernel's advanced orchestration patterns.
 
 The architectural foundation leverages Model Context Protocol as the primary integration mechanism, providing standardized interfaces that enable loose coupling between system components while maintaining consistent communication patterns. This approach facilitates independent component development, testing, and deployment while ensuring reliable inter-component communication across different transport mechanisms and deployment environments.
 
@@ -21,6 +21,39 @@ The architectural foundation leverages Model Context Protocol as the primary int
 The system implements a layered interaction model where user requests flow through the Orchestration Agent, which coordinates knowledge retrieval through the KB MCP Server and response generation through the Chat Agent. This design enables sophisticated conversation management while maintaining clear separation of concerns between knowledge access, conversation logic, and user interface integration.
 
 The Orchestration Agent serves as the primary coordination point, implementing Semantic Kernel's orchestration patterns to manage complex multi-step interactions that might require multiple knowledge lookups, context analysis, and response synthesis. The agent maintains conversation state, manages context windows, and coordinates tool usage to provide coherent, helpful responses that leverage the full capabilities of the knowledge base and chat system.
+
+### Component Inventory & Variant Mapping
+
+The following table clarifies each logical component, its responsibility, and how its deployment / interaction pattern evolves across architecture variants. This also resolves the earlier naming ambiguity: **"Intelligent Chat Agent" and "Chat Agent" are the same component.** The canonical name is now **Chat Agent**.
+
+| Component | Core Responsibility | Variant 1 (Prototype) | Variant 2 (Local Decoupled) | Variant 3 (MVP - ACA) | Variant 4 (Prod - AKS) | Notes / Interaction Nuances |
+|-----------|---------------------|-----------------------|-----------------------------|-----------------------|------------------------|-----------------------------|
+| Chat UI (Client) | Human interaction surface (could be CLI, MCP-compatible editor, or lightweight web UI) | Direct STDIO session to Orchestration Agent | HTTP/SSE (client ↔ gateway or directly to orchestrator) | Public/Private ingress via ACA front endpoint | API Gateway / Ingress Controller (mTLS / OAuth) | Not an internal agent—treat as external consumer; auth hardening added in later variants. |
+| Orchestration Agent | Conversation state, tool routing, multi-step planning, context assembly | Process-host + in-process Chat Agent; STDIO to KB Server | Separate process/container; HTTP/SSE to Chat Agent & KB Server | Independent container app (horizontal scale) | Dedicated deployment / scaled pods with autoscaling (CPU + custom metrics) | Implements SK planners; owns retry logic & response synthesis. |
+| Chat Agent (aka former Intelligent Chat Agent) | LLM prompt construction, response post-processing, safety filtering | In-process library inside Orchestration Agent | Separate container (optional) or still co-located depending on latency needs | Separate container app to scale independently (token throughput) | Dedicated microservice pod with model-specific tuning / caching | Can be merged back with Orchestration for cost or early simplification; separation enables independent scaling. |
+| KB MCP Server | Domain knowledge retrieval (files, future API connectors) via MCP tools | Separate process via STDIO (simple file-based) | Container exposing HTTP/SSE MCP endpoints | Container app with secrets + telemetry | AKS deployment with sharding / caching layers | May later integrate vector store / embedding pipeline; contract remains MCP tool interface. |
+| Transport Layer Abstraction | Uniform interface (STDIO/SSE/HTTP Streaming) for agent & KB calls | Minimal (direct STDIO) | Introduced abstraction layer for protocol switching | Formalized library / shared package | Stable internal SDK w/ resiliency (circuit breakers, retries) | Keeps higher layers unaware of protocol transition roadmap. |
+| Observability / Telemetry (future) | Metrics, traces, conversation analytics | Console logs only | Basic structured logs (JSON) | App Insights / tracing + correlation IDs | Full distributed tracing + AI usage analytics | Added progressively; NOT part of functional core in Variant 1. |
+| Secrets & Config | Secure handling of API keys, endpoints | .env / user-secrets (developer machine) | Docker secrets / mounted config | Azure Key Vault + managed identity | Centralized secret & policy management (Key Vault / CSI driver) | Hardened only from MVP onward. |
+
+#### Interaction Flow (Canonical Naming)
+1. Chat UI submits user utterance to Orchestration Agent.
+2. Orchestration Agent decides: (a) direct LLM request via Chat Agent, (b) tool invocation via KB MCP Server, or (c) multi-step plan (tool(s) then LLM synthesis).
+3. Chat Agent formats prompts, performs response shaping (e.g., trimming, safety heuristics), and returns candidate responses.
+4. Orchestration Agent integrates knowledge payloads + model output, applies conversation state rules, and returns final response to UI.
+5. (Future) Telemetry pipeline captures trace spans for each decision node.
+
+#### Naming Standard
+- Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., “Intelligent Chat Agent”), treat them as aliases with a planned cleanup pass.
+- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
+
+#### Rationale for Separation (Chat Agent vs Orchestration Agent)
+- Keeps planning / tool routing (stateful, multi-turn) separate from model interaction (stateless per call except for injected history/context).
+- Enables future experimentation: swap Chat Agent implementation (different LLM backend or prompt templating strategy) without destabilizing orchestration.
+- Scaling: High token throughput pressure sits in Chat Agent; cognitive orchestration logic scales differently.
+
+#### Variant Simplification Option
+For extremely constrained prototypes, Chat Agent + Orchestration Agent can be collapsed **without** altering downstream evolution path—public contracts (interfaces / message schemas) should still be shaped as if separation exists to avoid refactors.
 
 ### Prototype/POC Architecture
 
