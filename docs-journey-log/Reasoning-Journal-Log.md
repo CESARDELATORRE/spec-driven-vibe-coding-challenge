@@ -1118,7 +1118,7 @@ I unassigned and assign again GHCP CODING AGENT to the issue, so it starts looki
 
 ![alt text](images-journey/issue-implement-mcp-server-ghcp-looking-02.png)
 
-In the PR, while advancing, I see that it's going again for choosing .NET 8 for the implementation, even when I explicetely said to use .NET 10 Preview or .NET 9 as fallback...:
+In the PR, while advancing, I see that it's going again for choosing .NET 8 for the implementation, even when I explicitly said to use .NET 10 Preview or .NET 9 as fallback...:
 
 ![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-picks-net-8.png)
 
