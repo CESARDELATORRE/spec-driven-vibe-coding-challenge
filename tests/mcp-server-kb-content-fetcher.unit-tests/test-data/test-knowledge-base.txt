@@ -1,0 +1,18 @@
+Test Azure Managed Grafana Knowledge Base
+
+This is a test knowledge base for unit testing. It contains basic information about Azure Managed Grafana to test search functionality.
+
+Features:
+Azure Managed Grafana is a fully managed service that provides monitoring and observability capabilities. Key features include dashboard creation, data visualization, and alerting.
+
+Pricing:
+The service offers different pricing tiers including Standard and Premium options. Standard tier is suitable for basic monitoring needs while Premium tier provides advanced features.
+
+Getting Started:
+To get started with Azure Managed Grafana, create an instance in the Azure portal, configure data sources, and build your first dashboard.
+
+Integration:
+Azure Managed Grafana integrates seamlessly with Azure Monitor, Application Insights, and other Azure services for comprehensive monitoring.
+
+Troubleshooting:
+Common issues include data source connectivity problems and performance optimization needs. Check network settings and query efficiency for best results.

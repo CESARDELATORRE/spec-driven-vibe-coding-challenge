@@ -72,7 +72,7 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
   - **Dependencies**: .NET SDK, sample knowledge base file
   - **User Intervention**: Manually test with MCP client or compatible tool to verify STDIO communication and tool discovery works correctly
 
-- [ ] Step 8: Write Unit Tests
+- [x] Step 8: Write Unit Tests
   - **Task**: Create unit tests for core search functionality, file loading, and MCP tool logic
   - **Files**:
     - `tests/mcp-server-kb-content-fetcher.unit-tests/mcp-server-kb-content-fetcher.unit-tests.csproj`: Test project file with xUnit and testing utilities
