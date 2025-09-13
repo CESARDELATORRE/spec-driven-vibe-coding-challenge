@@ -1,12 +1,19 @@
 
 
-# Assumption: Problem to be solved and customer feedback on the current generic chat-bot for AMG
+# Assumptions: Customer feedback and hypothesis validation
 
-- Since this is an exercise and we don't have real users to ask about the "problem to be solved", feedback about the current chat-bot and the reasons why we want to do this project/idea, we assume that we already have that negative feedback and current customer's pain-points about the generic chat-bot for AMG and therefore we created the following hypothesis based on that.
+Since this is an exercise and we don't have real users to interview, we assume that:
+- Negative feedback about the current generic chat-bot for AMG already exists from customers
+- Current customer pain-points with the generic approach have been documented
+- The main hypothesis has been validated through customer research
+- Market demand exists for domain-specific conversational agents
 
 
-# Assumption: Hypothesis validation
+# Assumptions: Business context
 
-Again, since this is an exercise, we assume that the main hypothesis was validated by hypothetical customers/users.
+We assume that:
+- Azure Managed Grafana has sufficient market presence to justify dedicated agent development
+- Organizational resources exist to support this type of specialized agent development
+- The prototype-to-production pathway is technically and commercially viable
 
 

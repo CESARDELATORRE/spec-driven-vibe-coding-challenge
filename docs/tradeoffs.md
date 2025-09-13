@@ -1,19 +1,42 @@
 
 
 
-# Tradeoff 1: No real integration with Azure Managed Grafana (AMG) marketing web site pages
+# Tradeoff 1: Integration environment - GitHub Copilot vs. Azure marketing website
 
-The AI agent for the Azure Managed Grafana (AMG) marketing web site would be a prototype, but since you don't have the rights/possibility to integrate my agent-chat-bot into Azure's UI, logically, therefore the testing execution environment can be "any", for instance, testing/consuming it from GitHub CoPilot or any other Chat UI that I can use like by using MCP.
+**Decision**: Use GitHub Copilot or other MCP-compatible chat interfaces for testing instead of integrating directly with Azure Managed Grafana marketing website.
 
+**Reason**: We don't have access rights to modify Azure's production marketing website.
 
+**Impact**: Testing will demonstrate functionality but not the exact production user experience.
 
-# Tradeoff 2: Content/KB to support the chat capabilities can be "any", for simulation. 
- 
-The prototype should provide a mechanism for the chat to be aware about content/KB related to the domain (in this case Azure Managed Grafana (AMG).
-But since this is an exercise, the confirmed assumption is that we can use any example content to hypothetically support the chat capabilities.
+# Tradeoff 2: Knowledge base complexity - Sample content vs. comprehensive documentation
 
-In a real feature/product, that content would be provided for real. In this prototype we can simply use a "sampling" approach, as tradeoff.
+**Decision**: Use simplified sample content instead of full Azure Managed Grafana documentation.
 
-It's interesting, however, that the approach taken for the KB/content should probably be based on an interface/tool that in the future could be improved with more content without impacting the function of the prototype.
+**Reason**: Exercise timeframe and focus on demonstrating architectural approach rather than content completeness.
 
-Even further, make the prototype generic so today it can target content from Azure Managed Grafana (AMG) but tomorrow it can handle content for a different domain.
+**Impact**: Prototype will show concept viability but may not reflect full production knowledge depth.
+
+# Tradeoff 3: Domain specificity vs. architectural flexibility
+
+**Decision**: Design for easy domain switching rather than hyper-optimization for AMG only.
+
+**Reason**: Demonstrate broader platform potential and reusability across Azure services.
+
+**Impact**: May sacrifice some AMG-specific optimizations in favor of architectural generalization.
+
+# Tradeoff 4: Response accuracy vs. development speed
+
+**Decision**: Use out-of-the-box LLM capabilities with basic prompt engineering rather than fine-tuning.
+
+**Reason**: Rapid prototyping timeline and demonstration focus over production-grade accuracy.
+
+**Impact**: Responses may be less precise than a production system but sufficient for concept validation.
+
+# Tradeoff 5: Scalability vs. simplicity
+
+**Decision**: Implement simple, single-server architecture instead of distributed, production-ready infrastructure.
+
+**Reason**: Prototype focus and exercise constraints.
+
+**Impact**: Demonstrates core functionality but doesn't address production scalability requirements. 

@@ -2,6 +2,12 @@
 
 - Repo name for GH MCP server: CESARDELATORRE/spec-driven-vibe-coding-challenge
 
+- Review ARCHITECTURE doc.
+
+- ADD to JOURNAL LOG DAY 2:
+    - Create initial feature specs docs (tbd)
+        --> One PR per feature specs doc
+
 - (*) Add global.research.prompt.md before creating the Architecture file and coding so I create research info.
 
 For POC ARCHITECTURE:

@@ -17,10 +17,6 @@
 
         --> PR #3
 
-    - Create initial feature specs docs (tbd)
-
-        --> One PR per feature specs doc
-
 ### Global setup
 
 #### GH repo
@@ -431,15 +427,162 @@ Consolidate "why" statements: The value proposition is scattered across multiple
 GHCP simplified the doc **03-idea-vision-scope.md** and for now I think it's good to go, but I'm sure we'll revisit it and update when evolving and iterating on the protory/POC.
 
 
+### Create PR for 03-idea-vision-scope.md and merge into main branch
+
+Before moving forward, so I can track better the advances, let's merge this branch content with another PR (PR #2) into the main branch.
+
+After creating the PR, I assigned GHCP **CODING AGENT** to review the PR and create the PR summary.
+
+Here's the review of GHCP CODING AGENT with no changes suggested, but it generated a PR summary for me:
+
+![alt text](images-journey/pr-02.png)
 
 
 
+#### Prompt 4 - Create global architecture and technologies document
+
+Now that we have the idea, vision & scope defined, let's deep dive into the architecture and technologies for the global product.
+
+For this, I'm using another pre-defined prompt template approach. 
+
+PROMPT from TEMPLATE approach:
+
+This is the written prompt in the file, so I don't have to write so many details over and over again in the GHCP chat window.
+
+It's placed at **.github/prompts** folder, named **architecture-technology.prompt.md**.
+
+Also, note the attached context files (simplfied architecture and technologies directios and the previous idea-vision-scope, etc.) in the chat window as additional context. 
+
+**Important: MCP servers like Perplexity require Agent mode, not Edit mode.**
+
+PROMPT 4 at GHCP chat window:
+
+![alt text](images-journey/prompt-04.png)
+
+```
+PROMPT 4:
+Follow and run the architecture-technology.prompt.md written prompt plus the additional simplified direction docs provided in the context.
+```
+
+In this case, the pre-defined written prompt for the architecture and technologies, since I want to analyze across many different perspectives, potentially available in the Internet, I'm using the MCP server from Perplexity as context, by specifying it in my pre-defined written prompt:
+
+![alt text](images-journey/prompt-04-perplexity-tools.png)
+
+Now, I run the prompt 4 for creating the architecture and technologies document.
+
+This is what I get from GHCP chat.
+
+Initially, it's asking for permission to run the **PERPLEXITY MCP Server**:
+
+![alt text](images-journey/prompt-04-perplexity-mcp-ask.png)
+
+After gathering a lot of context information about technologies throught Perplexity MCP server, GHCP is providing a summary and key findings:
+
+![alt text](images-journey/prompt-04-key-findings-summary.png)
 
 
+But also asking me for some **clarifications**:
 
+![alt text](images-journey/prompt-04-clarifications-ask.png)
+
+This is my prompt answering those clarification questions:
+
+```
+- Prototype Scope: It should support any question about Azure Managed Grafana not just basic Q&A. A different thing is that our initial KB will be limited and might not have all the info needed.
+
+- Azure Services Integration: 
+-- For the prototype/POC the only integration in Azure is Azure Foundry OpenAI for the LLM model to use by the agents.
+-- For later versions, Azure services (like Azure Monitor, Application Insights could be included, but when heading to the last version, pre-Production ready.
+
+- Security Considerations: No security in the prototype/POC. For later versions keep the security info to a minimum since that would be researched in particular in later versions.
+
+- Testing Strategy: Yes, for the initial prototype/POC, include specific testing approaches for AI agents and MCP servers in the architecture recommendations.
+```
+
+After answering those clarification questions, GHCP is **using again the Perplexity MCP server**.
+And finally it created the first version of the "Architecture and technologies" document while showing a summary, saying:
+
+```
+I'll now save this comprehensive architecture document to the specified location.
+
+The document has been created with all the requested sections covering the three architecture variants (Prototype/POC, MVP, and Scalable Production), technology stack evolution, testing strategies, and differentiators. The document includes the prototype architecture diagram reference and provides detailed analysis based on the research findings while staying within the 5-page guideline for focused, actionable content.
+```
+
+**BUG:** However, here it appears there's a BUG, since it's not saving the .MD document but showing the text in the chat window, even when I'm asking to GHCP to explicetely save it as the "04-architecture-technologies.md" file...
+
+![alt text](images-journey/prompt-04-bug-not-saving-doc-file.png)
+
+I went ahead and created the file and copied/pasted the text in the .MD file...
+
+After closing VS Code and re-opening, looks like Agent mode works properly chaging the files...
+
+After I have the initial version, I continue iterating with prompts such as:
+
+**Cesar's improvement prompt:**
+
+```
+Confirm with Perplexity MCP server the approaches of the architecture and technologies
+```
+
+**Cesar's improvement prompt:**
+
+```
+Testing Strategy Placement
+
+You mention testing throughout each variant but then have a separate comprehensive testing section
+This creates some redundancy and potential confusion about which testing applies to which variant.
+
+Focus with an easy to implement testing strategy initially just for the prototype/POC.
+Remove testing from the other variants or mention that testing would need to increase the integrations and functional tests but it's TBD for those versions.
+```
+
+**Cesar's improvement prompt:**
+```
+This sentence was missplaced. Put it where it should be:
+
+Orchestration Agent is the only component permitted to call multiple agents/tools in one logical user turn (single coordination locus).tion & Objectives
+```
+
+**Cesar's improvement prompt:**
+```
+Remove comments about “Intelligent Chat Agent” and simply refer to it as the "Chat Agent".
+```
+
+**Cesar's improvement prompt:**
+```
+In the decoupled architecture version which is using Docker compose, higlight very briefly the following:
+
+STDIO with Docker Containers:
+STDIO transport with MCP is indeed problematic in containerized environments. Here's why:
+
+Process Isolation: Docker containers isolate processes, making direct STDIO communication between containers complex or impossible without special configuration
+Container Networking: Containers are designed to communicate over network interfaces (HTTP, TCP, etc.) rather than shared file descriptors
+Orchestration Complexity: Docker Compose would need complex volume mounts and process linking to enable STDIO communication between containers
+Production Readiness: Even if you could make STDIO work with containers, it wouldn't translate well to production Kubernetes environments
+
+HTTP is the Natural Choice for Containerized MCP:
+
+Containers expose services via network ports by default
+HTTP aligns with standard container communication patterns
+Docker Compose handles service discovery and networking automatically
+HTTP transport provides better debugging capabilities (network inspection tools)
+Scales naturally to distributed deployments
+```
+
+```
+Deeply review the document, make sure it's consistent and try to simplify redundant information and eliminate information that is not important for an architecture and technology document.
+```
+
+I iterated quite a few times with comments/prompts and GHCP was updating the doc accordingly.
+Still, this doc is live and will be changing as we start iterating with the Feature's specs docs, Feature's implementation plan docs, and the final implementation/coding in C#.
 
 ### Global decisions made in Day 1
 
-
+- Definition of project's idea, vision & scope.
+- Assumptions in docs.
+- Tradeoffs in docs.
 
 ### Next Steps for Day 2. 
+
+- Feature 1 (KB content MCP Server) Spec doc and Implementation plan doc
+- Feature 1 (KB content MCP Server) implementation
