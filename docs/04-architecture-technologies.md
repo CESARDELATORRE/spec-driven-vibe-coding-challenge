@@ -90,7 +90,6 @@ Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel
 |-------|---------|----------|
 | Innovation | **.NET 10 Preview 6+** | New development, experimental projects |
 | Stability | **.NET 9** | Production workloads, risk-averse environments |
-| Legacy | .NET 8 LTS | Existing projects only |
 
 > **Note**: .NET 10 previews lack official MCP templates—teams scaffold manually.
 

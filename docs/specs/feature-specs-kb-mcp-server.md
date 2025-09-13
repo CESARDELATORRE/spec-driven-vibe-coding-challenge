@@ -120,7 +120,7 @@ The KB MCP Server provides AI agents with access to Azure Managed Grafana knowle
 
 ## Dependencies
 
-- .NET runtime environment (.NET 10 Preview or .NET 8 LTS)
+- .NET runtime environment (.NET 10 Preview or .NET 9)
 - MCP SDK for .NET with STDIO transport support
 - Local plain text file containing AMG knowledge content
 - Compatible MCP client (Chat Agent or test harness)
