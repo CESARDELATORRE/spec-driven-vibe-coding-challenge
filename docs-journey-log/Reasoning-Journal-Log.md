@@ -9,7 +9,7 @@
     --> PR #1
 
 - Create initial projects docs:
-    - Create project's vision & scope document (idea)
+    - Create project's vision & scope document (comprehensive idea)
 
         --> PR #2
 
@@ -210,7 +210,11 @@ The **02-plain-goals-and-approaches.md** is
 *basically the north-star document to be taken into account always, while generating the detailed idea/vision-scope, architecture definition and implementation code.*
 
 
+### Define GH CoPilot instructions
 
+Before moving forward, I'm manually adding some global instructions for GHCP at the **.github/copilot-instructions.md** file and other instructions files within **.github** folder, that I usually use and have it as "templates".
+
+![alt text](images-journey/gh-copilot-instructions-screenshot.png)
 
 ### Create PR for repo structure and merge into main branch
 
@@ -220,24 +224,211 @@ Before moving forward, let's merge this branch content with a PR into the main b
 
 ![alt text](images-journey/task-repo-structure-branch.png)
 
+After creating the PR, I assigned GHCP **CODING AGENT** to review the PR and create the PR summary.
+It not only found minor issues and typos but also created a summary for the PR, so I don't need to think about it and write it:
+
+![alt text](images-journey/pr-01.png)
 
 
 
-#### Prompt 3 - Idea / Vision-Scope document
+
+#### Prompt 3 - Create Idea / Vision-Scope document
 
 Now that we have the initial north-star defined, let's deep dive into the details, starting with the definition of the idea with an  "idea-vision-scope" document.
 
-For this, I'm starting to use a pre-defined template that I'm putting into the **.github/prompts** folder, named **new.idea.vision.scope.prompt.md**.
+For this, I'm starting to use a pre-defined template approach. 
 
-Also, before running this prompt, I'm manually adding some global instructions for GHCP at the **.github/copilot-instructions.md** file and other instructions files within **.github** folder.
+PROMPT from TEMPLATE approach:
+
+This is the written prompt in the file, so I don't have to write so many details over and over again in the GHCP chat window.
+
+It's placed at **.github/prompts** folder, named **new.idea.vision.scope.prompt.md**.
+
+Note that for this "reasoning task" I have selected the LLM model Claude Sonnet 4.0 which is better than other models when tackling reasoning tasks. Also, I put it in "Edit mode" since this is about documentation and reasoning.
+
+Also, note the attached context files in the chat window. The **new.idea.vision.scope.prompt.md** file plus the global challenge definition and the 02-plain-goals-and-approaches.md file with the foundational details.
+
+PROMPT 3 at GHCP window:
+
+![alt text](images-journey/prompt-03.png)
+
+```
+PROMPT 3:
+Run the provided "new.idea.vision.scope.prompt.md" prompt file in the context while having into account the additional context in the other files.
+```
 
 
 
+**new.idea.vision.scope.prompt.md**
+```
+---
+mode: 'agent'
+description: 'Create a new project idea and vison & scope document'
+---
+
+I want to define all the details for a Dedicated agentic system specific for AMG product. My initial basic idea or north star document with goals and potential approaches is attached in the prompt I sent you.
+
+Analyze deeply and take into account all the documents attached as context for the prompt.
+
+Let's join forces to make this idea into a simple, yet impactful proposal.
+
+FIRST:
+- Clarify any areas of my "north star" definition that may need more details
+- Suggest new requirements based on the functionality provided
+- Consider edge cases that may not be included in my original "north star".
+- Organize requirements logically, and break them down into units that would make sense as user stories and related features.
+- Raise any important high-level technical considerations, like platforms, languages, frameworks, and overall architecture details.
+
+NEXT:
+- Iterate with me until I tell you I am satisfied.
+
+FINALLY:
+- Once I tell you I am ready, create a detailed idea and vision scope document (or update an existing file if it exists) in #file:../../docs/03-idea-vision-scope.md following the following structure, as a Markdown file:
+
+## Executive Summary
+
+## Context: Customer and old solution situation
+### Current chat bot functionality summary
+### Problem to be solved (feedback and pain points)
+### Main hypothesis
+### Hypothesis validation/invalidation
+
+## Product Overview
+### Core value proposition:
+#### Why this solution is the right next step
+### Target audience:
+
+## Business Model
+### Key differentiators:
+### Potential business model:
+
+## Marketing Plan
+### Target audience:
+### Strategy:
+### Channels:
+
+## Initial Functional Requirements
+
+## Functional Specifications
+### Critical Requirements
+
+## Vision: Global long term vision
+
+## Scope: Prototype/POC Scope
+### Prototype/POC Selection Criteria:
+### Prototype/POC Planning:
+### Open to growth criteria. From prototype/POC to MVP:
+### Out of Scope for Prototype/POC:
+### Tradeoffs in prototype:
+
+## Risk Assessment
+### Technical Risks
+### Business Risks
+
+## Contact Information
+## Document Control
+
+The 'Architecture and technical Specifications' (such as architecture for new Agent at a high level, including language, frameworks, and platforms) should not be defined in this 03-idea-vision-scope.md, but in a separate file, and should be generated by a different prompt, not this one.
+So be generic from a technology point of view in this document focusing on the functional idea and requirements.
+
+When you are done, output to #file:../../docs/03-idea-vision-scope.md.
+```
 
 
+#### GHCP Copilot outputs from Prompt 3
+
+GHCP: Before really working on the idea-vision-scope document, GHCP is asking me about some analysis and clarifications:
+
+![alt text](images-journey/prompt-03-clarifications.png)
+
+Most of those assumptions are right, but some of them need to be placed only as part of the vision and potential future roadmap, not the prototype/POC, so I replied with feedback to take into account:
+
+**Cesar's feedback 1 prompt for PROMPT 3 execution:**
+
+```
+About the "Knowledge Base Content Strategy" those are right as potential KB sources for the future, also you should include microsoft/azure technical docs at https://docs.azure.cn/en-us/managed-grafana/. However, that's only as potential KB for the future.
+
+In the initial prototype we will only use a basic text file with some content pasted from the Managed Grafana marketing site and/or copied from the technical docs. This is what in future versions can grow and be swaped by larger KBs.
+
+Also, about the "Multi-Channel Integration", "Conversation Context Management" and "Escalation Pathways" and "Edge Cases to Consider", those are only part of the vision, even further in the roadmap, like horizon 3. These should not be part of the prototype/POC scope.
+
+Related to technical considerations, the following should only be part of the vision and future potential roadmap, not the prototype/POC:
+Technical Considerations:
+- Security: Handling of sensitive customer information and Azure configurations
+- Performance: Response time requirements for real-time chat experience
+- Compliance: Azure compliance requirements and data handling policies
+
+Finally, about Integration & Deployment, the following should only be part of the vision and future roadmap:
+- Monitoring and analytics
+
+With these clarifications, go ahead and run the prompt.
+```
+
+Now, I continued with the prompt execution.
+
+After GHCP is finished, it provided the following summary:
+
+![alt text](images-journey/prompt-03-execution-summary.png)
 
 
+####  My actions after prompt 3
 
+I reviewed the 03-idea-vision-scope.md and made a few manual changes. However, I found it a bit complex with some areas that might actually be redundant.
+We aim for clarity and concise rationale, so I'm asking again GH CoPilot to simplify, find redundant information and simplify in favor of concise rationale.
+
+
+**Cesar's feedback 2 prompt for the 03-idea-vision-scope.md document:**
+
+```
+I reviewed the 03-idea-vision-scope.md and made a few manual changes. However, I found it a bit complex with some areas that might actually be redundant.
+We aim for clarity and concise rationale, so please, find redundant information and simplify in favor of concise rationale.
+```
+
+It simplified the document as requested and I accepted the changes. 
+
+**Additional review from other AI tool: Claude**
+
+Because I still want to make sure this document provides a concise rationale and maybe it could still be improved, I'm reviwing it with another tool, in this case with Claude.
+
+**PROMPT FOR Claude**
+
+```
+Review the following document which I'd like to simplify and get a bit more concise rationale with no redundant information while maintaining the current goals and requirements.
+
+Give me just the feedback points, not another document.
+
+<PASTED DOCUMENT - 03-idea-vision-scope.md>
+
+```
+
+Claude provided the following feedback which I provided to GH CoPilot:
+
+**Feedback prompt for GHCP coming from Claude:**
+
+```
+Here are the key feedback points to make your document more concise and eliminate redundancy:
+Structure & Organization
+
+Merge overlapping sections: "Product Overview" and "Vision" contain duplicate information about core value and horizons
+Consolidate requirements: "Initial Functional Requirements" and "Functional Specifications" cover the same ground - combine into one section
+
+Content Reduction:
+Streamline business model section: Three different business models with minimal detail - pick one primary model or remove this section entirely for a prototype document
+
+Cut marketing plan: This is premature for a prototype/POC document and adds unnecessary length.
+
+Redundant Information
+
+Target audience: Mentioned in both "Product Overview" and "Marketing Plan" with slight variations
+Integration capabilities: MCP integration mentioned multiple times across different sections
+Knowledge base limitations: Prototype constraints about simple text files vs. comprehensive sources repeated in multiple places
+
+Clarity Improvements
+
+Consolidate "why" statements: The value proposition is scattered across multiple sections - centralize it
+```
+
+GHCP simplified the doc **03-idea-vision-scope.md** and for now I think it's good to go, but I'm sure we'll revisit it and update when evolving and iterating on the protory/POC.
 
 
 
