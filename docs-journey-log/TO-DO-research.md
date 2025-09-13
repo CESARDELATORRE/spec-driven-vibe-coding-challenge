@@ -3,6 +3,10 @@
 - Repo name for GH MCP server: CESARDELATORRE/spec-driven-vibe-coding-challenge
 
 - (*) Add global.research.prompt.md before creating the Architecture file and coding so I create research info.
+
+For POC ARCHITECTURE:
+- Raise any important high-level technical considerations, like platforms, languages, frameworks, and overall architecture details.
+
 - (*) Add technology.research.prompt.md before creating the Architecture file and coding.
 FEATURE:
 - (*) feature.prompt.md for the specs creation for each FEATURE
