@@ -1,12 +1,6 @@
 # Architecture and Technologies Document
 
-T###### Naming Standard
-- Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., "Intelligent Chat Agent"), treat them as aliases with a planned cleanup pass.
-- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
-
-### Prototype/POC Architecture
-
-![Prototype/POC Architecture Diagram](simplified-directions/prototype-poc-architecture-diagram.png)ndard
+T#### Naming Standard
 - Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., "Intelligent Chat Agent"), treat them as aliases with a planned cleanup pass.
 - Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus). document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
 
@@ -53,13 +47,7 @@ The system consists of four primary components that work together to deliver con
 
 #### Naming Standard
 - Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., “Intelligent Chat Agent”), treat them as aliases with a planned cleanup pass.
-- - Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
-
-### Prototype/POC Architecture
-
-
-
-
+- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
 
 ### Prototype/POC Architecture
 
