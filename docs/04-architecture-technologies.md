@@ -1,9 +1,5 @@
 # Architecture and Technologies Document
 
-#- **Flexible Deployment:** Components co> **Note**: .NET 10 previews lack official MCP templates—teams scaffold manually.located (prototype) or distributed (production)
-
-### Prototype/POC Architectureion
-
 This document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
 
 The primary objective is to establish multiple architecture variants that support systematic progression from simple prototype implementations through enterprise-scale deployments. Each variant builds incrementally upon previous implementations, enabling development teams to validate concepts quickly while maintaining architectural flexibility for future scaling requirements.
@@ -96,36 +92,6 @@ Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel
 > **Recommendation**: Use transport abstraction (e.g., `IMcpTransportClient`) to enable runtime switching between STDIO, SSE, and HTTP Streaming.
 
 ### Prototype/POC Testing Infrastructure (Variant 1 Scope Only)
-
-
-### Runtime & SDK Version Recommendations
-
-| Area | Recommended | Alternate (Stable / LTS) | Notes |
-|------|-------------|--------------------------|-------|
-| .NET Runtime | **.NET 10 Preview 6+** (innovation track) | .NET 8 LTS (stability track) | Previews optional; choose based on risk appetite & feature need. Plan cut-over post GA. |
-| MCP Server SDK (C#) | Latest prerelease (ModelContextProtocol.*) | N/A | Manual scaffolding (no official `dotnet new mcp` template yet). Monitor for template emergence. |
-| Semantic Kernel | Latest released (keep within 1–2 versions of head) | Pinned prior minor | Frequent updates reduce integration drift; test for behavior shifts in planners. |
-| Transport | STDIO (inner loop), HTTP Streaming (future-aligned), SSE (transitional) | — | SSE usable but moving toward HTTP Streaming; abstract transport to ease swap. |
-| Packaging | NuGet (.NET tool / library) | Local project refs | Enables discovery & reuse; private feeds (Azure Artifacts) for internal servers. |
-
-Rationale:
-- **Forward Compatibility:** Evaluating on .NET 10 previews early reduces migration friction at GA if no blocking regressions surface.
-- **Iteration Velocity:** MCP & SK enhancements surface first in prereleases; early adoption accelerates feedback loops.
-- **Packaging & Distribution:** Streamlined NuGet practices (not runtime-bound) shorten path from prototype to shareable tool/server.
-- **Risk Containment:** Dual-track branching (e.g., `main`= net8.0, `develop`= net10.0) isolates preview volatility from production.
-
-#### Transport Evolution
-| Aspect | Current | Emerging | Action |
-|--------|---------|----------|--------|
-| Local Dev | STDIO dominant | Continues | Keep as primary for inner-loop speed. |
-| Remote Streaming | SSE supported | HTTP Streaming (SSE backward compatible) | Wrap transport behind interface; plan migration tests. |
-| Future Options | — | Potential WebSocket or hybrid patterns | Track MCP spec updates; avoid premature optimization. |
-| Risk | SSE deprecation path | Minor migration overhead | Provide adapter layer & integration tests now. |
-
-Design Recommendation: implement a transport abstraction (e.g., `IMcpTransportClient`) with dependency injection to enable a compile-time + runtime switch (STDIO vs SSE vs HTTP Streaming) and facilitate progressive rollout experiments.
-
-
-
 
 
 ### Prototype/POC Testing Infrastructure (Variant 1 Scope Only)
