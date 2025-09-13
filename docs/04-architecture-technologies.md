@@ -93,6 +93,23 @@ Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel
 
 > **Note**: .NET 10 previews lack official MCP templates—teams scaffold manually.
 
+#### MCP SDK Version Guidance
+To ensure consistency across environments while allowing rapid evolution with the MCP ecosystem:
+
+- Use the official Microsoft MCP SDK for .NET: https://www.nuget.org/packages/ModelContextProtocol/
+- Target: Latest popular/stable preview (MCP is evolving rapidly)
+- Minimum recommended version: 0.3.0-preview.4 (or newer if available)
+- Add to the project with:
+  ```bash
+  dotnet add package ModelContextProtocol --version 0.3.0-preview.4
+  ```
+- Rationale:
+  - Aligns with current feature set (tool discovery, fluent server builder, STDIO transport)
+  - Reduces breaking change risk by pinning to a tested preview
+  - Keeps upgrade path simple: bump version, validate build, run integration tests
+
+> Upgrade Policy: Re-evaluate MCP SDK version after successful prototype completion and before starting Variant 2 (Local Decoupled) to benefit from transport and stability improvements.
+
 #### Transport Strategy
 
 | Aspect | Current | Emerging | Action |
