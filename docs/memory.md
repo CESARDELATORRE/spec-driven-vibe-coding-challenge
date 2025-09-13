@@ -2,7 +2,15 @@
 
 This document provides a brief description of each file's purpose and relevant details for the spec-driven vibe coding challenge project.
 
-## Project Documentation
+## Global Project Documentation
+
+### `/docs/01-original-challenge-definition.md`
+**Purpose**: Original challenge definition and requirements document
+**Details**: Contains the original problem statement, objectives, and requirements for the spec-driven vibe coding challenge
+
+### `/docs/02-plain-goals-and-approaches.md`
+**Purpose**: North-star document defining fundamental project goals and approaches
+**Details**: Baseline document for generating detailed idea/vision-scope, architecture definition and implementation code. Contains product goals, technical specifications, and project philosophy
 
 ### `/docs/03-idea-vision-scope.md`
 **Purpose**: Comprehensive project vision and scope document defining the AMG-specific AI agent concept
@@ -12,14 +20,6 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Technical architecture and technology stack recommendations with evolution path
 **Details**: Defines four architecture variants from prototype to production, technology selections (.NET, MCP, Semantic Kernel), and testing strategies
 
-### `/docs/specs/feature-specs-kb-mcp-server.md`
-**Purpose**: Detailed functional specification for the Knowledge Base MCP Server feature
-**Details**: Complete feature specification including user journey, functional requirements, MCP tools (search_knowledge, get_kb_info), prototype constraints, and startup loading rationale appendix
-
-### `/docs/implementation-plans/feature-implementation-plan-kb-mcp-server.md`
-**Purpose**: Detailed implementation plan for the KB MCP Server feature
-**Details**: Step-by-step implementation guide with 10 steps covering project setup, services, MCP tools, testing, and configuration. Uses domain-agnostic naming following coding rules for reusability across different knowledge domains
-
 ### `/docs/tradeoffs.md`
 **Purpose**: Documents all technical and functional tradeoffs made during project development
 **Details**: Contains 13 documented tradeoffs covering integration environment, knowledge base complexity, search behavior, and implementation decisions with reasoning and impact analysis
@@ -27,6 +27,20 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/docs/assumptions.md`
 **Purpose**: Documents project assumptions about customer feedback and business context
 **Details**: Clarifies exercise constraints and assumed validation for prototype development
+
+## Features Documentation
+
+### Specs documentation
+
+#### `/docs/specs/feature-specs-kb-mcp-server.md`
+**Purpose**: Detailed functional specification for the Knowledge Base MCP Server feature
+**Details**: Complete feature specification including user journey, functional requirements, MCP tools (search_knowledge, get_kb_info), prototype constraints, and startup loading rationale appendix
+
+### Implementation plans documentation
+
+#### `/docs/implementation-plans/feature-implementation-plan-kb-mcp-server.md`
+**Purpose**: Detailed implementation plan for the KB MCP Server feature
+**Details**: Step-by-step implementation guide with 10 steps covering project setup, services, MCP tools, testing, and configuration. Uses domain-agnostic naming following coding rules for reusability across different knowledge domains
 
 ## Development Guidelines
 
@@ -37,6 +51,10 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/.github/instructions/csharp.instructions.md`
 **Purpose**: Comprehensive C# and .NET development instructions and coding rules
 **Details**: Defines code style, project structure, naming conventions, testing framework guidelines, documentation requirements, and MCP-specific implementation patterns
+
+### `/.github/instructions/tests.instructions.md`
+**Purpose**: Testing guidelines and rules for the project
+**Details**: Defines rules for creating and running unit tests, UI tests, and maintaining test quality
 
 ### `/.github/prompts/feature.specs.kb-mcp-server.prompt.md`
 **Purpose**: Template prompt for generating KB MCP Server feature specifications
@@ -49,10 +67,6 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/AGENTS.md`
 **Purpose**: Repository map and development guidelines for agents and workflow
 **Details**: Defines style, architecture constraints, PR rules, and contact information
-
-### `/docs/coding-rules.md`
-**Purpose**: Coding conventions and project structure guidelines
-**Details**: Defines kebab-case folder naming, .NET project structure, namespace conventions, and testing framework guidelines
 
 ## Journey Documentation
 
