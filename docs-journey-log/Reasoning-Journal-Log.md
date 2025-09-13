@@ -1039,7 +1039,7 @@ https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/issues/11
 
 ![alt text](images-journey/issue-implement-mcp-server.png)
 
-So, I go ahead and assing GH CoPilot to the issue:
+So, I go ahead and assigning GH CoPilot to the issue:
 
 ![alt text](images-journey/issue-implement-mcp-server-ghcp-assigned.png)
 
