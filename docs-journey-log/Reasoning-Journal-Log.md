@@ -1067,7 +1067,7 @@ That is not true... the NUGET package with the MCP SDK in Preview is here:
 
 https://www.nuget.org/packages/ModelContextProtocol
 
-I'm explicitly now adding the following to my implementation plan document and to the GH ISSUE itself:
+I'm explicitly now adding the following to my implementation plan document and to the GitHub issue itself:
 
 ```
 # Technology dependencies to use:
