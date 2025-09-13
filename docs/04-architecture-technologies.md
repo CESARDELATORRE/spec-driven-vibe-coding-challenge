@@ -22,21 +22,30 @@ The system implements a layered interaction model where user requests flow throu
 
 The Orchestration Agent serves as the primary coordination point, implementing Semantic Kernel's orchestration patterns to manage complex multi-step interactions that might require multiple knowledge lookups, context analysis, and response synthesis. The agent maintains conversation state, manages context windows, and coordinates tool usage to provide coherent, helpful responses that leverage the full capabilities of the knowledge base and chat system.
 
-### Component Inventory & Variant Mapping
+### Core Components
 
-The following table clarifies each logical component, its responsibility, and how its deployment / interaction pattern evolves across architecture variants. This also resolves the earlier naming ambiguity: **"Intelligent Chat Agent" and "Chat Agent" are the same component.** The canonical name is now **Chat Agent**.
+The system consists of three primary components that work together to deliver conversational AI capabilities:
 
-| Component | Core Responsibility | Variant 1 (Prototype) | Variant 2 (Local Decoupled) | Variant 3 (MVP - ACA) | Variant 4 (Prod - AKS) | Notes / Interaction Nuances |
-|-----------|---------------------|-----------------------|-----------------------------|-----------------------|------------------------|-----------------------------|
-| Chat UI (Client) | Human interaction surface (could be CLI, MCP-compatible editor, or lightweight web UI) | Direct STDIO session to Orchestration Agent | HTTP/SSE (client ↔ gateway or directly to orchestrator) | Public/Private ingress via ACA front endpoint | API Gateway / Ingress Controller (mTLS / OAuth) | Not an internal agent—treat as external consumer; auth hardening added in later variants. |
-| Orchestration Agent | Conversation state, tool routing, multi-step planning, context assembly | Process-host + in-process Chat Agent; STDIO to KB Server | Separate process/container; HTTP/SSE to Chat Agent & KB Server | Independent container app (horizontal scale) | Dedicated deployment / scaled pods with autoscaling (CPU + custom metrics) | Implements SK planners; owns retry logic & response synthesis. |
-| Chat Agent (aka former Intelligent Chat Agent) | LLM prompt construction, response post-processing, safety filtering | In-process library inside Orchestration Agent | Separate container (optional) or still co-located depending on latency needs | Separate container app to scale independently (token throughput) | Dedicated microservice pod with model-specific tuning / caching | Can be merged back with Orchestration for cost or early simplification; separation enables independent scaling. |
-| KB MCP Server | Domain knowledge retrieval (files, future API connectors) via MCP tools | Separate process via STDIO (simple file-based) | Container exposing HTTP/SSE MCP endpoints | Container app with secrets + telemetry | AKS deployment with sharding / caching layers | May later integrate vector store / embedding pipeline; contract remains MCP tool interface. |
-| Transport Layer Abstraction | Uniform interface (STDIO/SSE/HTTP Streaming) for agent & KB calls | Minimal (direct STDIO) | Introduced abstraction layer for protocol switching | Formalized library / shared package | Stable internal SDK w/ resiliency (circuit breakers, retries) | Keeps higher layers unaware of protocol transition roadmap. |
-| Observability / Telemetry (future) | Metrics, traces, conversation analytics | Console logs only | Basic structured logs (JSON) | App Insights / tracing + correlation IDs | Full distributed tracing + AI usage analytics | Added progressively; NOT part of functional core in Variant 1. |
-| Secrets & Config | Secure handling of API keys, endpoints | .env / user-secrets (developer machine) | Docker secrets / mounted config | Azure Key Vault + managed identity | Centralized secret & policy management (Key Vault / CSI driver) | Hardened only from MVP onward. |
+| Component | Responsibility | Interface |
+|-----------|----------------|-----------|
+| **Chat UI** | Human interaction interface (CLI, MCP client, web UI) | Submits user requests and displays responses |
+| **Orchestration Agent** | Conversation coordination, multi-step planning, context management | Receives requests, coordinates tools/agents, maintains conversation state |
+| **Chat Agent** | LLM interaction, prompt construction, response processing | Handles Azure Foundry OpenAI calls and response formatting |
+| **KB MCP Server** | Domain knowledge access via MCP protocol | Provides AMG-specific information through MCP tools |
 
-#### Interaction Flow (Canonical Naming)
+> **Naming Clarification:** "Intelligent Chat Agent" and "Chat Agent" refer to the same component. We use **Chat Agent** consistently throughout this document.
+
+### Component Interaction Flow
+1. **Chat UI** submits user utterance to **Orchestration Agent**
+2. **Orchestration Agent** decides: direct LLM request, knowledge lookup, or multi-step plan
+3. **Chat Agent** handles LLM interactions (Azure Foundry OpenAI)
+4. **Orchestration Agent** synthesizes results and maintains conversation context
+5. Response delivered back to **Chat UI**
+
+### Design Principles
+- **Single Coordination:** Only Orchestration Agent manages multi-step workflows
+- **Clear Separation:** Chat Agent = LLM specifics; Orchestration = business logic  
+- **Flexible Deployment:** Components co-located (prototype) or distributed (production)
 1. Chat UI submits user utterance to Orchestration Agent.
 2. Orchestration Agent decides: (a) direct LLM request via Chat Agent, (b) tool invocation via KB MCP Server, or (c) multi-step plan (tool(s) then LLM synthesis).
 3. Chat Agent formats prompts, performs response shaping (e.g., trimming, safety heuristics), and returns candidate responses.
