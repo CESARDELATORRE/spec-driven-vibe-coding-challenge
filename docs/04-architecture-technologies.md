@@ -1,12 +1,18 @@
 # Architecture and Technologies Document
 
-T#### Naming Standard
+T###### Naming Standard
+- Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., "Intelligent Chat Agent"), treat them as aliases with a planned cleanup pass.
+- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
+
+### Prototype/POC Architecture
+
+![Prototype/POC Architecture Diagram](simplified-directions/prototype-poc-architecture-diagram.png)ndard
 - Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., "Intelligent Chat Agent"), treat them as aliases with a planned cleanup pass.
 - Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus). document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
 
 The primary objective is to establish multiple architecture variants that support systematic progression from simple prototype implementations through enterprise-scale deployments. Each variant builds incrementally upon previous implementations, enabling development teams to validate concepts quickly while maintaining architectural flexibility for future scaling requirements.
 
-The architectural analysis addresses three critical deployment scenarios: initial prototype/POC using MCP STDIO for rapid development iteration, MVP implementation incorporating HTTP transport and containerization for distributed deployment, and scalable production architecture supporting Kubernetes orchestration in Azure environments. Each variant leverages the complementary strengths of Model Context Protocol (MCP), Semantic Kernel, and Azure services to create robust, maintainable AI agent systems.
+The architectural analysis addresses four critical deployment scenarios: initial prototype/POC using MCP STDIO for rapid development iteration, local decoupled solution using HTTP transport and containerization for testing, MVP implementation with Azure Container Apps for managed deployment, and scalable production architecture supporting Kubernetes orchestration in Azure environments. Each variant leverages the complementary strengths of Model Context Protocol (MCP), Semantic Kernel, and Azure services to create robust, maintainable AI agent systems.
 
 ## High-Level Architecture
 
