@@ -1,8 +1,7 @@
-# Reasoning Journal Log
+<h1 style="font-size: 3em;">Reasoning Journal Log</h1>
 
-## Day 1
-
-### Goals for Day 1 
+# Day 1
+## Goals for Day 1 
 
 - Create the repo structure, initial co-pilot instruction files, helper MCP servers config and the reasoning journal log approach and basic "north-star" goals and approaches baseline document":
 
@@ -17,9 +16,9 @@
 
         --> PR #3
 
-### Global setup
+## Global setup
 
-#### GH repo
+### GH repo
 
 I want to work driven by issues and branches w/ related PRs, like when working with a dev team, so everything **can be trackable**.
 
@@ -37,7 +36,7 @@ Related branch:
 
 This is just a visual example, to showcase the approach, but I won't be putting additional examples in the log, for efficiency's sake.
 
-#### GHCP and MCP servers
+### GHCP and MCP servers
 
 Before starting using GHCP alter, I set up my usual approach which is using the following MCP servers as tools for GHCP plus some extensions for VS Code:
 
@@ -49,7 +48,7 @@ Before starting using GHCP alter, I set up my usual approach which is using the 
 
 See my **.vscode/mcp.json** file.
 
-### Thoughts and own brainstorming
+## Thoughts and own brainstorming
 
 The main goal is to *demonstrate end‑to‑end PM + developer craft: problem framing, discovery, scoping, iterative prototyping, measurement planning, and clear storytelling about why this  solution is the right next step,* ** *not just that it “works.”* **.
 
@@ -69,11 +68,11 @@ However, related to how to record/write a reasoning journal log...,let's start w
 
 
 
-### Prompts & Results 
+## Prompts & Results 
 
 Prompt -> Copilot output -> My action
 
-#### Prompt 1 - What approach to go for reasoning process logging
+### Prompt 1 - What approach to go for reasoning process logging
 
 For most of the project and specs-driven vibes, I'll be using GitHub CoPilot, but for this initial brainstorming about approaches for journal logging, I'm starting to ask to several tools:
 - M365 CoPilot with Researcher Agent
@@ -92,7 +91,7 @@ I did the same prompt for all of them:
 // Constraints: I don't want to over-engineer, I need to be agile.
 ```
 
-#### Copilot/ChatGPT/Claude outputs from Prompt 1
+### Copilot/ChatGPT/Claude outputs from Prompt 1
 
 Since these outputs are long, I put each in a different WORD doc that I read and researched. 
 
@@ -104,7 +103,7 @@ M365-CoPilot-Researcher-approaches-Reasoning-Journal.docx
 ChatGPT-approaches-Reasoning-Journal.docx
 Claude-approaches-Reasoning-Journal.docx
 
-#### My action after prompt 1
+### My action after prompt 1
 
 I got many insights from those answers, such as:
 
@@ -132,7 +131,7 @@ Files for GHCP instructions and prompts templates:
 
 
 
-#### Prompt 2 - Indentify main goals and best approaches to take based from the challenge definition doc
+### Prompt 2 - Indentify main goals and best approaches to take based from the challenge definition doc
 
 Additionally, before getting to work on the idea, vision, scope and requirements, I also want to give a quick pass with CoPilot about what are the important goals to achieve and what should be the potential approaches to take, while keeping the process agile and light. 
 
@@ -158,7 +157,7 @@ We'll use this document as the baseline to later develop the idea, vision-scope,
 ![alt text](images-journey/prompt-02.png)
 
 
-#### GHCP Copilot outputs from Prompt 2
+### GHCP Copilot outputs from Prompt 2
 
 GHCP:
 
@@ -181,7 +180,7 @@ Each goal includes specific approaches that balance the need for a quick AMG pro
 This will serve as your baseline for developing the vision, scope, and architecture in future iterations while keeping the focus on creating an end-to-end prototype quickly.
 
 
-#### My actions after prompt 2
+### My actions after prompt 2
 
 I reviewed the **02-plain-goals-and-approaches.md** and made some manual updates:
 
@@ -206,13 +205,13 @@ The **02-plain-goals-and-approaches.md** is
 *basically the north-star document to be taken into account always, while generating the detailed idea/vision-scope, architecture definition and implementation code.*
 
 
-### Define GH CoPilot instructions
+## Define GH CoPilot instructions
 
 Before moving forward, I'm manually adding some global instructions for GHCP at the **.github/copilot-instructions.md** file and other instructions files within **.github** folder, that I usually use and have it as "templates".
 
 ![alt text](images-journey/gh-copilot-instructions-screenshot.png)
 
-### Create PR for repo structure and merge into main branch
+### Create PR #1 for repo structure and foundational files and merge into main branch
 
 At this point we have the foundational repo structure, initial co-pilot instruction files, helper MCP servers config (Perplexity, Context7 and GitHub MCP servers) and this reasoning journal log approach plus the simplified "north-star" goals and approaches baseline document, all ready to start hacking with spec-driven vibing approaches.
 
@@ -228,7 +227,7 @@ It not only found minor issues and typos but also created a summary for the PR, 
 
 
 
-#### Prompt 3 - Create Idea / Vision-Scope document
+### Prompt 3 - Create Idea / Vision-Scope document
 
 Now that we have the initial north-star defined, let's deep dive into the details, starting with the definition of the idea with an  "idea-vision-scope" document.
 
@@ -331,7 +330,7 @@ When you are done, output to #file:../../docs/03-idea-vision-scope.md.
 ```
 
 
-#### GHCP Copilot outputs from Prompt 3
+### GHCP Copilot outputs from Prompt 3
 
 GHCP: Before really working on the idea-vision-scope document, GHCP is asking me about some analysis and clarifications:
 
@@ -367,7 +366,7 @@ After GHCP is finished, it provided the following summary:
 ![alt text](images-journey/prompt-03-execution-summary.png)
 
 
-####  My actions after prompt 3
+###  My actions after prompt 3
 
 I reviewed the 03-idea-vision-scope.md and made a few manual changes. However, I found it a bit complex with some areas that might actually be redundant.
 We aim for clarity and concise rationale, so I'm asking again GH CoPilot to simplify, find redundant information and simplify in favor of concise rationale.
@@ -427,7 +426,7 @@ Consolidate "why" statements: The value proposition is scattered across multiple
 GHCP simplified the doc **03-idea-vision-scope.md** and for now I think it's good to go, but I'm sure we'll revisit it and update when evolving and iterating on the protory/POC.
 
 
-### Create PR for 03-idea-vision-scope.md and merge into main branch
+### Create PR #2 for idea-vision-scope.md and merge into main branch
 
 Before moving forward, so I can track better the advances, let's merge this branch content with another PR (PR #2) into the main branch.
 
@@ -439,7 +438,7 @@ Here's the review of GHCP CODING AGENT with no changes suggested, but it generat
 
 
 
-#### Prompt 4 - Create global architecture and technologies document
+### Prompt 4 - Create global architecture and technologies document
 
 Now that we have the idea, vision & scope defined, let's deep dive into the architecture and technologies for the global product.
 
@@ -510,8 +509,6 @@ The document has been created with all the requested sections covering the three
 
 **BUG:** However, here it appears there's a BUG, since it's not saving the .MD document but showing the text in the chat window, even when I'm asking to GHCP to explicetely save it as the "04-architecture-technologies.md" file...
 
-![alt text](images-journey/prompt-04-bug-not-saving-doc-file.png)
-
 I went ahead and created the file and copied/pasted the text in the .MD file...
 
 After closing VS Code and re-opening, looks like Agent mode works properly chaging the files...
@@ -576,13 +573,213 @@ Deeply review the document, make sure it's consistent and try to simplify redund
 I iterated quite a few times with comments/prompts and GHCP was updating the doc accordingly.
 Still, this doc is live and will be changing as we start iterating with the Feature's specs docs, Feature's implementation plan docs, and the final implementation/coding in C#.
 
-### Global decisions made in Day 1
+### Create PR #3 for Task/architecture technologies doc and merge into main branch
+
+Before moving forward, so I can track better the advances, let's merge this branch content with another PR (PR #2) into the main branch.
+
+After creating the PR, I assigned GHCP **CODING AGENT** to review the PR and create the PR summary.
+
+Here's the review of GHCP CODING AGENT with no changes suggested, but it generated a PR summary for me:
+
+![alt text](images-journey/pr-03.png)
+
+
+
+## Global decisions made in Day 1
 
 - Definition of project's idea, vision & scope.
 - Assumptions in docs.
 - Tradeoffs in docs.
 
-### Next Steps for Day 2. 
+## Next Steps for Day 2. 
 
 - Feature 1 (KB content MCP Server) Spec doc and Implementation plan doc
 - Feature 1 (KB content MCP Server) implementation
+
+
+
+# Day 2
+
+## Goals for Day 2 
+
+- Create one or two features, end to end (per feature, feature's spec doc, implementation plan doc and coding/implementation).
+
+Minimum number of PRs per feature:
+
+- PR for **feature specs doc**
+- PR for **feature implementation plan doc**
+- PR for **feature implementation/coding**
+
+There could be additional PRs for next iterations on the three feature's assets (atomic unit), so they are kept consistent.
+
+### Feature 1: KB/content MCP server
+
+- PR #4: Feature **specs doc** for KB/content MCP server
+- PR #5: Feature **implementation plan** doc for KB/content MCP server
+- PR #6: Feature **implementation/coding** for KB/content MCP server
+
+
+### Prompt 5 - Create Feature **specs doc** for KB/content MCP server
+
+Now that we have crafted the global idea, vision & scope defined, and global architecture and technologies, let's deep dive on the first feature, the custom "KB/content MCP server" and its functional definition with an **specs doc for the feature**.
+
+For this, I'm using another pre-defined prompt template approach. 
+
+**PRE-WRITTEN TEMPLATE PROMPT for defining feature specs doc:**
+
+It's placed at **.github/prompts** folder, named **feature.specs.kb-mcp-server.prompt.md**.
+
+The following is the content of this pre-writen specs prompt where **the only placeholder that needs to be updated per feature is the section within the <idea></idea> section.** The rest of the pre-written prompt can be reused for any additional feature crafting.
+
+```
+---
+mode: 'edit'
+description: 'Create specs doc for a feature: MCP Server for Knowledge Base (KB) access by AI agents'
+---
+
+Your goal is to generate a functional spec for implementing a feature based on the provided "in-line" idea below:
+
+<idea>
+Generate a feature specs document covering the following capabilities:
+
+- MCP Server that provides access to content from a knowledge base (KB) for use by AI agents.
+- The KB for the prototype should simply be a single local text file accesible from the MCP server process.
+- The MCP server should be built in a way that abstracts the KB data source, so that in the future it can be extended to support other types of KBs (e.g., large datalake, databases, external APIs, etc.).
+- The first version of the MCP server should be implemented following the simplest approach in MCP communication protocol, hence STDIO, however it should be designed with future evolution in mind towards HTTP and Docker deployment (not in the first implementation version, though).
+- The MCP server should be able to handle basic requests from AI agents to retrieve content from the KB, such as searching for specific keywords or retrieving entire sections of the text file.
+- Basically, it should work as a very much simplified version of the Perplexity MCP server or the Context7 MCP server or, but instead of large data sources and vector DBs as the KB, it should use a simple local text file as the KB.
+- Reduce the number of MCP methods/tools to the minimum required to demonstrate the core functionality of the MCP server, while still having basic search and retrieval operations enabling a Chat Agent who will consume this MCP server to answer questions based on this KB.
+</idea>
+
+Before generating the spec plan, be sure to review the #file:../../docs/03-idea-vision-scope.md file to understand an overview of the project.
+
+RULES:
+- Start by defining the user journey steps as simple as possible
+- Number functional requirements sequentially
+- Include acceptance criteria for each functional requirement
+- Use clear, concise language
+- Aim to keep user journey as few steps as possible to accomplish tasks
+- Keep the functionality and user experience simple and easy to digest
+- Do not include detailed implementation details or technical specifications in the plan
+- (Special rule for prototype/POC) Focus on core functionality first, avoid edge cases unless critical
+- (Special rule for prototype/POC) Prioritize features that demonstrate the main value proposition
+- (Special rule for prototype/POC) Use simple, straightforward language to describe features and requirements
+- (Special rule for prototype/POC) Avoid complex workflows or interactions that may complicate the user experience
+- (Special rule for prototype/POC) Ensure the plan is easy to understand and implement
+- (Special rule for prototype/POC) Focus on features that can be realistically implemented within the constraints of a prototype or POC
+- (Special rule for prototype/POC) Avoid over-engineering or adding unnecessary complexity to the specs
+- (Special rule for prototype/POC) Keep the feture's specs doc short and to the point, focusing on the most important aspects of the feature, no more than 2 or maximum 3 pages long. 
+
+NEXT:
+
+- Ask me for feedback to make sure I'm happy
+- Give me additional things to consider I may not be thinking about
+
+FINALLY:
+
+When satisfied:
+
+- Output your plan in #folder:../../docs/specs/feature-name.md
+- DO NOT start writing any code or implementation plans. Follow instructions.
+```
+
+**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on a spec, not just the global docs are taken into account, but if we derive for good reasons, we update and **keep consistency in the global docs**, as well. 
+
+
+PROMPT 5 at GHCP chat window:
+(Use **"Edit mode"** and **Claude Sonnet 4** for better reasoning):
+
+![alt text](images-journey/prompt-05.png)
+
+```
+PROMPT 5:
+Follow and run the provided pre-written prompt attached plus the additional context docs provided.
+```
+
+Now, I run the prompt 5 for creating the KB MCP server feature's specs doc.
+
+GHCP chat responds with a summary of the task to be done:
+
+![alt text](images-journey/prompt-05-key-requirements-summary.png)
+
+But, in addition to that it's requesting me for a few **claritications** with the following questions:
+
+![alt text](images-journey/prompt-05-clarification-questions.png)
+
+I answered with the following decissions:
+
+```
+These are tradeoffs to be made in the prototype/POC:
+
+- Content Updates: In the prototype/POC the text file should be is a static file, with local access from the MCP server process.
+- Performance: Not too large text files for the prototype/POC. We can assume small prototype content, as a temporal tradeoff.
+- Logging: Include very basic logging for debugging and monitoring requests
+- Content Formatting: The server should go for the easiest implementation approach for the prototy, so probably without normalizing the text, unless that's a necessity for a proper functional chat answer to be done later by the Agent consuming this KB MCP server.
+
+Please, update these tradeoffs in the tradeoffs.md document as well as in the specs doc
+```
+
+![alt text](images-journey/prompt-05-clarification-answers.png)
+
+After that, it updated the tradeoffs, but still, it asked me for more additional considerations and feedback that I still need to answer and decide about:
+
+![alt text](images-journey/prompt-05-clarification-questions-2.png)
+
+With that, GHCP starts crafting this KB MCP server feature's specs doc:
+
+These are my additional answers and decissions about those new clarification points:
+
+```
+Additional tradeoffs and decissions to be made in the prototype/POC feature specs:
+
+- Search Scope: The search should be case-insensitive and support partial matches.
+- Content Structure: Don't assume any concrete structure in the text file (like sections with headers). The plain text file can have any kind of text, like a .txt (Without tags/format like .MD or WORD, though)
+- Error Handling: The level of error detail, for the prototype/POC should be very basic, in any case, in favor of code rediability,including in returns when searches fail or content isn't found.
+- Response Limits: Limit the amount of content returned in a single response to prevent overwhelming the Chat Agent to a reasonable amount.
+
+Please, update these tradeoffs in the tradeoffs.md document as well as in the specs doc
+```
+
+![alt text](images-journey/prompt-05-clarification-answers-2.png)
+
+GHCP goes ahead and creates the first version of this specs doc:
+
+![alt text](images-journey/prompt-05-specs-doc-kb-mcp-server-creation.png)
+
+Note that it not only updated the specs doc .md and the tradeoffs.md but also our memory.md document which tracks, as a trackable list, all the important documents in the repo.
+
+### My actions after prompt 5
+
+I asked about this design decision to get the reasoning on "why that approach":
+
+**Cesar's complementary prompt:**
+```
+Why do we need to " Content is loaded at server/memory startup"?
+It get that it can provide better performance since the KB content is "static" for the prototype/POC, but I'd like to get a reasoning on why that design decision.
+```
+
+This is the answer from GHCP:
+
+![alt text](images-journey/prompt-05-startup-load-file-in-memory-rationale.png)
+
+I agree on that rationale, so we move forward and update.
+
+**Cesar's complementary prompt:**
+```
+Update this as a short section in an appendix for this specs doc ans also set a pointer from its original line in the "FR-1: Knowledge Base Access".
+```
+
+GHCP updated the specs doc with an appendix explaining the startup content loading rationale and added a reference from FR-1.
+
+I also identified and removed the outdated `/docs/specs/kb-mcp-server.md` file, keeping only the latest complete specification `/docs/specs/feature-specs-kb-mcp-server.md`.
+
+## Create PR #4 for KB MCP Server feature specs doc and merge into main branch
+
+At this point we have completed the first feature's specification document with comprehensive functional requirements, technical constraints, MCP tools specification, and documented tradeoffs. The specs doc includes detailed acceptance criteria, success metrics, and an appendix explaining key design decisions.
+
+The KB MCP Server feature specification is now ready for the next phase: creating the implementation plan document.
+
+## Next Steps for Day 2 continuation
+
+- Feature 1 (KB content MCP Server) Implementation plan doc  
+- Feature 1 (KB content MCP Server) coding/implementation
