@@ -1,6 +1,8 @@
 # Architecture and Technologies Document
 
-## Introduction & Objectives
+## Intro#### Naming Standard
+- Use **Chat Agent** as the consistent label going forward.
+- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).tion & Objectives
 
 This document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
 
@@ -12,7 +14,7 @@ The architectural analysis addresses three critical deployment scenarios: initia
 
 ### System Overview
 
-The proposed architecture implements a modular AI agent system built around three core components that interact through standardized protocols to provide domain-specific conversational capabilities. The Knowledge Base MCP Server manages access to AMG-specific information through MCP-compliant interfaces, enabling flexible data source integration while maintaining security boundaries. The Chat Agent (previously described as the "Intelligent Chat Agent"—single consolidated naming used from here forward) provides conversational AI capabilities through Azure Foundry OpenAI integration, implementing sophisticated natural language processing for user interaction. The Orchestration Agent coordinates between knowledge sources and chat capabilities, implementing complex workflow management through Semantic Kernel's advanced orchestration patterns.
+The proposed architecture implements a modular AI agent system built around three core components that interact through standardized protocols to provide domain-specific conversational capabilities. The Knowledge Base MCP Server manages access to AMG-specific information through MCP-compliant interfaces, enabling flexible data source integration while maintaining security boundaries. The Chat Agent provides conversational AI capabilities through Azure Foundry OpenAI integration, implementing sophisticated natural language processing for user interaction. The Orchestration Agent coordinates between knowledge sources and chat capabilities, implementing complex workflow management through Semantic Kernel's advanced orchestration patterns.
 
 The architectural foundation leverages Model Context Protocol as the primary integration mechanism, providing standardized interfaces that enable loose coupling between system components while maintaining consistent communication patterns. This approach facilitates independent component development, testing, and deployment while ensuring reliable inter-component communication across different transport mechanisms and deployment environments.
 
@@ -32,8 +34,6 @@ The system consists of three primary components that work together to deliver co
 | **Orchestration Agent** | Conversation coordination, multi-step planning, context management | Receives requests, coordinates tools/agents, maintains conversation state |
 | **Chat Agent** | LLM interaction, prompt construction, response processing | Handles Azure Foundry OpenAI calls and response formatting |
 | **KB MCP Server** | Domain knowledge access via MCP protocol | Provides AMG-specific information through MCP tools |
-
-> **Naming Clarification:** "Intelligent Chat Agent" and "Chat Agent" refer to the same component. We use **Chat Agent** consistently throughout this document.
 
 ### Component Interaction Flow
 1. **Chat UI** submits user utterance to **Orchestration Agent**
