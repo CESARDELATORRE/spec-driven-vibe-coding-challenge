@@ -2,6 +2,26 @@
 
 - Repo name for GH MCP server: CESARDELATORRE/spec-driven-vibe-coding-challenge
 
+- List of topics to cover:
+        [X] Vibe coding
+        [X] Operate as 'native PM/developer' / E2E PM craft work
+        [X] Clear storytelling on "Why this solution"
+        [X] Define idea / vision & scope
+        [X] From hypothesis to prototype
+        [X] Problem to be solved framing/articulation
+        [ ] Discovery/Research --> Research docs using GHCP with Perplexity MCP server
+        [X] Scoping
+        [X] Iterate prototyping
+        [ ] User segments
+        [ ] Measurement planning
+        [ ] Metrics for decission making 
+        [ ] Success metrics
+        [X] Make and Test assumptions
+        [X] Iterate quickly based on evidence
+        [X] Tradeoffs - Make and explain
+        [X] Develop prototype (Spec-driven vibe approach)
+        [X] Create/save journal log with all prompts, co-reasoning and actions
+
 - Review ARCHITECTURE doc.
 
 - ADD to JOURNAL LOG DAY 2:

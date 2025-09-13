@@ -1,4 +1,5 @@
-# Reasoning Journal Log
+
+<h1 style="font-size: 3em;">Reasoning Journal Log</h1>
 
 ## Day 1
 
@@ -586,3 +587,22 @@ Still, this doc is live and will be changing as we start iterating with the Feat
 
 - Feature 1 (KB content MCP Server) Spec doc and Implementation plan doc
 - Feature 1 (KB content MCP Server) implementation
+
+
+
+## Day 2
+
+### Goals for Day 1 
+
+- Create the repo structure, initial co-pilot instruction files, helper MCP servers config and the reasoning journal log approach and basic "north-star" goals and approaches baseline document":
+
+    --> PR #1
+
+- Create initial projects docs:
+    - Create project's vision & scope document (comprehensive idea)
+
+        --> PR #2
+
+    - Create project's Architecture and technology decissions document
+
+        --> PR #3
