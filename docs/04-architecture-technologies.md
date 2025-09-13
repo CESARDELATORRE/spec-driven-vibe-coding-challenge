@@ -1,6 +1,8 @@
 # Architecture and Technologies Document
 
-This document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
+T#### Naming Standard
+- Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., "Intelligent Chat Agent"), treat them as aliases with a planned cleanup pass.
+- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus). document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
 
 The primary objective is to establish multiple architecture variants that support systematic progression from simple prototype implementations through enterprise-scale deployments. Each variant builds incrementally upon previous implementations, enabling development teams to validate concepts quickly while maintaining architectural flexibility for future scaling requirements.
 
@@ -10,7 +12,7 @@ The architectural analysis addresses three critical deployment scenarios: initia
 
 ### System Overview
 
-The proposed architecture implements a modular AI agent system built around three core components that interact through standardized protocols to provide domain-specific conversational capabilities. The Knowledge Base MCP Server manages access to AMG-specific information through MCP-compliant interfaces, enabling flexible data source integration while maintaining security boundaries. The Chat Agent provides conversational AI capabilities through Azure Foundry OpenAI integration, implementing sophisticated natural language processing for user interaction. The Orchestration Agent coordinates between knowledge sources and chat capabilities, implementing complex workflow management through Semantic Kernel's advanced orchestration patterns.
+The proposed architecture implements a modular AI agent system built around four core components that interact through standardized protocols to provide domain-specific conversational capabilities. The Knowledge Base MCP Server manages access to AMG-specific information through MCP-compliant interfaces, enabling flexible data source integration while maintaining security boundaries. The Chat Agent provides conversational AI capabilities through Azure AI Foundry integration, implementing sophisticated natural language processing for user interaction. The Orchestration Agent coordinates between knowledge sources and chat capabilities, implementing complex workflow management through Semantic Kernel's advanced orchestration patterns.
 
 The architectural foundation leverages Model Context Protocol as the primary integration mechanism, providing standardized interfaces that enable loose coupling between system components while maintaining consistent communication patterns. This approach facilitates independent component development, testing, and deployment while ensuring reliable inter-component communication across different transport mechanisms and deployment environments.
 
@@ -22,19 +24,19 @@ The Orchestration Agent serves as the primary coordination point, implementing S
 
 ### Core Components
 
-The system consists of three primary components that work together to deliver conversational AI capabilities:
+The system consists of four primary components that work together to deliver conversational AI capabilities:
 
 | Component | Responsibility | Interface |
 |-----------|----------------|-----------|
 | **Chat UI** | Human interaction interface (CLI, MCP client, web UI) | Submits user requests and displays responses |
 | **Orchestration Agent** | Conversation coordination, multi-step planning, context management | Receives requests, coordinates tools/agents, maintains conversation state |
-| **Chat Agent** | LLM interaction, prompt construction, response processing | Handles Azure Foundry OpenAI calls and response formatting |
+| **Chat Agent** | LLM interaction, prompt construction, response processing | Handles Azure AI Foundry calls and response formatting |
 | **KB MCP Server** | Domain knowledge access via MCP protocol | Provides AMG-specific information through MCP tools |
 
 ### Component Interaction Flow
 1. **Chat UI** submits user utterance to **Orchestration Agent**
 2. **Orchestration Agent** decides: direct LLM request, knowledge lookup, or multi-step plan
-3. **Chat Agent** handles LLM interactions (Azure Foundry OpenAI)
+3. **Chat Agent** handles LLM interactions (Azure AI Foundry)
 4. **Orchestration Agent** synthesizes results and maintains conversation context
 5. Response delivered back to **Chat UI**
 
@@ -45,7 +47,9 @@ The system consists of three primary components that work together to deliver co
 
 #### Naming Standard
 - Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., “Intelligent Chat Agent”), treat them as aliases with a planned cleanup pass.
-- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
+- - Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
+
+### Prototype/POC Architecture
 
 
 
@@ -90,9 +94,6 @@ Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel
 | Future | — | WebSocket potential | Track MCP spec updates |
 
 > **Recommendation**: Use transport abstraction (e.g., `IMcpTransportClient`) to enable runtime switching between STDIO, SSE, and HTTP Streaming.
-
-### Prototype/POC Testing Infrastructure (Variant 1 Scope Only)
-
 
 ### Prototype/POC Testing Infrastructure (Variant 1 Scope Only)
 
