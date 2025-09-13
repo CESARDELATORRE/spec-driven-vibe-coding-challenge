@@ -1,0 +1,86 @@
+Azure Managed Grafana (AMG) Knowledge Base
+
+Azure Managed Grafana is a fully managed service that provides a scalable, secure Grafana experience for monitoring and observability. This service eliminates the operational overhead of managing Grafana infrastructure while providing enterprise-grade security and reliability.
+
+Key Features:
+- Fully managed Grafana service with automatic updates and patching
+- Built-in Azure Active Directory integration for authentication and authorization
+- High availability with 99.9% SLA
+- Auto-scaling capabilities to handle varying workloads
+- Integration with Azure Monitor, Azure Data Explorer, and other Azure services
+- Support for custom data sources and plugins
+- Private endpoint connectivity for secure network access
+
+Getting Started:
+To create an Azure Managed Grafana instance, navigate to the Azure portal and search for "Azure Managed Grafana". Click "Create" to start the provisioning process. You'll need to specify:
+1. Subscription and resource group
+2. Instance name and region
+3. Pricing tier (Essential or Standard)
+4. Authentication method (Azure AD or local accounts)
+
+Pricing Tiers:
+Essential Tier - Designed for small teams and development environments. Includes core Grafana functionality with basic alerting and up to 5 users.
+
+Standard Tier - Enterprise-ready with advanced features including unlimited users, advanced alerting, reporting capabilities, and enhanced SLA. Supports enterprise data sources and custom plugins.
+
+Data Sources:
+Azure Managed Grafana supports numerous data sources out of the box:
+- Azure Monitor for metrics and logs from Azure resources
+- Azure Data Explorer (Kusto) for large-scale analytics
+- Azure SQL Database and PostgreSQL
+- Prometheus and InfluxDB for container monitoring
+- Custom REST APIs and webhooks
+- Third-party monitoring tools via plugins
+
+Security Features:
+- Azure Active Directory integration with role-based access control
+- Private Link support for network isolation
+- Encryption at rest and in transit
+- Audit logging for compliance requirements
+- API key management for programmatic access
+- Multi-factor authentication support
+
+Integration Capabilities:
+Azure Managed Grafana integrates seamlessly with the Azure ecosystem:
+- Azure Monitor for comprehensive Azure resource monitoring
+- Azure Sentinel for security analytics dashboards
+- Azure DevOps for CI/CD pipeline monitoring
+- Azure Logic Apps for automated alerting workflows
+- Power BI for business intelligence integration
+
+Common Use Cases:
+1. Application Performance Monitoring - Track application metrics, response times, and error rates
+2. Infrastructure Monitoring - Monitor Azure VMs, containers, and Kubernetes clusters
+3. Business Analytics - Create business dashboards with KPIs and metrics
+4. Security Monitoring - Visualize security events and compliance metrics
+5. IoT Analytics - Monitor IoT device telemetry and sensor data
+
+Alerting and Notifications:
+Configure alerts based on metric thresholds or log queries. Supported notification channels include:
+- Email notifications
+- Microsoft Teams integration
+- SMS alerts via Azure Communication Services
+- Webhook notifications for custom integrations
+- Azure Logic Apps for complex alert workflows
+
+Best Practices:
+- Use Azure AD groups for team-based access control
+- Implement dashboard templates for consistency
+- Set up automated backup of dashboard configurations
+- Monitor Grafana instance performance and usage metrics
+- Use variables and templating for dynamic dashboards
+- Implement proper data retention policies
+
+Troubleshooting:
+Common issues and solutions:
+- Data source connection failures: Check network connectivity and authentication credentials
+- Slow dashboard performance: Optimize queries and reduce time ranges
+- Authentication issues: Verify Azure AD configuration and user permissions
+- Missing metrics: Ensure proper data source configuration and metric collection
+
+Support and Resources:
+- Azure Support plans provide technical assistance
+- Microsoft documentation includes detailed configuration guides
+- Community forums for peer support and best practices
+- Training materials and certification paths available
+- Regular webinars and virtual events for updates and tips
