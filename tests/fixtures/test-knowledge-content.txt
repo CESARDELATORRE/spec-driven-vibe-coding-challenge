@@ -1,0 +1,26 @@
+Azure Managed Grafana Test Knowledge Base
+
+This is a test knowledge base for integration testing. It contains information about Azure Managed Grafana features:
+
+Key Features:
+- Fully managed Grafana service
+- Built-in Azure Active Directory integration
+- High availability with 99.9% SLA
+- Auto-scaling capabilities
+
+Pricing:
+- Essential Tier for small teams
+- Standard Tier for enterprise use
+
+Data Sources:
+- Azure Monitor integration
+- Azure Data Explorer support
+- Custom REST APIs
+
+Security:
+- Azure AD authentication
+- Role-based access control
+- Private endpoint support
+- Multi-factor authentication
+
+This content is used for testing search functionality and MCP protocol compliance.
