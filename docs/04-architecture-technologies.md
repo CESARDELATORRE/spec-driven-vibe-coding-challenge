@@ -1,12 +1,27 @@
 # Architecture and Technologies Document
 
-T#### Naming Standard
-- Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., "Intelligent Chat Agent"), treat them as aliases with a planned cleanup pass.
-- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus). document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
+## Introduction
 
-The primary objective is to establish multiple architecture variants that support systematic progression from simple prototype implementations through enterprise-scale deployments. Each variant builds incrementally upon previous implementations, enabling development teams to validate concepts quickly while maintaining architectural flexibility for future scaling requirements.
+This document provides architecture guidance and technology stack recommendations for a domain‑specific AI agent system centered on Azure Managed Grafana (AMG) knowledge. It defines a progressive evolution path from a lightweight prototype to an enterprise‑grade, scalable deployment while preserving early development velocity.
 
-The architectural analysis addresses four critical deployment scenarios: initial prototype/POC using MCP STDIO for rapid development iteration, local decoupled solution using HTTP transport and containerization for testing, MVP implementation with Azure Container Apps for managed deployment, and scalable production architecture supporting Kubernetes orchestration in Azure environments. Each variant leverages the complementary strengths of Model Context Protocol (MCP), Semantic Kernel, and Azure services to create robust, maintainable AI agent systems.
+### Objectives
+1. Define four incremental architecture variants (Prototype → Local Decoupled → MVP → Scalable Production) with clear evolution criteria.
+2. Establish a coherent technology stack (.NET version strategy, MCP, Semantic Kernel, Azure services) with risk-managed runtime adoption.
+3. Document core design principles (single orchestration locus, separation of concerns, transport abstraction) and a consistent component naming standard.
+4. Clarify transport strategy (STDIO for inner loop; HTTP/SSE/Streaming for decoupled & remote scenarios) and recommend abstraction for future flexibility.
+5. Outline minimal Prototype (Variant 1) testing scope plus a deferred, trigger-based future testing roadmap.
+6. Ensure terminology consistency ("Chat Agent") and eliminate redundant or unsubstantiated claims.
+
+### Scope
+The scope includes functional interaction patterns between Orchestration, Chat, and Knowledge Base components; runtime and transport recommendations; deployment progression; and testing strategy. Broader production concerns (formal security reviews, advanced semantic evaluation harnesses, multi-region failover drills) are intentionally deferred until later variants when justified by adoption signals.
+
+### Deployment Scenarios Covered
+- Prototype/POC: Fast iteration via MCP STDIO and in-process simplicity.
+- Local Decoupled: Containerized components using HTTP/SSE for integration testing.
+- MVP: Managed Azure Container Apps with monitoring and secret management.
+- Scalable Production: AKS multi-cluster deployment with enterprise observability and resilience.
+
+Each variant leverages the complementary strengths of Model Context Protocol (MCP), Semantic Kernel, and Azure platform services to create modular, maintainable AI agent capabilities while minimizing migration friction between stages.
 
 ## High-Level Architecture
 
@@ -167,10 +182,10 @@ Security controls, compliance monitoring, audit trails, enterprise identity inte
 
 ### Key Benefits
 
-- **MCP Protocol**: Standardized integration, up to 30% accuracy improvement vs traditional methods, dual transport support
-- **Semantic Kernel**: Multi-agent orchestration patterns (Sequential, Concurrent, Handoff, Group Chat), Azure integration, unified developer experience
-- **Azure Integration**: Enterprise-grade services with compliance, monitoring, security features, managed infrastructure
-- **.NET Ecosystem**: Mature tooling, ASP.NET Core patterns, Visual Studio integration, extensive testing frameworks
+- **MCP Protocol**: Standardized integration layer enabling consistent tool/agent interoperability and dual transport support (STDIO & HTTP/SSE/Streaming trajectories)
+- **Semantic Kernel**: Rich orchestration patterns (Sequential, Concurrent, Handoff, Group Chat) with unified prompt, memory, and planning abstractions
+- **Azure Integration**: Managed services for compliance, observability, security, scaling, and operational governance
+- **.NET Ecosystem**: Mature tooling, productive developer ergonomics, strong testing & diagnostics support
 
 ## Future Testing Roadmap (Post-Prototype)
 
