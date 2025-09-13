@@ -32,7 +32,6 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
 
       `dotnet add package ModelContextProtocol --version 0.3.0-preview.4`
 
-
   - **Configuration Reasoning**: Using appsettings.json is simplest because it follows standard .NET configuration patterns, requires no command-line parsing logic, and automatically binds to strongly-typed options classes
 
 - [ ] Step 2: Create Knowledge Base Service
