@@ -1,8 +1,6 @@
 # Architecture and Technologies Document
 
-## Intro#### Naming Standard
-- Use **Chat Agent** as the consistent label going forward.
-- Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).tion & Objectives
+## roduction
 
 This document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
 
@@ -43,26 +41,17 @@ The system consists of three primary components that work together to deliver co
 5. Response delivered back to **Chat UI**
 
 ### Design Principles
-- **Single Coordination:** Only Orchestration Agent manages multi-step workflows
+- **Single Coordination:** Only Orchestration Agent manages multi-step workflows and can call multiple agents/tools in one logical user turn
 - **Clear Separation:** Chat Agent = LLM specifics; Orchestration = business logic  
 - **Flexible Deployment:** Components co-located (prototype) or distributed (production)
-1. Chat UI submits user utterance to Orchestration Agent.
-2. Orchestration Agent decides: (a) direct LLM request via Chat Agent, (b) tool invocation via KB MCP Server, or (c) multi-step plan (tool(s) then LLM synthesis).
-3. Chat Agent formats prompts, performs response shaping (e.g., trimming, safety heuristics), and returns candidate responses.
-4. Orchestration Agent integrates knowledge payloads + model output, applies conversation state rules, and returns final response to UI.
-5. (Future) Telemetry pipeline captures trace spans for each decision node.
 
 #### Naming Standard
 - Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., “Intelligent Chat Agent”), treat them as aliases with a planned cleanup pass.
 - Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
 
-#### Rationale for Separation (Chat Agent vs Orchestration Agent)
-- Keeps planning / tool routing (stateful, multi-turn) separate from model interaction (stateless per call except for injected history/context).
-- Enables future experimentation: swap Chat Agent implementation (different LLM backend or prompt templating strategy) without destabilizing orchestration.
-- Scaling: High token throughput pressure sits in Chat Agent; cognitive orchestration logic scales differently.
 
-#### Variant Simplification Option
-For extremely constrained prototypes, Chat Agent + Orchestration Agent can be collapsed **without** altering downstream evolution path—public contracts (interfaces / message schemas) should still be shaped as if separation exists to avoid refactors.
+
+
 
 ### Prototype/POC Architecture
 
@@ -115,31 +104,6 @@ Rationale:
 
 Design Recommendation: implement a transport abstraction (e.g., `IMcpTransportClient`) with dependency injection to enable a compile-time + runtime switch (STDIO vs SSE vs HTTP Streaming) and facilitate progressive rollout experiments.
 
-Migration Guidance (if currently on .NET 8/9):
-1. Update `global.json` (if present) with roll-forward settings (`rollForward": "latestFeature"`) to allow preview SDK usage in controlled environments.
-2. Increment `TargetFramework` to `net10.0` **OR** multi-target (`<TargetFrameworks>net8.0;net10.0</TargetFrameworks>`) for libraries consumed by mixed environments.
-3. Bump Semantic Kernel & MCP SDK prereleases; document version pins in a `/docs/versions.md` manifest for reproducibility.
-4. Diff new minimal-host patterns (Program.cs) manually—apply only additive improvements (logging filters, DI patterns). Avoid wholesale file replacement to preserve custom logic.
-5. Run regression suite: (a) unit tests, (b) transport integration tests (STDIO/SSE), (c) prompt evaluation harness (semantic similarity thresholds), (d) performance smoke (latency & allocation).
-6. Capture deltas; if semantic drift > agreed tolerance (e.g., cosine sim < 0.85 vs baseline), open investigation before promoting.
-
-Fallback Strategy:
-- Blocking dependency / perf regression: retain dual-targeting and publish only `net8.0` assets; keep preview path gated behind feature flag.
-- Security advisory affecting preview only: suspend preview track CI; rebase patches onto LTS branch; resume once patched.
-
-Planned Evolution:
-- GA adoption checkpoint (criteria: green perf benchmarks, no Sev-1 regressions, security review sign-off).
-- Introduce automated perf harness (latency p95, tokens/sec, memory footprint, CPU %) comparing `net8.0` vs `net10.0` nightly.
-- Remove dual-targeting after 2 consecutive stable releases post GA (or earlier if dependency graph fully compatible).
-
-#### Dual Targeting Considerations
-| Dimension | Benefit | Cost/Risk | Mitigation |
-|-----------|---------|-----------|------------|
-| Compatibility | Supports mixed runtime estate | Larger test matrix | Matrix pruning (focus on critical paths) |
-| Adoption Velocity | Early preview feedback | Potential churn | Version pin + weekly upgrade cadence |
-| Build Time | Parallel TFMs slow CI | Longer pipelines | Incremental build caching |
-| Package Size | Larger NuGet artifacts | Storage / bandwidth | Drop older TFM once ≥90% consumers upgraded |
-| Cognitive Load | More conditions in code | Complexity | Encapsulate runtime-specific code behind services |
 
 #### Adoption Matrix (Strategic Tracks)
 | Track | Runtime | Primary Goal | When to Promote | Exit Criteria |
@@ -148,17 +112,9 @@ Planned Evolution:
 | Innovation | .NET 10 Preview | Feature velocity & early MCP/SK changes | Passing regression + acceptable drift | GA + sign-off, then merged into stability |
 | Sunset | .NET 9 (if present) | Temporary bridge | Complete by first .NET 10 RC | No consuming services remain |
 
-Key References (public examples & articles – verify latest versions when implementing):
-- Microsoft Learn quickstarts (MCP + .NET previews)
-- .NET Blog posts on MCP server building & NuGet distribution
-- Semantic Kernel multi-agent + Azure AI Foundry integration samples
-- NuGet MCP packaging guidance (official docs)
-
-[^templates]: As of the referenced previews, MCP servers are scaffolded from existing `console` / `web` templates plus adding ModelContextProtocol packages; no dedicated first-party `dotnet new mcpserver` template publicly documented.
-[^preview]: Preview adoption should follow an engineering RFC with explicit rollback triggers (e.g., perf regression >20%, security advisory, breaking protocol change) and isolation from production release branches.
 
 
-### Prototype Testing Infrastructure (Variant 1 Scope Only)
+### Prototype/POC Testing Infrastructure (Variant 1 Scope Only)
 
 For the **Prototype/POC (Variant 1)** we adopt a deliberately *minimal* testing strategy optimized for speed of iteration over exhaustive coverage:
 
