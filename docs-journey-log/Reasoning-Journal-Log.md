@@ -683,13 +683,12 @@ When satisfied:
 - DO NOT start writing any code or implementation plans. Follow instructions.
 ```
 
-**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on a spec, not just the global docs are taken into account, but if we derive for good reasons, we update and **keep consistency in the global docs**, as well. 
-
-
 PROMPT 5 at GHCP chat window:
 (Use **"Edit mode"** and **Claude Sonnet 4** for better reasoning):
 
 ![alt text](images-journey/prompt-05.png)
+
+**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on a spec, not just the global docs are taken into account, but if we derive for good reasons, we update and **keep consistency in the global docs**, as well. 
 
 ```
 PROMPT 5:
@@ -702,7 +701,7 @@ GHCP chat responds with a summary of the task to be done:
 
 ![alt text](images-journey/prompt-05-key-requirements-summary.png)
 
-But, in addition to that it's requesting me for a few **claritications** with the following questions:
+But, in addition to that it's requesting me for a few **clarifications** with the following questions:
 
 ![alt text](images-journey/prompt-05-clarification-questions.png)
 
@@ -775,11 +774,233 @@ I also identified and removed the outdated `/docs/specs/kb-mcp-server.md` file, 
 
 ## Create PR #4 for KB MCP Server feature specs doc and merge into main branch
 
+I created the PR #4, and again, assigned to GHCP CODING AGENT who catched a pair of small issues, so we fixed it before merging the PR:
+
+![alt text](images-journey/pr-04.png)
+
 At this point we have completed the first feature's specification document with comprehensive functional requirements, technical constraints, MCP tools specification, and documented tradeoffs. The specs doc includes detailed acceptance criteria, success metrics, and an appendix explaining key design decisions.
 
 The KB MCP Server feature specification is now ready for the next phase: creating the implementation plan document.
 
+
+### Prompt 6 - Create the **implementation plan doc** for feature KB/content MCP server
+
+Now that we have crafted the feature specs doc with functional specs, we need to define exactly how we're going to implement/code the custom "KB/content MCP server"in an **implementation plan doc**.
+
+For this, I'm using another pre-defined prompt template approach. 
+
+**PRE-WRITTEN TEMPLATE PROMPT for defining a feature's implementation plan doc:**
+
+It's placed at **.github/prompts** folder, named **feature.implementation-plan.prompt.md**.
+
+The following is the content of this pre-writen specs prompt where **the great thing about it is that it's 100% generic!**, you don't need to change/update it per feature because it'll get all the context needed from the provided feature's specs document that you need to provide as part of the context.
+
+```
+---
+mode: 'edit'
+description: 'Plan a feature implementation/coding'
+---
+
+Your goal is to generate an implementation/coding plan for a specification document provided to you.
+
+RULES:
+- Keep implementations simple, do not over architect
+- Do not generate real code for your plan, pseudocode is OK
+- For each step in your plan, include the objective of the step, the steps to achieve that objective, and any necessary pseudocode.
+- Call out any necessary user intervention required for each step
+- Consider accessibility part of each step and not a separate step
+- Follow the rules in #file:../../.github/copilot-instructions.md
+- Follow the coding rules in #file:../../.github/copilot-coding-rules.md (like project names and folder's structure), but do not create real code in this implementation/coding plan document but simplify the code-snippets to the maximum extent possible.
+- (Special rule for prototy/POC) Focus on simplest possible implementation that meets the requirements
+- (Special rule for prototy/POC) Avoid over engineering or over architecting
+- (Special rule for prototy/POC) Avoid production grade implementations or optimizations
+- (Special rule for prototy/POC) Avoid advanced features or capabilities that are not in scope
+- (Special rule for prototy/POC) The most important rule for this implementation plan is to keep things (approaches, design and related code) as simple as possible while still meeting the requirements of the specification document provided to you.
+
+FIRST:
+
+- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/04-architecture-technologies.md to file to understand an overview of the project, but focus mostly on the prototype/POC scope (functiona;, architecture and technologies for the prototype).
+- Review the attached specs document (as context file) to understand the requirements and objectives.
+
+THEN:
+- Create a detailed implementation plan that outlines the steps needed to achieve the objectives of the specification document.
+- The plan should be structured, clear, and easy to follow.
+- Structure your plan as follows, and output as Markdown code block
+
+```markdown
+# Implementation Plan for [Spec Name]
+
+- [ ] Step 1: [Brief title]
+  - **Task**: [Detailed explanation of what needs to be implemented]
+  - **Files**: [Maximum of 10 files, ideally less]
+    - `path/to/file1.cs`: [Description of changes], [Pseudocode for implementation]
+  - **Dependencies**: [Dependencies for step]
+
+[Additional steps...]
+
+- After the steps to implement/code the feature, add a step to build and run the app
+- Add a step to write unit tests, integration tests and UI tests for the feature
+- Add a step to run all tests as last step 
+
+NEXT:
+
+- Iterate with me until I am satisifed with the plan
+
+FINALLY: 
+
+- Output your plan in #folder:../../docs/plans/feature-implementationplan-name.md
+- DO NOT start implementation without my permission.
+```
+
+**PROMPT 6 at GHCP chat window:**
+(Use **"Edit mode"** and **Claude Sonnet 4** for better reasoning):
+
+![alt text](images-journey/prompt-06.png)
+
+**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on the implementation, all the related documents should **keep consistency** between them.
+Specs and implementation plan should not be "fire and forget" and keep coding, but it should be a single whole atomic unit, consistent. 
+
+```
+PROMPT 6:
+Follow and run the provided pre-written prompt attached plus the additional context docs provided.
+```
+
+Now, I run the prompt 6 for creating the KB MCP server feature's implementation plan.
+
+GHCP chat responds with a summary of the task to be done:
+
+![alt text](images-journey/prompt-06-key-requirements-summary.png)
+
+
+But, in addition to that it's requesting me for a few **clarifications** with the following questions:
+
+![alt text](images-journey/prompt-06-clarification-questions.png)
+
+Plus, after generating an initial version of the document, it asked me additional refinement questions:
+
+![alt text](images-journey/prompt-06-refinement-questions.png)
+
+
+I answered with the following decissions and clarification answers:
+
+**Cesar's PROMPT for clarification and refinement answers:**
+```
+Project Structure: Should this be a console application or a class library? 
+    Cesar's answer: An MCP server in .NET is an standalone process, so it should be a console application that can be run as an MCP server. It uses a hosting ModelBackground service via Host.CreateApplicationBuilder, using the console app as the host.
+    In later versions we'll be able to convert it to a Docker container and use HTTP as protocol instead of STDIO, but not for this initial implementation plan.
+
+Knowledge Base File: Should we include a sample AMG content file in the project, or expect it to be provided via configuration?
+        Cesar's answer: Yes please, include a sample AMG content file in the project. 
+        Use Perplexity MCP server if needed for creating the AMG content file in the project.
+
+Configuration: Command line arguments, config file, or both for specifying the knowledge base file path?
+    Cesar's answer: USe the simplest approach, probably a config file.
+
+MCP SDK: Should I assume we'll use the official Microsoft MCP SDK for .NET, or are there specific MCP libraries you'd prefer?
+    Cesar's answer: USe the official Microsoft MCP SDK for .NET.
+        With this namespace: using ModelContextProtocol.Server;
+        This package: ModelContextProtocol (Use latest version which is popular, even if in preview)
+        Confirm the best version to use. 
+
+Testing Scope: For the prototype, should we focus primarily on unit tests for the core search functionality, or also include basic integration tests for MCP protocol compliance?
+    Cesar's answer: Include in the plan one or two basic integration tests using STDIO. Do not generate code for TESTS in the implementation plan, just define the plan for the tests.
+
+
+MCP SDK Reference: Should I include specific NuGet package references, or will you provide guidance on the MCP SDK to use?
+    Cesar's answer: No need this details in the implementation plan. That's easy and to be done when coding. Keep the implementation plan simple and without too many details only needed when coding.
+
+Error Handling Depth: For the prototype, should error handling be very basic (just prevent crashes) or include some categorization of error types?
+    Cesar's answer: For the prototype, error handling should be be very basic, favoring code readability.
+
+Configuration Flexibility: Should the implementation support both command line arguments and config file, or is one sufficient for the prototype?
+    Cesar's answer: Propose in the plan only one way, the simplest way for the configuration, but provide a reasoning why the proposed approach is the easiest and simplest to implement.
+
+Content File Size: Any specific guidance on the sample AMG content file size and structure for testing?
+    Cesar's answer: A bit less than 5,000 characters, for now.
+
+Use, if needed, Context7 and Perplexity, but ony if you need more context and committed to the most important rule for this prompt which is "keep it simple", an implementation plan as simple as possible for the prototype/POC.
+```
+
+GHCP iterated and created a comprehensive 10-step implementation plan covering:
+1. Project structure and configuration setup
+2. Knowledge base service implementation  
+3. Sample AMG content creation
+4. MCP tools implementation
+5. MCP server host service
+6. Basic logging and error handling
+7. Build and run verification
+8. Unit tests creation
+9. Integration tests creation
+10. Complete test execution
+
+The plan emphasizes simplicity while maintaining good .NET practices and ensures the solution meets all specification requirements. Key design decisions include using appsettings.json for configuration (reasoning: standard .NET patterns, no command-line parsing complexity) and focusing on crash prevention rather than comprehensive error categorization.
+
+
+### My actions after prompt 6
+
+- First, I review the implementation plan Thoroughly. 
+
+- Second, I found some points I'd like to have changed, so these were my complementary promots to iterate the feature implementation plan:
+
+**Cesar's complementary/iteration PROMPT:**
+```
+In the feature-implementation-plan-kb-mcp-server.md file:
+
+Since I want to be able to re-use this prototype implementation for any other domain, I do NOT want to use the word "Amg" or anything related to Azure Managed Grafana (AMG) in the code or in the project's names, folders, etc.
+
+Remove any "AMG" or similar from the "code example" or code snippets in the implementation plan document.
+
+For instance, the project and folder instead of being named "AmgKnowledgeBase.McpServer/AmgKnowledgeBase.McpServer.csproj" should be "kb.mcpserver/kb.mcpserver.csproj".
+
+Also, review the document and follow the coding-rules.md, always, please.
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+About logging, make sure it's not conflicting with MCP Stdio:
+
+// Configure minimal logging
+builder.Logging.AddConsole(options =>
+{
+    // Route all log levels to stderr to avoid corrupting MCP stdio (stdout) channel
+    options.LogToStandardErrorThreshold = LogLevel.Trace;
+});
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+Explain why it's recommended to use the interface "IKnowledgeBaseService.cs".
+I think it's a good idea so we make the service "generic" thanks to a contract/interface, I'm guessing that using DEPENDENCY INJECTION, so in the future we can swap it to another KB Service implementation probably more complex (say good examples for the future) without needing to change the code invoking the service.
+
+If there's any additional reason, explain it, too.
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+Please, follow my coding-reules.md. Review that the implementation plan is complaint with it.
+For example, the folder "Tools" should be named "tools" or "configuration" instread of "Configuration".
+Only the leaf level of files (i.e. class names) should be capitalized. All folders and even project's filenames should be lowercase, as explained in the coding-reules.md 
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+Move out the technical/framework sections from the "Key Design Principles". For example the "MCP SDK Integration", "MCP STDIO Logging Configuration", "Configuration Strategy", ".NET Dependencies Summary"  should be in a different "technical implementation guidelines" or something similar. THose are not "Design Principles"
+```
+
+GHCP updated the implementation plan to comply with coding rules by:
+- Changing folder names from PascalCase to kebab-case: `Tools` → `tools`, `Configuration` → `configuration`, `Services` → `services`, `Models` → `models`, `Extensions` → `extensions`
+- Keeping class filenames in PascalCase as they represent C# class names
+- Maintaining lowercase project filenames with kebab-case convention
+- Reorganizing technical sections under "Technical Implementation Guidelines" separate from "Key Design Principles"
+
+The implementation plan now follows the established coding conventions for modern containerized applications (even when we're still not using Docker, but getting ready/elegant for it), while maintaining clear separation between design principles and technical implementation details.
+
+## Create PR #5 for KB MCP Server implementation plan doc and merge into main branch
+
+At this point we have completed the feature's implementation plan document that provides a clear, step-by-step guide for building the KB MCP Server. The plan maintains consistency with the feature specification and follows the architectural principles defined in our global documents.
+
+The implementation plan is now ready for the final phase: actual coding and implementation of the KB MCP Server.
+
 ## Next Steps for Day 2 continuation
 
-- Feature 1 (KB content MCP Server) Implementation plan doc  
 - Feature 1 (KB content MCP Server) coding/implementation
