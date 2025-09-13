@@ -116,11 +116,21 @@ Key References (public examples & articles – verify latest versions when imple
 [^preview]: Preview adoption should follow an engineering RFC with explicit rollback triggers (e.g., perf regression >20%, security advisory, breaking protocol change) and isolation from production release branches.
 
 
-### Development and Testing Infrastructure
+### Prototype Testing Infrastructure (Variant 1 Scope Only)
 
-The development infrastructure incorporates comprehensive testing strategies specifically designed for AI agent validation, addressing the unique challenges of non-deterministic system behavior. Unit testing leverages the .NET MCP SDK's testing capabilities to validate individual tool functionality and protocol compliance through controlled test environments. Integration testing employs Semantic Kernel's built-in testing support to validate agent orchestration, conversation flow management, and external service integration patterns.
+For the **Prototype/POC (Variant 1)** we adopt a deliberately *minimal* testing strategy optimized for speed of iteration over exhaustive coverage:
 
-Testing automation includes specialized tools for AI agent validation including Promptfoo for prompt testing and response evaluation, Langfuse for comprehensive observability and performance monitoring, and custom validation frameworks for domain-specific response quality assessment. The testing approach balances automated validation with human-in-the-loop evaluation to ensure response quality, conversational effectiveness, and domain expertise accuracy that automated testing alone cannot adequately assess.
+| Layer | Scope (Variant 1) | Tooling | Deferral Notes |
+|-------|-------------------|---------|----------------|
+| Unit | MCP tool parameter validation & simple success path | xUnit / MSTest (light) | Edge/error branches largely deferred |
+| Integration | Orchestrator ↔ KB Server (STDIO) basic round‑trip | In-process harness | Multi-transport & failure simulation deferred |
+| Prompt / Semantic | Golden prompt snapshots + manual qualitative review | Promptfoo (optional), manual | Automated semantic similarity scoring deferred |
+| Observability | Console logging only | Built-in logging | Structured & telemetry pipelines deferred |
+| Performance | Ad-hoc manual timing (single run) | Stopwatch / simple script | Load, soak, stress deferred |
+
+Design Principle: **Ship a working conversational loop first; harden later.** Any additional frameworks (Langfuse, full prompt evaluation matrices, property-based tests) are *explicitly out of scope* for Variant 1 to avoid premature optimization.
+
+Future variants will layer in broader testing (integration across transports, performance baselines, resilience/chaos scenarios, security scanning) once architectural seams stabilize.
 
 ## Architecture Variants
 
@@ -154,8 +164,7 @@ Deployment involves simple executable distribution with configuration files, req
 **Architecture Characteristics:**
 The decoupled architecture evolves STDIO transport to HTTP-based communication, enabling distributed component deployment while maintaining local development simplicity. Each component operates in dedicated Docker containers with HTTP-based MCP communication, providing realistic production communication patterns while eliminating external infrastructure dependencies. The containerized approach enables comprehensive integration testing across different deployment configurations while maintaining development environment consistency.
 
-**Enhanced Testing Strategy:**
-Testing expands to include comprehensive end-to-end validation across HTTP transport mechanisms, container networking validation, and performance testing under various load conditions. The testing approach incorporates automated container deployment, network communication validation, and performance regression monitoring that provides insights into system behavior under realistic deployment conditions.
+**Testing (Evolution Placeholder):** Prototype test set continues to run unchanged. Additional suites (container networking, HTTP/SSE transport parity, basic latency baseline) are **TBD** and will be defined in a separate "Variant 2 Test Expansion" document prior to implementation.
 
 **Development Benefits:**
 The decoupled architecture enables independent component development and testing while providing realistic production behavior patterns. Development teams can iterate on individual components without affecting others, while integration testing validates complete system behavior through production-representative communication patterns.
@@ -172,11 +181,9 @@ The decoupled architecture enables independent component development and testing
 **Architecture Characteristics:**
 The MVP architecture leverages Azure Container Apps for managed container orchestration, providing enterprise-grade deployment capabilities with minimal infrastructure management overhead. Components deploy as independent container apps with automatic scaling, built-in monitoring, and integrated security features. The architecture maintains HTTP-based MCP communication while adding production monitoring, secrets management, and automated deployment capabilities essential for business-critical applications.
 
-**Production Readiness Features:**
-The MVP architecture includes comprehensive monitoring through Azure Application Insights, automated scaling based on demand patterns, and integrated security through Azure Key Vault and managed identity. The deployment pipeline automates container building, testing, and deployment while maintaining security best practices and operational oversight required for production environments.
+**Production Readiness Features:** (Architecture view only at this stage) Monitoring, scaling, and secrets integration planned; *formal test expansion (resilience, load, security scanning) remains TBD* and will be chartered before MVP hardening.
 
-**Operational Capabilities:**
-Operational management includes real-time performance monitoring, automated alerting for system issues, and comprehensive logging for troubleshooting and optimization. The architecture provides cost optimization through automatic scaling and resource management while maintaining the flexibility to handle varying workload patterns typical of conversational AI applications.
+**Operational Capabilities:** (Planned) Real-time monitoring & alerting are *not* implemented in Variant 1; instrumentation stories will accompany the MVP testing charter.
 
 ### Variant 4: Scalable Production (Azure Kubernetes Service)
 
@@ -214,23 +221,25 @@ Azure Foundry OpenAI Service provides enterprise-grade language model access wit
 
 The .NET platform provides mature tooling, comprehensive package management, and robust deployment options that accelerate AI agent development. The official MCP SDK for .NET includes familiar ASP.NET Core patterns and dependency injection support that leverage existing .NET expertise. Strong Visual Studio integration, comprehensive debugging capabilities, and extensive testing frameworks provide development productivity advantages that reduce time-to-market for AI agent implementations.
 
-## Testing Strategy and Quality Assurance
+## Future Testing Roadmap (Post-Prototype)
 
-### Comprehensive Testing Approach
+The following capabilities are *intentionally deferred* until after the Prototype (Variant 1) delivers validated core value:
 
-The testing strategy addresses the unique challenges of validating non-deterministic AI systems through multi-layered validation that combines automated testing with specialized AI evaluation techniques. Unit testing focuses on MCP tool functionality, parameter validation, and protocol compliance using controlled test environments that eliminate external dependencies. Integration testing validates agent orchestration, conversation flow management, and system behavior under various operational scenarios including failure conditions and performance stress testing.
+| Future Capability | Target Variant | Trigger to Implement | Success Metric |
+|-------------------|---------------|----------------------|----------------|
+| Transport parity tests (STDIO vs HTTP/SSE) | 2 | HTTP transport adoption | <5% behavioral drift across transports |
+| Container integration tests | 2 | First Docker Compose baseline | Green build under Compose matrix |
+| Performance baseline & regression guard | 2 → 3 | Latency concerns / scaling goals | p95 latency stable ±10% over 5 builds |
+| Structured observability (traces, Langfuse) | 3 | MVP readiness review | Key spans captured & searchable |
+| Load & resilience (chaos, restart, network loss) | 3 → 4 | Pre-production gate | Automated scenario pass rate ≥95% |
+| Security scanning & secret handling tests | 3 | Introduction of Key Vault / managed identity | Zero critical findings |
+| Multi-region failover simulation | 4 | AKS multi-cluster planning | RPO/RTO targets validated |
+| Advanced semantic evaluation harness | 3 | Prompt complexity growth | Drift alerts actionable (<15% unacceptable variance) |
+| Human evaluation rubric & inter-rater scoring | 3 | Pilot user feedback cycle | Agreement coefficient ≥ target threshold |
 
-### AI-Specific Testing Tools
+Human-in-the-loop review, semantic similarity scoring, property-based generation fuzzing, and full failure injection are deferred to prevent over-investment before conversational core value is confirmed.
 
-Testing infrastructure incorporates specialized tools designed for AI agent validation including Promptfoo for comprehensive prompt testing and response evaluation, Langfuse for observability and performance monitoring, and custom validation frameworks for domain-specific quality assessment. The testing approach includes property-based testing that validates behavioral consistency across diverse input scenarios, tolerance-based validation that accounts for acceptable response variation, and semantic similarity assessment that evaluates response quality without requiring exact matching.
-
-### End-to-End Validation
-
-End-to-end testing validates complete system behavior across different transport mechanisms (STDIO and HTTP), deployment configurations, and operational scenarios. The testing approach includes comprehensive conversation flow validation, multi-agent orchestration testing, and performance validation under various load conditions. Testing automation enables continuous validation of agent behavior while providing regression detection capabilities that identify quality degradation as systems evolve.
-
-### Human-in-the-Loop Quality Assessment
-
-Quality assurance includes human evaluation processes for conversation quality, domain expertise accuracy, and user experience assessment that automated testing cannot adequately address. The evaluation framework provides structured assessment criteria, inter-rater reliability measures, and continuous improvement processes that enhance both automated and human evaluation capabilities over time.
+Principle: **Defer sophistication until signal justifies cost.** Each postponed layer includes a clear activation trigger to avoid indefinite deferral.
 
 ## Conclusion
 
