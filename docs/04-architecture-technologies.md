@@ -1,6 +1,8 @@
 # Architecture and Technologies Document
 
-## roduction
+#- **Flexible Deployment:** Components co> **Note**: .NET 10 previews lack official MCP templates—teams scaffold manually.located (prototype) or distributed (production)
+
+### Prototype/POC Architectureion
 
 This document presents a comprehensive analysis of architecture alternatives and technology stack recommendations for building a domain-specific AI agent system focused on Azure Managed Grafana (AMG). The architectural approach emphasizes modular, scalable design patterns that enable rapid prototyping while providing clear evolution paths toward production-ready deployments.
 
@@ -63,20 +65,38 @@ This architecture enables rapid prototyping by minimizing infrastructure require
 
 ## Technologies, Stack & Tools
 
-### Core Technology Stack Foundation
+### Core Technology Stack
 
-The technology foundation centers on .NET/C# as the primary development platform, leveraging Microsoft's comprehensive ecosystem for AI agent development. The Model Context Protocol .NET SDK provides production-ready capabilities for building MCP-compliant servers with familiar ASP.NET Core patterns and robust dependency injection support. Semantic Kernel enables sophisticated AI agent orchestration through its mature framework for planning, memory management, and multi-agent coordination. Azure Foundry OpenAI Service provides enterprise-grade language model access with built-in security, compliance, and monitoring capabilities essential for production deployments.
+The architecture centers on .NET/C# with Microsoft's AI development ecosystem:
 
-While earlier iterations referenced **.NET 8** as the baseline, current strategic guidance (Microsoft Learn previews, .NET Blog MCP posts, and evolving SK/MCP samples) encourages evaluating **.NET 10 (Preview 6 or higher)** for *new* MCP servers and Semantic Kernel agent projects **where preview risk is acceptable**. Current previews improve developer ergonomics (incremental hosting + packaging experience and community scaffolding patterns) but there is **no officially published dedicated `dotnet new` MCP server template yet**—teams still scaffold from existing console / minimal API templates and add MCP packages manually.[^templates] Any perceived “alignment improvements” with Semantic Kernel are incremental and derive mainly from staying current with SK releases rather than .NET 10–specific runtime capabilities. Teams already running stable workloads on .NET 8 (LTS) may remain there until .NET 10 reaches GA; experimental or greenfield efforts can target .NET 10 to reduce forward migration overhead if governance permits.[^preview]
+- **Model Context Protocol**: Production-ready .NET SDK with ASP.NET Core patterns
+- **Semantic Kernel**: AI agent orchestration with planning and memory management  
+- **Azure AI Foundry**: Enterprise-grade OpenAI access with security and compliance
 
-> Version Strategy Summary (Strategic – not an official mandate):
-> - New development (innovation track): .NET 10 previews – when accepting preview risk & needing latest MCP/SK iteration velocity
-> - Existing production (stability track): Remain on .NET 8 LTS until .NET 10 GA unless a blocking feature gap justifies earlier move
-> - Transitional prototypes on .NET 9: Upgrade directly to .NET 10 (expected low breaking delta for typical MCP/SK usage—still regression test)
+#### .NET Version Strategy
 
-> Preview Use Disclaimer: Previews are **non-LTS** and can introduce breaking changes between drops. Apply ring-based rollout (dev → integration → staging) with explicit rollback points and freeze adoption N weeks prior to major demos or releases.[^preview]
+Current guidance recommends **.NET 10 (Preview 6+)** for new MCP/Semantic Kernel projects when preview risk is acceptable, while production workloads should remain on **.NET 8 LTS** until .NET 10 GA.
 
-The architectural approach emphasizes leveraging proven Microsoft technologies that provide strong integration capabilities, comprehensive documentation, and robust tooling support. This technology selection enables rapid development while ensuring compatibility with enterprise requirements including security, monitoring, and operational management that become critical as systems scale toward production deployment.
+| Track | Runtime | Use Case |
+|-------|---------|----------|
+| Innovation | **.NET 10 Preview 6+** | New development, experimental projects |
+| Stability | **.NET 8 LTS** | Production workloads, risk-averse environments |
+| Transitional | .NET 9 | Legacy bridge only |
+
+> **Note**: .NET 10 previews lack official MCP templates—teams scaffold manually.
+
+#### Transport Strategy
+
+| Aspect | Current | Emerging | Action |
+|--------|---------|----------|--------|
+| Local Dev | STDIO | Continues | Primary for inner-loop development |
+| Remote | SSE supported | HTTP Streaming preferred | Implement transport abstraction |
+| Future | — | WebSocket potential | Track MCP spec updates |
+
+> **Recommendation**: Use transport abstraction (e.g., `IMcpTransportClient`) to enable runtime switching between STDIO, SSE, and HTTP Streaming.
+
+### Prototype/POC Testing Infrastructure (Variant 1 Scope Only)
+
 
 ### Runtime & SDK Version Recommendations
 
@@ -105,18 +125,12 @@ Rationale:
 Design Recommendation: implement a transport abstraction (e.g., `IMcpTransportClient`) with dependency injection to enable a compile-time + runtime switch (STDIO vs SSE vs HTTP Streaming) and facilitate progressive rollout experiments.
 
 
-#### Adoption Matrix (Strategic Tracks)
-| Track | Runtime | Primary Goal | When to Promote | Exit Criteria |
-|-------|---------|--------------|-----------------|---------------|
-| Stability | .NET 8 LTS | Predictable ops | Security / perf parity proven in preview | GA + validated SLO adherence |
-| Innovation | .NET 10 Preview | Feature velocity & early MCP/SK changes | Passing regression + acceptable drift | GA + sign-off, then merged into stability |
-| Sunset | .NET 9 (if present) | Temporary bridge | Complete by first .NET 10 RC | No consuming services remain |
 
 
 
 ### Prototype/POC Testing Infrastructure (Variant 1 Scope Only)
 
-For the **Prototype/POC (Variant 1)** we adopt a deliberately *minimal* testing strategy optimized for speed of iteration over exhaustive coverage:
+**Prototype testing adopts a minimal strategy focused on iteration speed over exhaustive coverage:**
 
 | Layer | Scope (Variant 1) | Tooling | Deferral Notes |
 |-------|-------------------|---------|----------------|
@@ -126,100 +140,76 @@ For the **Prototype/POC (Variant 1)** we adopt a deliberately *minimal* testing 
 | Observability | Console logging only | Built-in logging | Structured & telemetry pipelines deferred |
 | Performance | Ad-hoc manual timing (single run) | Stopwatch / simple script | Load, soak, stress deferred |
 
-Design Principle: **Ship a working conversational loop first; harden later.** Any additional frameworks (Langfuse, full prompt evaluation matrices, property-based tests) are *explicitly out of scope* for Variant 1 to avoid premature optimization.
-
-Future variants will layer in broader testing (integration across transports, performance baselines, resilience/chaos scenarios, security scanning) once architectural seams stabilize.
+**Principle**: Ship a working conversational loop first; harden testing in later variants.
 
 ## Architecture Variants
 
 ### Variant 1: Initial Prototype/POC
 
 **Technology Stack:**
-- .NET 10 (Preview 6+) / C# (preferred for new work) — fallback: .NET 8 LTS
-- MCP SDK for .NET (STDIO transport in preview templates)
+- .NET 10 (Preview 6+) / C# — fallback: .NET 8 LTS
+- MCP SDK for .NET (STDIO transport)
 - Semantic Kernel for agent orchestration
-- Azure Foundry OpenAI Service for LLM capabilities
-- Simple file-based knowledge storage
+- Azure AI Foundry for LLM capabilities
+- File-based knowledge storage
 
-**Architecture Characteristics:**
-The prototype architecture prioritizes rapid development and validation over scalability, implementing all components as console applications that communicate through MCP STDIO transport. The KB MCP Server reads AMG information from local text files, providing immediate knowledge access without external dependencies. The Chat Agent operates as an in-process Semantic Kernel component, eliminating deployment complexity while maintaining full conversational capabilities. The Orchestration Agent coordinates all interactions through STDIO-based MCP communication, ensuring reliable message passing with minimal configuration requirements.
+**Characteristics:**
+Console applications communicating via STDIO transport. KB MCP Server reads from local files, Chat Agent runs in-process with Semantic Kernel, Orchestration Agent coordinates via STDIO. Prioritizes rapid development and validation over scalability.
 
-**Development and Testing Approach:**
-Testing focuses on validating core functionality through unit tests for individual MCP tools, integration tests for agent coordination, and conversation flow validation through manual testing with compatible chat interfaces. The testing strategy emphasizes rapid feedback cycles and immediate issue identification rather than comprehensive automated validation, enabling quick iteration on agent behavior and conversation quality.
+**Testing:** Unit tests for MCP tools, integration tests for coordination, manual conversation validation.
 
-**Deployment Model:**
-Deployment involves simple executable distribution with configuration files, requiring only .NET runtime installation and Azure Foundry API credentials. The self-contained deployment model eliminates infrastructure dependencies while providing complete functionality for demonstration and validation purposes.
+**Deployment:** Simple executables with config files, requires only .NET runtime and Azure AI Foundry API credentials.
 
 ### Variant 2: Local Decoupled Solution (Testing/QA)
 
 **Technology Stack:**
-- Previous stack (aligned to .NET 10 Preview where feasible; .NET 8 acceptable for stability)
-- MCP HTTP/SSE transport (in addition to STDIO for local tooling)
-- Docker for component containerization
-- Docker Compose for orchestration
+- Previous stack (.NET 10 Preview where feasible; .NET 8 acceptable)
+- MCP HTTP/SSE transport + STDIO for local tooling
+- Docker + Docker Compose for orchestration
 - Enhanced configuration management
 
-**Architecture Characteristics:**
-The decoupled architecture evolves STDIO transport to HTTP-based communication, enabling distributed component deployment while maintaining local development simplicity. Each component operates in dedicated Docker containers with HTTP-based MCP communication, providing realistic production communication patterns while eliminating external infrastructure dependencies. The containerized approach enables comprehensive integration testing across different deployment configurations while maintaining development environment consistency.
+**Characteristics:**
+Components run in Docker containers with HTTP-based MCP communication. Enables distributed deployment while maintaining local development simplicity.
 
-> STDIO vs Containers (Why shift to HTTP): In Docker-based isolation, cross-container STDIO is impractical—process boundaries block direct file descriptor sharing, Compose would require fragile linkage, and any workaround would not map to Kubernetes. HTTP is the natural fit: native port exposure, built-in service discovery, network tooling for debugging, and a seamless path to scalable production.
+> **STDIO vs HTTP**: Docker isolation requires HTTP transport—process boundaries block STDIO sharing, HTTP provides native port exposure and service discovery.
 
-**Testing (Evolution Placeholder):** Prototype test set continues to run unchanged. Additional suites (container networking, HTTP/SSE transport parity, basic latency baseline) are **TBD** and will be defined in a separate "Variant 2 Test Expansion" document prior to implementation.
-
-**Development Benefits:**
-The decoupled architecture enables independent component development and testing while providing realistic production behavior patterns. Development teams can iterate on individual components without affecting others, while integration testing validates complete system behavior through production-representative communication patterns.
+**Testing:** Prototype tests continue unchanged. Additional container networking and transport parity tests TBD.
 
 ### Variant 3: MVP (Azure Container Apps)
 
 **Technology Stack:**
-- Previous stack plus Azure Container Apps
+- Previous stack + Azure Container Apps
 - Azure Application Insights for monitoring
 - Azure Key Vault for secrets management
 - CI/CD pipeline integration
-- (Optional) Dual-targeting net8.0 + net10.0 during transitional MVP phase
 
-**Architecture Characteristics:**
-The MVP architecture leverages Azure Container Apps for managed container orchestration, providing enterprise-grade deployment capabilities with minimal infrastructure management overhead. Components deploy as independent container apps with automatic scaling, built-in monitoring, and integrated security features. The architecture maintains HTTP-based MCP communication while adding production monitoring, secrets management, and automated deployment capabilities essential for business-critical applications.
+**Characteristics:**
+Managed container orchestration with enterprise-grade capabilities. Independent container apps with automatic scaling, monitoring, and integrated security. HTTP-based MCP communication with production monitoring and secrets management.
 
-**Production Readiness Features:** (Architecture view only at this stage) Monitoring, scaling, and secrets integration planned; *formal test expansion (resilience, load, security scanning) remains TBD* and will be chartered before MVP hardening.
-
-**Operational Capabilities:** (Planned) Real-time monitoring & alerting are *not* implemented in Variant 1; instrumentation stories will accompany the MVP testing charter.
+**Production Features:** Monitoring, scaling, and secrets integration planned. Formal test expansion (resilience, load, security) TBD.
 
 ### Variant 4: Scalable Production (Azure Kubernetes Service)
 
 **Technology Stack:**
-- Previous stack plus Azure Kubernetes Service (AKS)
+- Previous stack + Azure Kubernetes Service (AKS)
 - AKS Fleet Manager for multi-cluster scaling
-- Azure Monitor and Azure AI Foundry tracing
+- Azure Monitor + Azure AI Foundry tracing
 - Enterprise security and compliance features
-- Standardize on net10.0 (post-GA) with deprecation plan for net8.0 artifacts
 
-**Architecture Characteristics:**
-The production architecture implements comprehensive Kubernetes orchestration through AKS, providing unlimited scaling capabilities and enterprise-grade operational features. The architecture supports multi-cluster deployments through AKS Fleet Manager, enabling global distribution and massive scale requirements that exceed single-cluster limitations. Advanced monitoring includes Azure AI Foundry tracing for agent behavior analysis and comprehensive operational metrics for performance optimization.
+**Characteristics:**
+Comprehensive Kubernetes orchestration with unlimited scaling. Multi-cluster deployments via Fleet Manager for global distribution. Advanced monitoring with AI tracing for agent behavior analysis.
 
 **Enterprise Features:**
-Production deployment includes comprehensive security controls, compliance monitoring, audit trail management, and integration with enterprise identity management systems. The architecture supports multi-region deployment for global availability, disaster recovery capabilities, and comprehensive backup and restore procedures essential for business-critical AI applications.
-
-**Scalability and Performance:**
-The Kubernetes architecture supports horizontal scaling across thousands of nodes, enabling AI agent systems that can handle massive concurrent user loads while maintaining performance and reliability standards. Advanced features include automatic resource management, intelligent load balancing, and performance optimization strategies that ensure cost-effective operation while meeting demanding performance requirements.
+Security controls, compliance monitoring, audit trails, enterprise identity integration. Multi-region deployment with disaster recovery and backup/restore capabilities.
 
 ## Technology Differentiators
 
-### MCP Protocol Advantages
+### Key Benefits
 
-Model Context Protocol provides standardized integration capabilities that eliminate the fragmented approaches typically associated with AI system integration. Research indicates up to 30% improvement in response accuracy compared to traditional model serving methods, stemming from MCP's ability to provide live, enterprise-specific data rather than relying on static embeddings. The protocol's dual transport support (STDIO and HTTP) enables flexible deployment strategies that can evolve from local development to distributed production environments without architectural changes.
-
-### Semantic Kernel Orchestration Benefits
-
-Semantic Kernel offers sophisticated multi-agent orchestration patterns including Sequential, Concurrent, Handoff, Group Chat, and Magentic coordination that enable complex problem decomposition and collaborative solution development. The framework's native Azure integration provides optimal performance when combined with Azure AI services while maintaining compatibility with other LLM providers. The unified developer experience across orchestration patterns enables rapid experimentation with different coordination strategies without significant code changes.
-
-### Azure Service Integration
-
-Azure Foundry OpenAI Service provides enterprise-grade language model access with built-in compliance, monitoring, and security features that are essential for production AI deployments. The service includes comprehensive token usage tracking, cost management capabilities, and integration with Azure security and compliance frameworks. Azure Container Apps and AKS provide managed infrastructure that eliminates operational overhead while providing enterprise-grade scaling, security, and monitoring capabilities.
-
-### .NET Ecosystem Advantages
-
-The .NET platform provides mature tooling, comprehensive package management, and robust deployment options that accelerate AI agent development. The official MCP SDK for .NET includes familiar ASP.NET Core patterns and dependency injection support that leverage existing .NET expertise. Strong Visual Studio integration, comprehensive debugging capabilities, and extensive testing frameworks provide development productivity advantages that reduce time-to-market for AI agent implementations.
+- **MCP Protocol**: Standardized integration, up to 30% accuracy improvement vs traditional methods, dual transport support
+- **Semantic Kernel**: Multi-agent orchestration patterns (Sequential, Concurrent, Handoff, Group Chat), Azure integration, unified developer experience
+- **Azure Integration**: Enterprise-grade services with compliance, monitoring, security features, managed infrastructure
+- **.NET Ecosystem**: Mature tooling, ASP.NET Core patterns, Visual Studio integration, extensive testing frameworks
 
 ## Future Testing Roadmap (Post-Prototype)
 
@@ -237,14 +227,10 @@ The following capabilities are *intentionally deferred* until after the Prototyp
 | Advanced semantic evaluation harness | 3 | Prompt complexity growth | Drift alerts actionable (<15% unacceptable variance) |
 | Human evaluation rubric & inter-rater scoring | 3 | Pilot user feedback cycle | Agreement coefficient ≥ target threshold |
 
-Human-in-the-loop review, semantic similarity scoring, property-based generation fuzzing, and full failure injection are deferred to prevent over-investment before conversational core value is confirmed.
-
-Principle: **Defer sophistication until signal justifies cost.** Each postponed layer includes a clear activation trigger to avoid indefinite deferral.
+**Principle**: Defer sophistication until signal justifies cost. Each capability includes clear activation triggers.
 
 ## Conclusion
 
-The architectural analysis demonstrates that successful AI agent implementations require systematic progression through well-defined evolutionary stages that balance rapid prototyping needs with production scalability requirements. The proposed architecture variants provide clear migration paths from simple STDIO-based prototypes through enterprise-grade Kubernetes deployments while maintaining consistent development patterns and technology foundations.
+This architecture provides a systematic progression from simple STDIO-based prototypes to enterprise-grade Kubernetes deployments. The .NET/C#, MCP, and Semantic Kernel technology stack offers robust AI agent capabilities while leveraging proven Microsoft technologies for enterprise compatibility.
 
-The technology stack centered on .NET/C#, MCP, and Semantic Kernel provides robust capabilities for building sophisticated AI agents while leveraging proven Microsoft technologies that ensure enterprise compatibility and operational maturity. The comprehensive testing strategy addresses the unique challenges of AI system validation while providing practical approaches for maintaining quality and reliability as systems scale and evolve.
-
-This architectural foundation enables organizations to begin AI agent development with minimal infrastructure requirements while maintaining clear evolution paths toward production deployments that can support enterprise-scale requirements. The modular design ensures that investments in initial prototype development translate directly to production capabilities while providing flexibility to adapt to changing business requirements and technological advances.
+The modular design ensures prototype investments translate to production capabilities while providing flexibility for changing requirements. Organizations can start with minimal infrastructure and evolve toward enterprise-scale deployments along clear migration paths.

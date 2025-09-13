@@ -10,16 +10,18 @@ This project develops a domain-specific AI agent for AMG marketing page that dem
 The current Azure Managed Grafana marketing website utilizes a generic Azure agent/chatbot that serves multiple Azure services. This generic approach provides broad but shallow coverage across the entire Azure ecosystem, lacking the depth and specialization needed for specific service domains like AMG.
 
 ### Problem to be solved (feedback and pain points)
-Based on hypothetical customer feedback (exercise assumption), users experience the following pain points with the current generic chatbot:
+Based on hypothetical customer feedback (exercise assumption - see assumptions.md), users experience the following pain points with the current generic chatbot:
 - **Limited domain expertise**: Generic responses lack specialized AMG knowledge
 - **Shallow knowledge depth**: Cannot provide detailed technical insights about AMG features and use cases
 - **Poor extensibility**: Current system cannot grow with additional domain-specific knowledge
+
+**Note**: Since this is an exercise and we don't have real users to ask about the problem to be solved, we assume that we already have negative feedback and current customer pain-points about the generic chat-bot for AMG.
 
 ### Main hypothesis
 Customers and users will be better served by a dedicated agent specifically designed for Azure Managed Grafana, rather than relying on a generic Azure agent that covers all services superficially.
 
 ### Hypothesis validation/invalidation
-For this exercise, we assume the hypothesis has been validated through hypothetical customer feedback and user research, indicating strong demand for domain-specific conversational agents that provide deeper, more relevant insights.
+For this exercise, we assume the hypothesis has been validated through hypothetical customer feedback and user research, indicating strong demand for domain-specific conversational agents that provide deeper, more relevant insights. (See assumptions.md for details on exercise constraints.)
 
 ## Product Overview
 
@@ -104,10 +106,11 @@ Instantly generate precise, domain-specific insights about Azure Managed Grafana
 - Production-grade deployment infrastructure
 
 **Prototype Tradeoffs:**
-- **Knowledge Base**: Simple text file instead of comprehensive documentation integration
-- **Integration Environment**: GitHub Copilot or similar instead of actual Azure marketing page
+- **Integration Environment**: GitHub Copilot or similar instead of actual Azure marketing page integration (see tradeoffs.md)
+- **Knowledge Base**: Simple text file/sample content instead of comprehensive documentation integration (see tradeoffs.md)
 - **Content Scope**: Sample content from marketing and documentation rather than complete knowledge base
 - **Testing Environment**: Simulated rather than real customer interaction scenarios
+- **Domain Flexibility**: Designed for easy switching between domains to demonstrate architectural flexibility
 
 ## Risk Assessment
 
