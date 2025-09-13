@@ -853,6 +853,7 @@ FINALLY:
 ```
 
 **PROMPT 6 at GHCP chat window:**
+
 (Use **"Edit mode"** and **Claude Sonnet 4** for better reasoning):
 
 ![alt text](images-journey/prompt-06.png)
@@ -1023,7 +1024,7 @@ The implementation plan is now ready for the final phase: actual coding and impl
 - Feature 1 (KB content MCP Server) coding/implementation
 
 
-## Develop the KB MCP server (Feature implementation)
+## Develop the KB MCP server with GHCP CODING AGENT (Feature implementation)
 
 At this point, I can continue with GHCP in VS Code leveraging my pre-writen **implement-code.prompt.md** with the ready to follow feature-implementation-plan-kb-mcp-server.md implementation/coding document, or...
 
@@ -1087,3 +1088,114 @@ I'm explicitly now adding the following to my implementation plan document and t
 
 At this point, I can grab that PR and try to fix it, or give it a second change updating the docs with the specific URL to the MCP SDK NUGET package page and ask GHCP CODING AGENT to do it again...
 
+Before starting from scratch another ISSUE asignement, I tried to provide feedback in the PR review:
+
+However, feedback on PR reviews do not currently trigger any action from GHCP **(FEEDBACK for PG:I think it should...)**...
+
+So, I proactively asked to GHCP in the UI:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-review.png)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-review-ask-copilot-01.png)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-review-ask-copilot-02.png)
+
+With that, GHCP created another PR and related branch and started working again.
+
+New PR: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/13
+
+New branch: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/tree/copilot/fix-23583b2c-4ca4-406c-ac52-dba463d4c588
+
+But it got stuck and it failed:    :(
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-new-pr-failed.png)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-new-pr-failed-details.png)
+
+So, I'm giving another change to GHCP CODING AGENT.
+
+I unassigned and assign again GHCP CODIG AGENT to the issue, so it starts looking at it and working again:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-looking-02.png)
+
+In the PR, while advancing, I see that it's going again for choosing .NET 8 for the implementation, even when I explicetely said to use .NET 10 Preview or .NET 9 as fallback...:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-picks-net-8.png)
+
+But it finally is using .NET 9...
+
+Here's the result, initially finished! :)
+
+PR: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/15 
+Branch: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/tree/copilot/fix-11-2
+
+
+
+
+
+
+
+
+
+=========================================================================
+
+## Develop the KB MCP server with GHCP AGENT MODE in VS CODE (Feature implementation)
+
+Let's vibe code based on the specs-driven approach but now with **GHCP AGENT MODE in VS CODE**.
+
+### Prompt 7 - Develop the **implementation code** for feature KB MCP server
+
+Now that we have crafted all the definitions for the feature, let's code!.
+
+For the actual implementation, I'm using another pre-defined prompt template approach. 
+
+**PRE-WRITTEN TEMPLATE PROMPT for coding the implementation:**
+
+It's placed at **.github/prompts** folder, named **implement-code.prompt.md**.
+
+The following is the content of this pre-writen specs prompt where **the great thing about it is that it's 100% generic!**, you don't need to change/update it per feature because it'll get all the context needed from the provided feature's specs and implementation-plan documents that you need to provide as part of the context.
+
+
+**.github/prompts/implement-code.prompt.md**
+
+(Note that I'm in AGENT MODE and enabled context7 MCP server for additional SDK/Frameworks/Languages context)
+
+```
+---
+mode: 'agent'
+tools: ['context7']
+description: 'Implement the coding of an implementation-plan, step by step'
+---
+Your task is to implement each step of the provided plan, one at a time.
+
+The plan is just a suggestion to guide you in the right direction.
+
+You do not have to strictly follow it if it does not make sense.
+
+ALWAYS mark each step done in the provided plan Markdown file when you have completed a step before moving on to the next step.
+```
+
+
+
+**PROMPT 6 at GHCP chat window:**
+
+This is the simple prompt at GHCP chat:
+
+(Use **"Agent mode"** and **GPT-5**):
+
+![alt text](images-journey/prompt-07.png)
+
+```
+PROMPT 7:
+Follow and run the provided pre-written prompt attached plus the additional context docs provided.
+```
+
+**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on the implementation, all the related documents should **keep consistency** between them.
+Specs and implementation plan should not be "fire and forget" and keep coding, but it should be a single whole atomic unit, consistent.
+
+If codes goes a different path, specs and architecture docs should also be updated and aligned.
+
+
+Now, I run the prompt 6 for creating the KB MCP server feature's implementation plan.
+
+GHCP chat responds with a summary of the task to be done:
