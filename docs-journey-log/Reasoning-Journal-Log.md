@@ -1158,7 +1158,7 @@ The following is the content of this pre-writen specs prompt where **the great t
 
 **.github/prompts/implement-code.prompt.md**
 
-(Note that I'm in AGENT MODE and enabled context7 MCP server for additional SDK/Frameworks/Languages context)
+(Note that I'm in AGENT MODE and enabled context7 MCP Server for additional SDK/Frameworks/Languages context)
 
 ```
 ---
