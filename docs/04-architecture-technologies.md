@@ -197,6 +197,8 @@ Deployment involves simple executable distribution with configuration files, req
 **Architecture Characteristics:**
 The decoupled architecture evolves STDIO transport to HTTP-based communication, enabling distributed component deployment while maintaining local development simplicity. Each component operates in dedicated Docker containers with HTTP-based MCP communication, providing realistic production communication patterns while eliminating external infrastructure dependencies. The containerized approach enables comprehensive integration testing across different deployment configurations while maintaining development environment consistency.
 
+> STDIO vs Containers (Why shift to HTTP): In Docker-based isolation, cross-container STDIO is impractical—process boundaries block direct file descriptor sharing, Compose would require fragile linkage, and any workaround would not map to Kubernetes. HTTP is the natural fit: native port exposure, built-in service discovery, network tooling for debugging, and a seamless path to scalable production.
+
 **Testing (Evolution Placeholder):** Prototype test set continues to run unchanged. Additional suites (container networking, HTTP/SSE transport parity, basic latency baseline) are **TBD** and will be defined in a separate "Variant 2 Test Expansion" document prior to implementation.
 
 **Development Benefits:**
