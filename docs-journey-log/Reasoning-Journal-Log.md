@@ -1012,8 +1012,78 @@ The implementation plan now follows the established coding conventions for moder
 
 At this point we have completed the feature's implementation plan document that provides a clear, step-by-step guide for building the KB MCP Server. The plan maintains consistency with the feature specification and follows the architectural principles defined in our global documents.
 
+As usual, I created the PR, assigned GHCP as reviewer, who catch a couple of minor issues, we fixed it, and I merged into master branch:
+
+![alt text](images-journey/pr-05.png)
+
 The implementation plan is now ready for the final phase: actual coding and implementation of the KB MCP Server.
 
 ## Next Steps for Day 2 continuation
 
 - Feature 1 (KB content MCP Server) coding/implementation
+
+
+## Develop the KB MCP server (Feature implementation)
+
+At this point, I can continue with GHCP in VS Code leveraging my pre-writen **implement-code.prompt.md** with the ready to follow feature-implementation-plan-kb-mcp-server.md implementation/coding document, or...
+
+I can also give it a shot with the autonomous **GHCP CODING AGENT** in my repo at http://github.com.
+
+Let's try first the autonomous **GHCP CODING AGENT**...
+
+I already had created an issue for this feature implementation (coding task):
+
+
+https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/issues/11
+
+![alt text](images-journey/issue-implement-mcp-server.png)
+
+So, I go ahead and assing GH CoPilot to the issue:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-assigned.png)
+
+Then, GHCP starts a session taking a look to the issue:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-looking.png)
+
+Then, as part of the work session it creates, it creates a WIP PR and branch.
+
+PR: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/12
+
+Here's the session and how it's working on it, autonomously:
+
+**Session:** https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/12/agent-sessions/b174f7ad-3d3d-4a2b-ba8d-d9100e8aa649
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-session.png)
+
+However, even when the official Microsoft MCP SDK for .NET exists (in PREVIEW state), GHCP CODING AGENT was not able to find it and said:
+
+*"Now let me implement the MCP tools (Step 4). Since the exact **MCP SDK isn't available**, I'll create the basic structure that can be enhanced once the SDK is available:"*
+
+*"Now I need to continue with Step 5-6, but since the actual MCP SDK isn't available, I'll implement a basic STDIO protocol handler to demonstrate the concept. Let me also move forward to testing (Steps 8-9) so I can validate the functionality:"*
+
+That is not true... the NUGET package with the MCP SDK in Preview is here:
+
+https://www.nuget.org/packages/ModelContextProtocol
+
+I'm explicitly now adding the following to my implementation plan document and to the GH ISSUE itself:
+
+```
+# Technology dependencies to use:
+
+- .NET 10 Preview 6+ or .NET 9 as fallback
+
+- Microsoft MCP SDK for .NET:
+  Use the latest popular/stable version, even if in preview state, since MCP is evolving very fast.
+  The official MCP SDK for .NET is here:
+  https://www.nuget.org/packages/ModelContextProtocol/
+
+  - Use MCP SDK version 0.3.0-preview.4 or newer, if available. 
+
+  - You can add it to the solution with this command or the way you prefer:
+
+  `dotnet add package ModelContextProtocol --version 0.3.0-preview.4`
+```
+
+At this point, I can grab that PR and try to fix it, or give it a second change updating the docs with the specific URL to the MCP SDK NUGET package page and ask GHCP CODING AGENT to do it again...
+
