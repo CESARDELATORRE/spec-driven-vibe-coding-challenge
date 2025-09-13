@@ -1114,7 +1114,7 @@ But it got stuck and it failed:    :(
 
 So, I'm giving another change to GHCP CODING AGENT.
 
-I unassigned and assign again GHCP CODIG AGENT to the issue, so it starts looking at it and working again:
+I unassigned and assign again GHCP CODING AGENT to the issue, so it starts looking at it and working again:
 
 ![alt text](images-journey/issue-implement-mcp-server-ghcp-looking-02.png)
 
