@@ -262,7 +262,10 @@ Before starting implementation, configure Azure OpenAI user secrets:
     ```json
     {
       "KbMcpServer": {
-        "ExecutablePath": "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher.exe"
+        // Set the path to the KB MCP server executable. Use an environment variable or adjust for your platform/build.
+        "ExecutablePath": "${KB_MCP_SERVER_PATH}"
+        // Example for Windows: "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher.exe"
+        // Example for Linux/macOS: "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher"
       },
       "GreetingPatterns": ["hi", "hello", "hey", "greetings"],
       "Logging": {
