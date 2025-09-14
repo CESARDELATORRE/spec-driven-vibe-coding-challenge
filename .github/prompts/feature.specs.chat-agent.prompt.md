@@ -8,7 +8,7 @@ Your goal is to generate a functional spec for implementing a feature based on t
 <idea>
 Generate a feature specs document covering the following capabilities:
 
-- Prototype/POC scopeA very basic Chat Agent to be able to:
+- Prototype/POC scope A very basic Chat Agent to be able to:
   - Understand and process user queries
   - Access and retrieve information from a predefined knowledge base (connected to a KM MCP server)
 
