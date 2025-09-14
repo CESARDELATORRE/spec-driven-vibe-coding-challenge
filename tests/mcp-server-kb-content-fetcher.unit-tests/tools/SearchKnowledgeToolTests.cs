@@ -3,6 +3,7 @@ using McpServerKbContentFetcher.Services;
 using McpServerKbContentFetcher.Tools;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using System.Text.Json;
 
 namespace UnitTests.Tools;
 
@@ -17,6 +18,30 @@ public class SearchKnowledgeToolTests
         _knowledgeBaseService = Substitute.For<IKnowledgeBaseService>();
         _logger = Substitute.For<ILogger<SearchKnowledgeTool>>();
         _tool = new SearchKnowledgeTool(_knowledgeBaseService, _logger);
+    }
+
+    private static string ExtractTextFromMcpResponse(object[] mcpResponse)
+    {
+        Assert.NotNull(mcpResponse);
+        Assert.Single(mcpResponse);
+        
+        var contentItem = mcpResponse[0];
+        Assert.NotNull(contentItem);
+        
+        // Use reflection to access the properties since it's an anonymous object
+        var typeProperty = contentItem.GetType().GetProperty("type");
+        var textProperty = contentItem.GetType().GetProperty("text");
+        
+        Assert.NotNull(typeProperty);
+        Assert.NotNull(textProperty);
+        
+        var type = typeProperty.GetValue(contentItem)?.ToString();
+        var text = textProperty.GetValue(contentItem)?.ToString();
+        
+        Assert.Equal("text", type);
+        Assert.NotNull(text);
+        
+        return text;
     }
 
     [Fact]
@@ -36,11 +61,18 @@ public class SearchKnowledgeToolTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(query, result.Query);
-        Assert.Equal(1, result.TotalMatches);
-        Assert.Single(result.Results);
-        Assert.Equal("context around test content", result.Results[0].Content);
-        Assert.Contains("Match strength: 1", result.Results[0].MatchInfo);
+        var jsonText = ExtractTextFromMcpResponse(result);
+        
+        using var jsonDoc = JsonDocument.Parse(jsonText);
+        var root = jsonDoc.RootElement;
+        
+        Assert.Equal(query, root.GetProperty("query").GetString());
+        Assert.Equal(1, root.GetProperty("totalMatches").GetInt32());
+        
+        var results = root.GetProperty("results").EnumerateArray().ToArray();
+        Assert.Single(results);
+        Assert.Equal("context around test content", results[0].GetProperty("content").GetString());
+        Assert.Contains("Match strength: 1", results[0].GetProperty("matchInfo").GetString()!);
     }
 
     [Fact]
@@ -54,9 +86,16 @@ public class SearchKnowledgeToolTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(query, result.Query);
-        Assert.Equal(0, result.TotalMatches);
-        Assert.Empty(result.Results);
+        var jsonText = ExtractTextFromMcpResponse(result);
+        
+        using var jsonDoc = JsonDocument.Parse(jsonText);
+        var root = jsonDoc.RootElement;
+        
+        Assert.Equal(query, root.GetProperty("query").GetString());
+        Assert.Equal(0, root.GetProperty("totalMatches").GetInt32());
+        
+        var results = root.GetProperty("results").EnumerateArray().ToArray();
+        Assert.Empty(results);
         
         // Verify that the knowledge base service was not called
         await _knowledgeBaseService.DidNotReceive().SearchAsync(Arg.Any<string>(), Arg.Any<int>());
@@ -73,9 +112,16 @@ public class SearchKnowledgeToolTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(string.Empty, result.Query);
-        Assert.Equal(0, result.TotalMatches);
-        Assert.Empty(result.Results);
+        var jsonText = ExtractTextFromMcpResponse(result);
+        
+        using var jsonDoc = JsonDocument.Parse(jsonText);
+        var root = jsonDoc.RootElement;
+        
+        Assert.Equal(string.Empty, root.GetProperty("query").GetString());
+        Assert.Equal(0, root.GetProperty("totalMatches").GetInt32());
+        
+        var results = root.GetProperty("results").EnumerateArray().ToArray();
+        Assert.Empty(results);
         
         // Verify that the knowledge base service was not called
         await _knowledgeBaseService.DidNotReceive().SearchAsync(Arg.Any<string>(), Arg.Any<int>());
@@ -145,11 +191,18 @@ public class SearchKnowledgeToolTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(query, result.Query);
-        Assert.Equal(0, result.TotalMatches);
-        Assert.Single(result.Results);
-        Assert.Contains("Search error occurred", result.Results[0].Content);
-        Assert.Equal("Error", result.Results[0].MatchInfo);
+        var jsonText = ExtractTextFromMcpResponse(result);
+        
+        using var jsonDoc = JsonDocument.Parse(jsonText);
+        var root = jsonDoc.RootElement;
+        
+        Assert.Equal(query, root.GetProperty("query").GetString());
+        Assert.Equal(0, root.GetProperty("totalMatches").GetInt32());
+        
+        // In error cases, there's no "results" array, but there are "error" and "details" fields
+        Assert.True(root.TryGetProperty("error", out var errorElement));
+        Assert.Contains("Search error occurred", errorElement.GetString()!);
+        Assert.True(root.TryGetProperty("details", out _));
     }
 
     [Fact]
@@ -170,15 +223,22 @@ public class SearchKnowledgeToolTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.TotalMatches);
-        Assert.Equal(2, result.Results.Count);
+        var jsonText = ExtractTextFromMcpResponse(result);
         
-        Assert.Equal("first context", result.Results[0].Content);
-        Assert.Contains("Match strength: 2", result.Results[0].MatchInfo);
-        Assert.Contains("Position: 0", result.Results[0].MatchInfo);
+        using var jsonDoc = JsonDocument.Parse(jsonText);
+        var root = jsonDoc.RootElement;
         
-        Assert.Equal("second context", result.Results[1].Content);
-        Assert.Contains("Match strength: 1", result.Results[1].MatchInfo);
-        Assert.Contains("Position: 10", result.Results[1].MatchInfo);
+        Assert.Equal(2, root.GetProperty("totalMatches").GetInt32());
+        
+        var results = root.GetProperty("results").EnumerateArray().ToArray();
+        Assert.Equal(2, results.Length);
+        
+        Assert.Equal("first context", results[0].GetProperty("content").GetString());
+        Assert.Contains("Match strength: 2", results[0].GetProperty("matchInfo").GetString()!);
+        Assert.Contains("Position: 0", results[0].GetProperty("matchInfo").GetString()!);
+        
+        Assert.Equal("second context", results[1].GetProperty("content").GetString());
+        Assert.Contains("Match strength: 1", results[1].GetProperty("matchInfo").GetString()!);
+        Assert.Contains("Position: 10", results[1].GetProperty("matchInfo").GetString()!);
     }
 }

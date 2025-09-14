@@ -6,20 +6,67 @@ namespace IntegrationTests;
 
 public class McpServerProtocolTests
 {
-    [Fact(Skip = "TODO: Tool invocation returning wrapped text content. Need to adapt tool return types to ModelContextProtocol expected schema before enabling.")]
-    public void GetKbInfo_Tool_Schema_Placeholder() { }
-
-    private static string ProjectDirectory
+    [Fact]
+    public async Task GetKbInfo_Tool_Should_Return_Knowledge_Base_Status()
     {
-        get
-        {
-            var candidate = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../src/mcp-server-kb-content-fetcher"));
-            if (!Directory.Exists(candidate))
-            {
-                throw new DirectoryNotFoundException($"Could not resolve project directory at: {candidate}");
-            }
-            return candidate;
-        }
+        using var process = StartServer();
+        var (reader, stdout, stderr, cts) = await BeginCaptureAsync(process, TimeSpan.FromSeconds(10));
+
+        // Initialize
+        await SendAsync(process, "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"integration-tests\",\"version\":\"1.0.0\"}}}");
+        Assert.True(await WaitForAsync(stdout, "jsonrpc", TimeSpan.FromSeconds(5)), $"Did not observe any JSON-RPC response to initialize. STDOUT: {stdout}\nSTDERR: {stderr}");
+
+        // List tools to ensure ready
+        await SendAsync(process, "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\",\"params\":{}}");
+        Assert.True(await WaitForAsync(stdout, "get_kb_info", TimeSpan.FromSeconds(3)), $"Tool list missing get_kb_info. STDOUT: {stdout}\nSTDERR: {stderr}");
+
+        // Call get_kb_info tool
+        await SendAsync(process, "{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"get_kb_info\",\"arguments\":{}}}");
+        Assert.True(await WaitForAsync(stdout, "\"id\":3", TimeSpan.FromSeconds(6)), $"Did not observe response to get_kb_info call. STDOUT: {stdout}\nSTDERR: {stderr}");
+        
+        // Verify no error occurred
+        Assert.DoesNotContain("\"isError\":true", stdout.ToString());
+        
+        // Verify it contains knowledge base status information
+        var output = stdout.ToString();
+        Assert.Contains("isAvailable", output);
+        Assert.Contains("contentLength", output);
+
+        // Cleanup
+        try { process.Kill(entireProcessTree: true); } catch { }
+        cts.Cancel();
+        await reader;
+    }
+
+    [Fact]
+    public async Task SearchKnowledge_Tool_Should_Return_Pricing_Results()
+    {
+        using var process = StartServer();
+        var (reader, stdout, stderr, cts) = await BeginCaptureAsync(process, TimeSpan.FromSeconds(10));
+
+        // Initialize then list tools (ensures server ready)
+        await SendAsync(process, "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"integration-tests\",\"version\":\"1.0.0\"}}}");
+        Assert.True(await WaitForAsync(stdout, "jsonrpc", TimeSpan.FromSeconds(5)), $"Did not observe any JSON-RPC response to initialize. STDOUT: {stdout}\nSTDERR: {stderr}");
+
+        await SendAsync(process, "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\",\"params\":{}}");
+        Assert.True(await WaitForAsync(stdout, "search_knowledge", TimeSpan.FromSeconds(3)), $"Tool list missing search_knowledge. STDOUT: {stdout}\nSTDERR: {stderr}");
+
+        // Call search tool with "pricing" query
+        await SendAsync(process, "{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"search_knowledge\",\"arguments\":{\"query\":\"pricing\",\"max_results\":2}}}");
+        Assert.True(await WaitForAsync(stdout, "\"id\":3", TimeSpan.FromSeconds(6)), $"Did not observe response to search call. STDOUT: {stdout}\nSTDERR: {stderr}");
+        
+        // Verify no error occurred  
+        Assert.DoesNotContain("\"isError\":true", stdout.ToString());
+        
+        // Verify the search actually found pricing-related content
+        var output = stdout.ToString();
+        Assert.Contains("pricing", output.ToLowerInvariant());
+        Assert.Contains("totalMatches", output);
+
+        // Cleanup
+        try { process.Kill(entireProcessTree: true); } catch { }
+        cts.Cancel();
+        await reader;
     }
 
     private Process StartServer()
@@ -116,6 +163,16 @@ public class McpServerProtocolTests
         await reader;
     }
 
-    [Fact(Skip = "Search tool invocation currently returns isError via MCP library wrapper; needs schema alignment before enabling.")]
-    public void SearchKnowledge_Tool_Should_Return_Pricing_Match() { }
+    private static string ProjectDirectory
+    {
+        get
+        {
+            var candidate = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../src/mcp-server-kb-content-fetcher"));
+            if (!Directory.Exists(candidate))
+            {
+                throw new DirectoryNotFoundException($"Could not resolve project directory at: {candidate}");
+            }
+            return candidate;
+        }
+    }
 }
