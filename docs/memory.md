@@ -58,6 +58,10 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Documentation for running and extending MCP integration tests
 **Details**: Explains handshake test scope, skipped tool tests rationale, CLI & VS Code Test Explorer usage, and future enhancements
 
+### `/tests/mcp-server-kb-content-fetcher.unit-tests/tools/GetKbContentToolTests.cs`
+**Purpose**: Unit tests for `GetKbContentTool` covering success, empty content, and error scenarios
+**Details**: Mocks `IKnowledgeBaseService` to validate tool behavior without requiring file IO
+
 ## Development Guidelines
 
 ### `/.github/copilot-instructions.md`
