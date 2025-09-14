@@ -46,17 +46,40 @@ public static class OrchestratorTools
         bool includeKb = true,
         int maxKbResults = 2)
     {
-        // Basic validation (expanded in Step 5)
-        if (string.IsNullOrWhiteSpace(question))
+        // STEP 5: VALIDATION & ERROR HANDLING HARDENING
+        // Early sanitize input (trim) for consistent checks.
+        question = question?.Trim() ?? string.Empty;
+
+        // Helper local function for consistent error payloads.
+        static string CreateError(string message, string code = "validation")
         {
-            return JsonSerializer.Serialize(new { error = "Question is required" });
+            var payload = new
+            {
+                error = new { message, code },
+                status = "error",
+                correlationId = Guid.NewGuid().ToString()
+            };
+            return JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
         }
 
-        // Clamp maxKbResults (full validation & messaging in Step 5)
+        if (string.IsNullOrWhiteSpace(question))
+        {
+            return CreateError("Question is required");
+        }
+
+        // Reject ultra-short or punctuation-only questions (spec requirement)
+        if (question.Length < 5 || IsPunctuationOnly(question))
+        {
+            return CreateError("Question must be at least 5 non-punctuation characters");
+        }
+
+        // Clamp and record requested / effective values + add disclaimer if adjusted
+        int requestedMaxKb = maxKbResults;
         if (maxKbResults < 1) maxKbResults = 1; else if (maxKbResults > 3) maxKbResults = 3;
+        bool kbResultsClamped = requestedMaxKb != maxKbResults;
 
         // Configuration layering (Step 2: env vars first-class; user secrets only if dev)
-        var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+    var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
         var configBuilder = new ConfigurationBuilder()
             .AddEnvironmentVariables();
         if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
@@ -71,8 +94,8 @@ public static class OrchestratorTools
         string? deploymentName = config["AzureOpenAI:DeploymentName"]; // AzureOpenAI__DeploymentName
         string? apiKey = config["AzureOpenAI:ApiKey"]; // AzureOpenAI__ApiKey
 
-    // Heuristic placeholder (full logic in Step 5): skip KB if greeting / very short
-    bool heuristicSkipKb = ShouldSkipKb(question);
+    // Heuristic (enhanced in Step 5): skip KB for greeting-like questions (not short ones — those already validated above)
+    bool heuristicSkipKb = ShouldSkipKb(question, config);
     bool attemptKb = includeKb && !heuristicSkipKb;
 
         // Placeholder arrays for future KB & answer data
@@ -82,7 +105,7 @@ public static class OrchestratorTools
         bool usedKb = false;
         if (heuristicSkipKb)
         {
-            disclaimers.Add("KB skipped by heuristic for short or greeting-like input");
+            disclaimers.Add("KB skipped (greeting heuristic)");
         }
         else if (attemptKb)
         {
@@ -238,7 +261,10 @@ public static class OrchestratorTools
                 apiKeyConfigured = !string.IsNullOrWhiteSpace(apiKey),
                 attemptedKb = attemptKb,
                 heuristicSkipKb,
-                chatAgentReady
+                chatAgentReady,
+                requestedMaxKbResults = requestedMaxKb,
+                effectiveMaxKbResults = maxKbResults,
+                kbResultsClamped
             },
             status = "scaffold"
         };
@@ -252,11 +278,22 @@ public static class OrchestratorTools
     /// <summary>
     /// Simple heuristic for Step 2 (expanded in Step 5): skip KB for very short or greeting inputs.
     /// </summary>
-    private static bool ShouldSkipKb(string question)
+    private static bool ShouldSkipKb(string question, IConfiguration config)
     {
-        if (string.IsNullOrWhiteSpace(question)) return true;
-        if (question.Trim().Length < 5) return true;
-        var greetingPattern = "^(hi|hello|hey|greetings)\\b";
+        // At this point ultra-short already rejected. Only greetings here.
+        var patterns = config.GetSection("GreetingPatterns").Get<string[]>() ?? new[] { "hi", "hello", "hey", "greetings" };
+        string joined = string.Join("|", patterns.Select(Regex.Escape));
+        if (string.IsNullOrWhiteSpace(joined)) return false;
+        var greetingPattern = "^(" + joined + ")\\b";
         return Regex.IsMatch(question.Trim(), greetingPattern, RegexOptions.IgnoreCase);
+    }
+
+    private static bool IsPunctuationOnly(string input)
+    {
+        foreach (char c in input)
+        {
+            if (!char.IsPunctuation(c) && !char.IsWhiteSpace(c)) return false;
+        }
+        return true;
     }
 }

@@ -210,10 +210,11 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   };
   ```
 
-### - [ ] Step 5: Error Handling and Validation (Inline)
+### - [x] Step 5: Error Handling and Validation (Inline)
   - **Task**: Add input validation, environment variable presence checks, and graceful degradation.
   - **Files**: Integrated into `OrchestratorTools.cs`.
   - **Dependencies**: Configuration validation, logging.
+  - **Status**: Implemented. Added structured error responses (status=error, correlationId), minimum length & punctuation-only validation, maxKbResults clamping with diagnostics, greeting-based heuristic now configuration-aware, consistent disclaimer wording, and diagnostics enriched with requested/effective KB results + clamped flag.
   - **Pseudocode**:
   ```csharp
   // Never log actual secrets

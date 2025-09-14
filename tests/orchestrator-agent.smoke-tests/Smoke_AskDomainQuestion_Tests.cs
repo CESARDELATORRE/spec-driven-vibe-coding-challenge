@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
+using System.Linq;
 
 // NOTE: These are lightweight smoke tests (not exhaustive unit tests) to validate
 // the current scaffold behavior of AskDomainQuestionAsync without requiring
@@ -29,11 +30,23 @@ public class Smoke_AskDomainQuestion_Tests
     }
 
     [Fact]
-    public async Task AskDomainQuestionAsync_ShortQuestion_TriggersHeuristicSkip()
+    public async Task AskDomainQuestionAsync_ShortQuestion_ReturnsValidationError()
     {
         var json = await OrchestratorTools.AskDomainQuestionAsync("hi", includeKb: true);
         using var doc = JsonDocument.Parse(json);
-        var disclaimers = doc.RootElement.GetProperty("disclaimers");
-        disclaimers.GetArrayLength().Should().BeGreaterThan(0);
+        var root = doc.RootElement;
+        root.GetProperty("status").GetString().Should().Be("error");
+        root.GetProperty("error").GetProperty("code").GetString().Should().Be("validation");
+    }
+
+    [Fact]
+    public async Task AskDomainQuestionAsync_Greeting_SkipsKbHeuristically()
+    {
+        var json = await OrchestratorTools.AskDomainQuestionAsync("hello there, how are you?", includeKb: true);
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        root.GetProperty("status").GetString().Should().Be("scaffold");
+        var disclaimers = root.GetProperty("disclaimers");
+        disclaimers.EnumerateArray().Any(e => e.GetString()!.Contains("greeting heuristic")).Should().BeTrue();
     }
 }

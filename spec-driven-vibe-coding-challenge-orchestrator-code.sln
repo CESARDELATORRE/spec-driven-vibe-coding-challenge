@@ -12,18 +12,19 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mcp-server-kb-content-fetcher.integration-tests", "tests\mcp-server-kb-content-fetcher.integration-tests\mcp-server-kb-content-fetcher.integration-tests.csproj", "{4D3BC05D-91FB-25FC-679E-DC44E93469D0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mcp-server-kb-content-fetcher.unit-tests", "tests\mcp-server-kb-content-fetcher.unit-tests\mcp-server-kb-content-fetcher.unit-tests.csproj", "{D439ED08-A7E4-257A-C300-9FBF81B0CFA4}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orchestrator-agent.smoke-tests", "tests\orchestrator-agent.smoke-tests\orchestrator-agent.smoke-tests.csproj", "{7D5A4A52-6E2C-41A2-B3F7-2E4F8D3B1C11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Release|Any CPU.Build.0 = Release|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
