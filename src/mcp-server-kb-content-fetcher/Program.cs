@@ -48,14 +48,12 @@ builder.Services.Configure<ServerOptions>(
 builder.Services.AddSingleton<IKnowledgeBaseService, FileKnowledgeBaseService>();
 
 // Register tool classes for dependency injection (singletons sharing the SAME service instances as the host)
-builder.Services.AddSingleton<SearchKnowledgeTool>();
 builder.Services.AddSingleton<GetKbInfoTool>();
 builder.Services.AddSingleton<GetKbContentTool>();
 
 // We'll resolve the concrete tool instances AFTER the host is built so that we do not create a second
 // independent service provider (the previous approach caused a second IKnowledgeBaseService instance
 // that was never initialized, leading to empty / unavailable KB state inside tools).
-SearchKnowledgeTool? searchToolRef = null;
 GetKbInfoTool? getKbInfoToolRef = null;
 GetKbContentTool? getKbContentToolRef = null;
 
@@ -64,18 +62,6 @@ builder.Services.AddMcpServer()
     .WithStdioServerTransport()
     .WithTools(new[]
     {
-        // Re-purposed: return a truncated excerpt (prefix) of the full KB content (default 3000 chars)
-        McpServerTool.Create(
-            () =>
-            {
-                if (searchToolRef is null) throw new InvalidOperationException("SearchKnowledgeTool not initialized");
-                return searchToolRef.GetExcerptAsync(3000);
-            },
-            new McpServerToolCreateOptions
-            {
-                Name = "search_knowledge",
-                Description = "Return a truncated excerpt (<=3000 chars) of the knowledge base content"
-            }),
         McpServerTool.Create(
             () =>
             {
@@ -103,7 +89,6 @@ builder.Services.AddMcpServer()
 var app = builder.Build();
 
 // Resolve tool instances now (single shared provider) so delegates use the initialized KB service instance
-searchToolRef = app.Services.GetRequiredService<SearchKnowledgeTool>();
 getKbInfoToolRef = app.Services.GetRequiredService<GetKbInfoTool>();
 getKbContentToolRef = app.Services.GetRequiredService<GetKbContentTool>();
 

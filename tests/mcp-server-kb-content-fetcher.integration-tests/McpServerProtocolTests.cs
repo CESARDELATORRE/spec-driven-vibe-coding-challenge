@@ -56,7 +56,7 @@ public class McpServerProtocolTests
             tools.GetArrayLength().Should().BeGreaterThan(0);
             var names = tools.EnumerateArray().Select(t => t.GetProperty("name").GetString()).ToList();
             names.Should().Contain("get_kb_info");
-            names.Should().Contain("search_knowledge");
+            names.Should().Contain("get_kb_content");
         }
     }
 
@@ -112,47 +112,7 @@ public class McpServerProtocolTests
         }
     }
 
-    [Fact(Timeout = 30000)]
-    public async Task SearchKnowledge_Tool_Should_Return_Excerpt()
-    {
-    var path = Path.GetFullPath(ServerProjectPath);
-    Console.Error.WriteLine($"[TEST] Using server project path: {path}");
-    File.Exists(path).Should().BeTrue();
-    await using var client = await StdioMcpClient.StartAsync(path);
-
-        await client.InitializeAsync();
-
-        var response = await client.SendRequestAsync(new
-        {
-            jsonrpc = "2.0",
-            method = "tools/call",
-            @params = new { name = "search_knowledge", arguments = new { } }
-        });
-
-        response.Should().NotBeNullOrEmpty();
-        using var doc = JsonDocument.Parse(response);
-        doc.RootElement.TryGetProperty("result", out var result).Should().BeTrue();
-        result.TryGetProperty("content", out var content).Should().BeTrue();
-        result.TryGetProperty("isError", out var isErrorEl);
-        if (isErrorEl.ValueKind == JsonValueKind.True)
-        {
-            var errRaw = content[0].GetProperty("text").GetString();
-            throw new Xunit.Sdk.XunitException($"search_knowledge failed unexpectedly. Raw error text: {errRaw}");
-        }
-        var text = content[0].GetProperty("text").GetString();
-        text.Should().NotBeNullOrEmpty();
-        using var payload = JsonDocument.Parse(text!);
-    payload.RootElement.TryGetProperty("status", out var statusEl).Should().BeTrue();
-    statusEl.GetString().Should().Be("ok");
-    payload.RootElement.TryGetProperty("excerpt", out var excerptEl).Should().BeTrue();
-    var excerpt = excerptEl.GetString();
-    excerpt.Should().NotBeNullOrEmpty();
-    excerpt!.Length.Should().BeLessOrEqualTo(3000);
-    payload.RootElement.TryGetProperty("excerptLength", out var excerptLenEl).Should().BeTrue();
-    excerptLenEl.GetInt32().Should().Be(excerpt.Length);
-    payload.RootElement.TryGetProperty("totalLength", out var totalLenEl).Should().BeTrue();
-    totalLenEl.GetInt32().Should().BeGreaterThan(excerpt.Length - 1); // usually larger in this dataset
-    }
+    // Removed excerpt prototype tool test (search_knowledge) after deprecation.
 
     [Fact(Timeout = 30000)]
     public async Task GetKbContent_Tool_Should_Return_Full_Content()

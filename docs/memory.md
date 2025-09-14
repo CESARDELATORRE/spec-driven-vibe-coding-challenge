@@ -48,11 +48,11 @@ This document provides a brief description of each file's purpose and relevant d
 
 ### `/tests/mcp-server-kb-content-fetcher.integration-tests/McpServerProtocolTests.cs`
 **Purpose**: End-to-end MCP protocol tests (initialize, tools/list, tools/call)
-**Details**: Launches server with `dotnet run`, sends JSON-RPC over redirected STDIN/STDOUT, asserts tool discovery & search results
+**Details**: Launches server with `dotnet run`, sends JSON-RPC over redirected STDIN/STDOUT, asserts tool discovery (`get_kb_info`, `get_kb_content`) and tool responses (search tool deprecated)
 
 ### `/src/mcp-server-kb-content-fetcher/tools/GetKbContentTool.cs`
 **Purpose**: MCP tool exposing full raw knowledge base text content for prototype agent consumption
-**Details**: Zero-argument tool returning status, contentLength, and full content string (loaded at startup via `FileKnowledgeBaseService`)
+**Details**: Zero-argument tool returning status, contentLength, and full content string (loaded at startup via `FileKnowledgeBaseService`). Replaced need for prior excerpt/search prototype.
 
 ### `/tests/mcp-server-kb-content-fetcher.integration-tests/README.md`
 **Purpose**: Documentation for running and extending MCP integration tests
@@ -61,6 +61,12 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/tests/mcp-server-kb-content-fetcher.unit-tests/tools/GetKbContentToolTests.cs`
 **Purpose**: Unit tests for `GetKbContentTool` covering success, empty content, and error scenarios
 **Details**: Mocks `IKnowledgeBaseService` to validate tool behavior without requiring file IO
+
+### (Removed) `/src/mcp-server-kb-content-fetcher/tools/SearchKnowledgeTool.cs`
+**Reason**: Redundant after adopting full content exposure via `get_kb_content`; excerpt/search prototype removed for simplicity in POC scope.
+
+### (Removed) `/src/mcp-server-kb-content-fetcher/models/SearchArgs.cs`
+**Reason**: No longer needed after deprecating `search_knowledge` tool.
 
 ## Development Guidelines
 

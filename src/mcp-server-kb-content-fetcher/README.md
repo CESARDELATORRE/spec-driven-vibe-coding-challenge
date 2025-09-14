@@ -24,15 +24,13 @@ A Knowledge Base MCP (Model Context Protocol) Server that provides AI agents wit
 The KB MCP Server enables AI agents to access structured knowledge about Azure Managed Grafana through the Model Context Protocol. It provides:
 
 - **Knowledge Base Access**: Reads AMG-specific content from local plain text files
-- **Content Search**: Case-insensitive keyword search with partial matching (prototype currently exposes a fixed representative query through the MCP tool)
 - **Content Discovery**: Overview of knowledge base size and statistics
 - **MCP Protocol Compliance**: Standard MCP server interface for agent integration
 
 ## Features
 
 - 📁 **File-based Knowledge Storage**: Loads content from plain text files
-- 🔍 **Fast Search**: In-memory search with case-insensitive partial matching (zero-argument prototype tool delegates a fixed query: "pricing")
-- � **Raw Content Dump**: `get_kb_content` tool returns full raw knowledge base text (prototype convenience)
+- **Raw Content Dump**: `get_kb_content` tool returns full raw knowledge base text (prototype convenience)
 - �🔌 **MCP Integration**: Standard Model Context Protocol STDIO transport
 - 📊 **Knowledge Base Info**: Statistics and metadata about available content
 - 🪵 **Structured Logging**: Console logging routed to stderr for MCP compatibility
@@ -394,9 +392,7 @@ If tools are not discovered, open the command palette and reload the window, or 
 
 ### search_knowledge
 
-Prototype search tool (current sprint simplification). Exposed as a zero-argument tool that always executes a representative fixed query (`pricing`) against the in-memory content and returns up to 3 matches. This ensured deterministic end-to-end protocol validation while deferring parameter binding complexity.
-
-Planned (future): Reintroduce `query` and optional `max_results` arguments once stable embedding / parameter schema strategy is finalized.
+Deprecated (was previously a prototype search/excerpt mechanism). Full content exposure via `get_kb_content` made it redundant for this simplified POC. Tool removed.
 
 **Invocation (MCP):**
 ```json

@@ -30,6 +30,9 @@
 
 - (*) Add global.research.prompt.md before creating the Architecture file and coding so I create research info.
 
+
+- (*) Add more metadata to MCP Server and AGENTS so questions are better redirected by the LLM
+
 For POC ARCHITECTURE:
 - Raise any important high-level technical considerations, like platforms, languages, frameworks, and overall architecture details.
 
