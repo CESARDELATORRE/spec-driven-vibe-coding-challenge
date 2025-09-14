@@ -32,14 +32,14 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
     {
         try
         {
-            var filePath = Path.GetFullPath(_options.FilePath);
-            _logger.LogInformation("Initializing knowledge base from file: {FilePath}", filePath);
-
-            if (!File.Exists(filePath))
+            var filePath = ResolveKnowledgeBaseFilePath(_options.FilePath);
+            if (filePath == null)
             {
-                _logger.LogError("Knowledge base file not found: {FilePath}", filePath);
+                _logger.LogError("Knowledge base file not found. Attempted base path: {ConfiguredPath}", _options.FilePath);
                 return false;
             }
+
+            _logger.LogInformation("Initializing knowledge base from file: {FilePath}", filePath);
 
             _fileInfo = new FileInfo(filePath);
             _content = await File.ReadAllTextAsync(filePath);
@@ -52,6 +52,71 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
         {
             _logger.LogError(ex, "Failed to initialize knowledge base from file: {FilePath}", _options.FilePath);
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempts to resolve the configured knowledge base file path using multiple fallbacks.
+    /// This allows running the server from the repository root (e.g. with 'dotnet run --project ...')
+    /// while the dataset file physically lives under the project folder.
+    /// </summary>
+    /// <param name="configuredPath">The path configured in options (may be relative)</param>
+    /// <returns>Full path to existing file or null if not found</returns>
+    private string? ResolveKnowledgeBaseFilePath(string configuredPath)
+    {
+        try
+        {
+            var candidates = new List<string>();
+
+            // 1. As provided (relative to current working directory)
+            candidates.Add(Path.GetFullPath(configuredPath));
+
+            // 2. Relative to the AppContext base directory (bin/... folder at runtime)
+            var baseDir = AppContext.BaseDirectory;
+            candidates.Add(Path.GetFullPath(Path.Combine(baseDir, configuredPath)));
+
+            // 3. Walk up from bin folder to repo root and reapply relative path
+            // Typical depth: bin/Debug/net9.0 => go up 3 levels
+            var up3 = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
+            candidates.Add(Path.Combine(up3, configuredPath));
+
+            // 4. If path starts with 'datasets', try prefixing project folder path
+            if (!configuredPath.StartsWith("src", StringComparison.OrdinalIgnoreCase))
+            {
+                candidates.Add(Path.Combine(up3, "src", "mcp-server-kb-content-fetcher", configuredPath));
+            }
+
+            // 5. If still not found and configured path isn't absolute but file name exists, brute force search under src project folder
+            if (!Path.IsPathRooted(configuredPath))
+            {
+                var fileName = Path.GetFileName(configuredPath);
+                var projectDatasets = Path.Combine(up3, "src", "mcp-server-kb-content-fetcher", "datasets", fileName);
+                candidates.Add(projectDatasets);
+            }
+
+            foreach (var path in candidates.Where(p => !string.IsNullOrWhiteSpace(p)))
+            {
+                try
+                {
+                    if (File.Exists(path))
+                    {
+                        _logger.LogDebug("Resolved knowledge base file path candidate: {ResolvedPath}", path);
+                        return path;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogTrace(ex, "Error while probing candidate path: {Candidate}", path);
+                }
+            }
+
+            _logger.LogWarning("Unable to resolve knowledge base file. Tried candidates: {Candidates}", string.Join("; ", candidates));
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while resolving knowledge base file path for configured value: {Configured}", configuredPath);
+            return null;
         }
     }
 
