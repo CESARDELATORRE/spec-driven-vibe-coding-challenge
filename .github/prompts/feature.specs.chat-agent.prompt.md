@@ -36,7 +36,7 @@ RULES:
 - (Special rule for prototype/POC) Ensure the plan is easy to understand and implement
 - (Special rule for prototype/POC) Focus on features that can be realistically implemented within the constraints of a prototype or POC
 - (Special rule for prototype/POC) Avoid over-engineering or adding unnecessary complexity to the specs
-- (Special rule for prototype/POC) Keep the feture's specs doc short and to the point, focusing on the most important aspects of the feature, no more than 2 or maximum 3 pages long. 
+- (Special rule for prototype/POC) Keep the feature's specs doc short and to the point, focusing on the most important aspects of the feature, no more than 2 or maximum 3 pages long. 
 
 NEXT:
 
