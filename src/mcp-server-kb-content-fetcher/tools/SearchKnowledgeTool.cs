@@ -26,8 +26,8 @@ public class SearchKnowledgeTool
     /// </summary>
     /// <param name="query">Search keywords or phrases</param>
     /// <param name="max_results">Maximum number of results to return (optional, default: 3, max: 5)</param>
-    /// <returns>MCP content array with search results</returns>
-    public async Task<object[]> SearchAsync(
+    /// <returns>Plain object payload with search results (MCP server will wrap into content[])</returns>
+    public async Task<object> SearchAsync(
         string query,
         int? max_results = null)
     {
@@ -40,16 +40,11 @@ public class SearchKnowledgeTool
             if (string.IsNullOrWhiteSpace(query))
             {
                 _logger.LogWarning("Empty or null query provided to SearchKnowledge tool");
-                var emptyResult = JsonSerializer.Serialize(new
+                return new
                 {
                     query = query ?? string.Empty,
                     totalMatches = 0,
                     results = Array.Empty<object>()
-                }, new JsonSerializerOptions { WriteIndented = true });
-
-                return new object[]
-                {
-                    new { type = "text", text = emptyResult }
                 };
             }
 
@@ -67,37 +62,25 @@ public class SearchKnowledgeTool
                 position = result.Position
             }).ToArray();
 
-            var response = JsonSerializer.Serialize(new
+            _logger.LogInformation("SearchKnowledge tool completed. Found {ResultCount} results for query: '{Query}'", 
+                resultItems.Length, query);
+
+            return new
             {
                 query,
                 totalMatches = resultItems.Length,
                 results = resultItems
-            }, new JsonSerializerOptions { WriteIndented = true });
-
-            _logger.LogInformation("SearchKnowledge tool completed. Found {ResultCount} results for query: '{Query}'", 
-                resultItems.Length, query);
-
-            // Return MCP content array format
-            return new object[]
-            {
-                new { type = "text", text = response }
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in SearchKnowledge tool for query: '{Query}'", query);
-            
-            var errorResult = JsonSerializer.Serialize(new
+            return new
             {
                 query = query ?? string.Empty,
                 totalMatches = 0,
                 error = "Search error occurred. Please try again with a different query.",
                 details = ex.Message
-            }, new JsonSerializerOptions { WriteIndented = true });
-
-            return new object[]
-            {
-                new { type = "text", text = errorResult }
             };
         }
     }

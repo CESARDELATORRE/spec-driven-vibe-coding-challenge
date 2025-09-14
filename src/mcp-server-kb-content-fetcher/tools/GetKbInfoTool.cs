@@ -24,8 +24,8 @@ public class GetKbInfoTool
     /// <summary>
     /// Get basic information about the knowledge base
     /// </summary>
-    /// <returns>MCP content array with knowledge base information</returns>
-    public async Task<object[]> GetInfoAsync()
+    /// <returns>Plain object payload with knowledge base information (MCP server will wrap into content[])</returns>
+    public async Task<object> GetInfoAsync()
     {
         try
         {
@@ -54,25 +54,27 @@ public class GetKbInfoTool
             _logger.LogInformation("GetKbInfo tool completed. Available: {IsAvailable}, Content length: {ContentLength}", 
                 info.IsAvailable, info.ContentLength);
 
-            // Return MCP content array format
-            return new object[]
+            // Return plain object; hosting layer will serialize once into a single text content part
+            return new
             {
-                new { type = "text", text = infoText }
+                status,
+                info = new
+                {
+                    fileSizeBytes = info.FileSizeBytes,
+                    contentLength = info.ContentLength,
+                    isAvailable = info.IsAvailable,
+                    description = info.Description,
+                    lastModified = info.LastModified.ToString("o")
+                }
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in GetKbInfo tool");
-            
-            var errorText = JsonSerializer.Serialize(new
+            return new
             {
                 status = "Error retrieving knowledge base information",
                 error = ex.Message
-            }, new JsonSerializerOptions { WriteIndented = true });
-
-            return new object[]
-            {
-                new { type = "text", text = errorText }
             };
         }
     }

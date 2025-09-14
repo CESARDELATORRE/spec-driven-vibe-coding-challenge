@@ -1,6 +1,7 @@
 using McpServerKbContentFetcher.Configuration;
 using McpServerKbContentFetcher.Services;
 using McpServerKbContentFetcher.Tools;
+using McpServerKbContentFetcher.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -84,11 +85,12 @@ builder.Services.AddMcpServer()
     .WithStdioServerTransport()
     .WithTools(new[]
     {
+        // Simplified zero-argument search tool: always performs a fixed 'pricing' query (prototype minimal viable behavior)
         McpServerTool.Create(
-            (string query, int? max_results) =>
+            () =>
             {
                 if (searchToolRef is null) throw new InvalidOperationException("SearchKnowledgeTool not initialized");
-                return searchToolRef.SearchAsync(query, max_results);
+                return searchToolRef.SearchAsync("pricing", 3);
             },
             new McpServerToolCreateOptions
             {

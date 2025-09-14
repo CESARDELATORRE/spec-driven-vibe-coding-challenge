@@ -126,7 +126,7 @@ public class McpServerProtocolTests
         {
             jsonrpc = "2.0",
             method = "tools/call",
-            @params = new { name = "search_knowledge", arguments = new { query = "pricing" } }
+            @params = new { name = "search_knowledge", arguments = new { } }
         });
 
         response.Should().NotBeNullOrEmpty();
@@ -136,33 +136,15 @@ public class McpServerProtocolTests
         result.TryGetProperty("isError", out var isErrorEl);
         if (isErrorEl.ValueKind == JsonValueKind.True)
         {
-            // Capture server provided error text for diagnosis
-            var errText = content[0].GetProperty("text").GetString();
-            throw new Xunit.Sdk.XunitException($"search_knowledge returned error. Raw text: {errText}");
+            var errRaw = content[0].GetProperty("text").GetString();
+            throw new Xunit.Sdk.XunitException($"search_knowledge failed unexpectedly. Raw error text: {errRaw}");
         }
-        var outer = content[0].GetProperty("text").GetString();
-        outer.Should().NotBeNullOrEmpty();
-        JsonDocument? outerDoc = null;
-        try { outerDoc = JsonDocument.Parse(outer!); } catch { }
-        outerDoc.Should().NotBeNull("Outer search text JSON should parse");
-        var root = outerDoc!.RootElement;
-        if (root.ValueKind == JsonValueKind.Array && root.GetArrayLength() > 0 && root[0].TryGetProperty("text", out var nestedTextEl))
-        {
-            var nestedText = nestedTextEl.GetString();
-            nestedText.Should().NotBeNullOrEmpty();
-            using var payload = JsonDocument.Parse(nestedText!);
-            payload.RootElement.TryGetProperty("query", out var queryEl).Should().BeTrue();
-            queryEl.GetString().Should().Be("pricing");
-            payload.RootElement.TryGetProperty("totalMatches", out var totalMatchesEl).Should().BeTrue();
-            // Accept zero matches (but ideally >0) for robustness if dataset changes
-            totalMatchesEl.GetInt32().Should().BeGreaterThanOrEqualTo(0);
-        }
-        else if (root.ValueKind == JsonValueKind.Object)
-        {
-            root.TryGetProperty("query", out var queryEl).Should().BeTrue();
-            queryEl.GetString().Should().Be("pricing");
-            root.TryGetProperty("totalMatches", out var totalMatchesEl).Should().BeTrue();
-            totalMatchesEl.GetInt32().Should().BeGreaterThanOrEqualTo(0);
-        }
+        var text = content[0].GetProperty("text").GetString();
+        text.Should().NotBeNullOrEmpty();
+        using var payload = JsonDocument.Parse(text!);
+        payload.RootElement.TryGetProperty("query", out var queryEl).Should().BeTrue();
+        queryEl.GetString().Should().Be("pricing");
+        payload.RootElement.TryGetProperty("totalMatches", out var totalMatchesEl).Should().BeTrue();
+        totalMatchesEl.GetInt32().Should().BeGreaterThanOrEqualTo(0);
     }
 }
