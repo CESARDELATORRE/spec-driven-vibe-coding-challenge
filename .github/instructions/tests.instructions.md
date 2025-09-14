@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.cs"
+applyTo: "**"
 ---
 
 ### Creating Tests

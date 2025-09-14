@@ -683,13 +683,12 @@ When satisfied:
 - DO NOT start writing any code or implementation plans. Follow instructions.
 ```
 
-**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on a spec, not just the global docs are taken into account, but if we derive for good reasons, we update and **keep consistency in the global docs**, as well. 
-
-
 PROMPT 5 at GHCP chat window:
 (Use **"Edit mode"** and **Claude Sonnet 4** for better reasoning):
 
 ![alt text](images-journey/prompt-05.png)
+
+**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on a spec, not just the global docs are taken into account, but if we derive for good reasons, we update and **keep consistency in the global docs**, as well. 
 
 ```
 PROMPT 5:
@@ -702,7 +701,7 @@ GHCP chat responds with a summary of the task to be done:
 
 ![alt text](images-journey/prompt-05-key-requirements-summary.png)
 
-But, in addition to that it's requesting me for a few **claritications** with the following questions:
+But, in addition to that it's requesting me for a few **clarifications** with the following questions:
 
 ![alt text](images-journey/prompt-05-clarification-questions.png)
 
@@ -775,11 +774,469 @@ I also identified and removed the outdated `/docs/specs/kb-mcp-server.md` file, 
 
 ## Create PR #4 for KB MCP Server feature specs doc and merge into main branch
 
+I created the PR #4, and again, assigned to GHCP CODING AGENT who catched a pair of small issues, so we fixed it before merging the PR:
+
+![alt text](images-journey/pr-04.png)
+
 At this point we have completed the first feature's specification document with comprehensive functional requirements, technical constraints, MCP tools specification, and documented tradeoffs. The specs doc includes detailed acceptance criteria, success metrics, and an appendix explaining key design decisions.
 
 The KB MCP Server feature specification is now ready for the next phase: creating the implementation plan document.
 
+
+### Prompt 6 - Create the **implementation plan doc** for feature KB/content MCP server
+
+Now that we have crafted the feature specs doc with functional specs, we need to define exactly how we're going to implement/code the custom "KB/content MCP server"in an **implementation plan doc**.
+
+For this, I'm using another pre-defined prompt template approach. 
+
+**PRE-WRITTEN TEMPLATE PROMPT for defining a feature's implementation plan doc:**
+
+It's placed at **.github/prompts** folder, named **feature.implementation-plan.prompt.md**.
+
+The following is the content of this pre-writen specs prompt where **the great thing about it is that it's 100% generic!**, you don't need to change/update it per feature because it'll get all the context needed from the provided feature's specs document that you need to provide as part of the context.
+
+```
+---
+mode: 'edit'
+description: 'Plan a feature implementation/coding'
+---
+
+Your goal is to generate an implementation/coding plan for a specification document provided to you.
+
+RULES:
+- Keep implementations simple, do not over architect
+- Do not generate real code for your plan, pseudocode is OK
+- For each step in your plan, include the objective of the step, the steps to achieve that objective, and any necessary pseudocode.
+- Call out any necessary user intervention required for each step
+- Consider accessibility part of each step and not a separate step
+- Follow the rules in #file:../../.github/copilot-instructions.md
+- Follow the coding rules in #file:../../.github/copilot-coding-rules.md (like project names and folder's structure), but do not create real code in this implementation/coding plan document but simplify the code-snippets to the maximum extent possible.
+- (Special rule for prototy/POC) Focus on simplest possible implementation that meets the requirements
+- (Special rule for prototy/POC) Avoid over engineering or over architecting
+- (Special rule for prototy/POC) Avoid production grade implementations or optimizations
+- (Special rule for prototy/POC) Avoid advanced features or capabilities that are not in scope
+- (Special rule for prototy/POC) The most important rule for this implementation plan is to keep things (approaches, design and related code) as simple as possible while still meeting the requirements of the specification document provided to you.
+
+FIRST:
+
+- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/04-architecture-technologies.md to file to understand an overview of the project, but focus mostly on the prototype/POC scope (functiona;, architecture and technologies for the prototype).
+- Review the attached specs document (as context file) to understand the requirements and objectives.
+
+THEN:
+- Create a detailed implementation plan that outlines the steps needed to achieve the objectives of the specification document.
+- The plan should be structured, clear, and easy to follow.
+- Structure your plan as follows, and output as Markdown code block
+
+```markdown
+# Implementation Plan for [Spec Name]
+
+- [ ] Step 1: [Brief title]
+  - **Task**: [Detailed explanation of what needs to be implemented]
+  - **Files**: [Maximum of 10 files, ideally less]
+    - `path/to/file1.cs`: [Description of changes], [Pseudocode for implementation]
+  - **Dependencies**: [Dependencies for step]
+
+[Additional steps...]
+
+- After the steps to implement/code the feature, add a step to build and run the app
+- Add a step to write unit tests, integration tests and UI tests for the feature
+- Add a step to run all tests as last step 
+
+NEXT:
+
+- Iterate with me until I am satisifed with the plan
+
+FINALLY: 
+
+- Output your plan in #folder:../../docs/plans/feature-implementationplan-name.md
+- DO NOT start implementation without my permission.
+```
+
+**PROMPT 6 at GHCP chat window:**
+
+(Use **"Edit mode"** and **Claude Sonnet 4** for better reasoning):
+
+![alt text](images-journey/prompt-06.png)
+
+**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on the implementation, all the related documents should **keep consistency** between them.
+Specs and implementation plan should not be "fire and forget" and keep coding, but it should be a single whole atomic unit, consistent. 
+
+```
+PROMPT 6:
+Follow and run the provided pre-written prompt attached plus the additional context docs provided.
+```
+
+Now, I run the prompt 6 for creating the KB MCP server feature's implementation plan.
+
+GHCP chat responds with a summary of the task to be done:
+
+![alt text](images-journey/prompt-06-key-requirements-summary.png)
+
+
+But, in addition to that it's requesting me for a few **clarifications** with the following questions:
+
+![alt text](images-journey/prompt-06-clarification-questions.png)
+
+Plus, after generating an initial version of the document, it asked me additional refinement questions:
+
+![alt text](images-journey/prompt-06-refinement-questions.png)
+
+
+I answered with the following decissions and clarification answers:
+
+**Cesar's PROMPT for clarification and refinement answers:**
+```
+Project Structure: Should this be a console application or a class library? 
+    Cesar's answer: An MCP server in .NET is an standalone process, so it should be a console application that can be run as an MCP server. It uses a hosting ModelBackground service via Host.CreateApplicationBuilder, using the console app as the host.
+    In later versions we'll be able to convert it to a Docker container and use HTTP as protocol instead of STDIO, but not for this initial implementation plan.
+
+Knowledge Base File: Should we include a sample AMG content file in the project, or expect it to be provided via configuration?
+        Cesar's answer: Yes please, include a sample AMG content file in the project. 
+        Use Perplexity MCP server if needed for creating the AMG content file in the project.
+
+Configuration: Command line arguments, config file, or both for specifying the knowledge base file path?
+    Cesar's answer: USe the simplest approach, probably a config file.
+
+MCP SDK: Should I assume we'll use the official Microsoft MCP SDK for .NET, or are there specific MCP libraries you'd prefer?
+    Cesar's answer: USe the official Microsoft MCP SDK for .NET.
+        With this namespace: using ModelContextProtocol.Server;
+        This package: ModelContextProtocol (Use latest version which is popular, even if in preview)
+        Confirm the best version to use. 
+
+Testing Scope: For the prototype, should we focus primarily on unit tests for the core search functionality, or also include basic integration tests for MCP protocol compliance?
+    Cesar's answer: Include in the plan one or two basic integration tests using STDIO. Do not generate code for TESTS in the implementation plan, just define the plan for the tests.
+
+
+MCP SDK Reference: Should I include specific NuGet package references, or will you provide guidance on the MCP SDK to use?
+    Cesar's answer: No need this details in the implementation plan. That's easy and to be done when coding. Keep the implementation plan simple and without too many details only needed when coding.
+
+Error Handling Depth: For the prototype, should error handling be very basic (just prevent crashes) or include some categorization of error types?
+    Cesar's answer: For the prototype, error handling should be be very basic, favoring code readability.
+
+Configuration Flexibility: Should the implementation support both command line arguments and config file, or is one sufficient for the prototype?
+    Cesar's answer: Propose in the plan only one way, the simplest way for the configuration, but provide a reasoning why the proposed approach is the easiest and simplest to implement.
+
+Content File Size: Any specific guidance on the sample AMG content file size and structure for testing?
+    Cesar's answer: A bit less than 5,000 characters, for now.
+
+Use, if needed, Context7 and Perplexity, but ony if you need more context and committed to the most important rule for this prompt which is "keep it simple", an implementation plan as simple as possible for the prototype/POC.
+```
+
+GHCP iterated and created a comprehensive 10-step implementation plan covering:
+1. Project structure and configuration setup
+2. Knowledge base service implementation  
+3. Sample AMG content creation
+4. MCP tools implementation
+5. MCP server host service
+6. Basic logging and error handling
+7. Build and run verification
+8. Unit tests creation
+9. Integration tests creation
+10. Complete test execution
+
+The plan emphasizes simplicity while maintaining good .NET practices and ensures the solution meets all specification requirements. Key design decisions include using appsettings.json for configuration (reasoning: standard .NET patterns, no command-line parsing complexity) and focusing on crash prevention rather than comprehensive error categorization.
+
+
+### My actions after prompt 6
+
+- First, I review the implementation plan Thoroughly. 
+
+- Second, I found some points I'd like to have changed, so these were my complementary promots to iterate the feature implementation plan:
+
+**Cesar's complementary/iteration PROMPT:**
+```
+In the feature-implementation-plan-kb-mcp-server.md file:
+
+Since I want to be able to re-use this prototype implementation for any other domain, I do NOT want to use the word "Amg" or anything related to Azure Managed Grafana (AMG) in the code or in the project's names, folders, etc.
+
+Remove any "AMG" or similar from the "code example" or code snippets in the implementation plan document.
+
+For instance, the project and folder instead of being named "AmgKnowledgeBase.McpServer/AmgKnowledgeBase.McpServer.csproj" should be "kb.mcpserver/kb.mcpserver.csproj".
+
+Also, review the document and follow the coding-rules.md, always, please.
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+About logging, make sure it's not conflicting with MCP Stdio:
+
+// Configure minimal logging
+builder.Logging.AddConsole(options =>
+{
+    // Route all log levels to stderr to avoid corrupting MCP stdio (stdout) channel
+    options.LogToStandardErrorThreshold = LogLevel.Trace;
+});
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+Explain why it's recommended to use the interface "IKnowledgeBaseService.cs".
+I think it's a good idea so we make the service "generic" thanks to a contract/interface, I'm guessing that using DEPENDENCY INJECTION, so in the future we can swap it to another KB Service implementation probably more complex (say good examples for the future) without needing to change the code invoking the service.
+
+If there's any additional reason, explain it, too.
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+Please, follow my csharp.instructions.md. Review that the implementation plan is compliant with it.
+For example, the folder "Tools" should be named "tools" or "configuration" instead of "Configuration".
+Only the leaf level of files (i.e. class names) should be capitalized. All folders and even project's filenames should be lowercase, as explained in the csharp.instructions.md 
+```
+
+**Cesar's complementary/iteration PROMPT:**
+```
+Move out the technical/framework sections from the "Key Design Principles". For example the "MCP SDK Integration", "MCP STDIO Logging Configuration", "Configuration Strategy", ".NET Dependencies Summary"  should be in a different "technical implementation guidelines" or something similar. THose are not "Design Principles"
+```
+
+**Cesar's final check iteration PROMPT:**
+
+**Using Claude Opus 4** for better analysis.
+![alt text](images-journey/prompt-06-finel-check-point-with-claude-opus.png)
+
+```
+As final check-point before starting to code, let's to an end-to-end review of all the documents in the repo, making sure they are consistent agaist each other, it's related information, etc.
+```
+
+If found minor inconsistencies that I fixed:
+![alt text](images-journey/prompt-06-final-minor-updates.png)
+
+
+Therefore, GHCP updated the implementation plan to comply with coding rules by:
+- Changing folder names from PascalCase to kebab-case: `Tools` → `tools`, `Configuration` → `configuration`, `Services` → `services`, `Models` → `models`, `Extensions` → `extensions`
+- Keeping class filenames in PascalCase as they represent C# class names
+- Maintaining lowercase project filenames with kebab-case convention
+- Reorganizing technical sections under "Technical Implementation Guidelines" separate from "Key Design Principles"
+
+The implementation plan now follows the established coding conventions for modern containerized applications (even when we're still not using Docker, but getting ready/elegant for it), while maintaining clear separation between design principles and technical implementation details.
+
+## Create PR #5 for KB MCP Server implementation plan doc and merge into main branch
+
+At this point we have completed the feature's implementation plan document that provides a clear, step-by-step guide for building the KB MCP Server. The plan maintains consistency with the feature specification and follows the architectural principles defined in our global documents.
+
+As usual, I created the PR, assigned GHCP as reviewer, who catch a couple of minor issues, we fixed it, and I merged into master branch:
+
+![alt text](images-journey/pr-05.png)
+
+The implementation plan is now ready for the final phase: actual coding and implementation of the KB MCP Server.
+
 ## Next Steps for Day 2 continuation
 
-- Feature 1 (KB content MCP Server) Implementation plan doc  
 - Feature 1 (KB content MCP Server) coding/implementation
+
+
+## Develop the KB MCP server with GHCP CODING AGENT (Feature implementation)
+
+At this point, I can continue with GHCP in VS Code leveraging my pre-writen **implement-code.prompt.md** with the ready to follow feature-implementation-plan-kb-mcp-server.md implementation/coding document, or...
+
+I can also give it a shot with the autonomous **GHCP CODING AGENT** in my repo at http://github.com.
+
+Let's try first the autonomous **GHCP CODING AGENT**...
+
+I already had created an issue for this feature implementation (coding task):
+
+
+https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/issues/11
+
+![alt text](images-journey/issue-implement-mcp-server.png)
+
+So, I go ahead and assigning GH CoPilot to the issue:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-assigned.png)
+
+Then, GHCP starts a session taking a look to the issue:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-looking.png)
+
+Then, as part of the work session it creates, it creates a WIP PR and branch.
+
+PR: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/12
+
+Here's the session and how it's working on it, autonomously:
+
+**Session:** https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/12/agent-sessions/b174f7ad-3d3d-4a2b-ba8d-d9100e8aa649
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-session.png)
+
+However, even when the official Microsoft MCP SDK for .NET exists (in PREVIEW state), GHCP CODING AGENT was not able to find it and said:
+
+*"Now let me implement the MCP tools (Step 4). Since the exact **MCP SDK isn't available**, I'll create the basic structure that can be enhanced once the SDK is available:"*
+
+*"Now I need to continue with Step 5-6, but since the actual MCP SDK isn't available, I'll implement a basic STDIO protocol handler to demonstrate the concept. Let me also move forward to testing (Steps 8-9) so I can validate the functionality:"*
+
+That is not true... the NUGET package with the MCP SDK in Preview is here:
+
+https://www.nuget.org/packages/ModelContextProtocol
+
+I'm explicitly now adding the following to my implementation plan document and to the GitHub issue itself:
+
+```
+# Technology dependencies to use:
+
+- .NET 10 Preview 6+ or .NET 9 as fallback
+
+- Microsoft MCP SDK for .NET:
+  Use the latest popular/stable version, even if in preview state, since MCP is evolving very fast.
+  The official MCP SDK for .NET is here:
+  https://www.nuget.org/packages/ModelContextProtocol/
+
+  - Use MCP SDK version 0.3.0-preview.4 or newer, if available. 
+
+  - You can add it to the solution with this command or the way you prefer:
+
+  `dotnet add package ModelContextProtocol --version 0.3.0-preview.4`
+```
+
+At this point, I can grab that PR and try to fix it, or give it a second change updating the docs with the specific URL to the MCP SDK NUGET package page and ask GHCP CODING AGENT to do it again...
+
+Before starting from scratch another ISSUE asignement, I tried to provide feedback in the PR review:
+
+However, feedback on PR reviews do not currently trigger any action from GHCP **(FEEDBACK for PG:I think it should...)**...
+
+So, I proactively asked to GHCP in the UI:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-review.png)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-review-ask-copilot-01.png)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-review-ask-copilot-02.png)
+
+With that, GHCP created another PR and related branch and started working again.
+
+New PR: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/13
+
+New branch: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/tree/copilot/fix-23583b2c-4ca4-406c-ac52-dba463d4c588
+
+But it got stuck and it failed:    :(
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-new-pr-failed.png)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-new-pr-failed-details.png)
+
+So, I'm giving another change to GHCP CODING AGENT.
+
+I unassigned and assign again GHCP CODING AGENT to the issue, so it starts looking at it and working again:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-looking-02.png)
+
+In the PR, while advancing, I see that it's going again for choosing .NET 8 for the implementation, even when I explicitly said to use .NET 10 Preview or .NET 9 as fallback...:
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-picks-net-8.png)
+
+But it finally is using .NET 9...
+
+I can dig into the GHCP CODING AGENT session:
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-coding-agent-03try-session-01.png)
+
+And looks like the implementation this time is complete! :)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-coding-agent-03try-session-02.png)
+
+Looks promising, it's passing tests and I took a look to the project's file dependencies and this time it's using the official MCP Server SDK for .NET Preview.
+
+I cloned the repo to review it deeper.
+I can see it's using .NET 9 and the MCP SDK for .NET Preview, latest Version="0.3.0-preview.4":
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-coding-agent-03try-netproject.png)
+
+Here's the branch with the initial result as initially implemented by GHCP CODING AGENT! :)
+
+PR: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/15 
+Branch: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/tree/copilot/fix-11-2
+
+Now. let's check that it works!
+
+It still doesn't have instructions about how to build the project and test it, so I'm going to create an **issue** for it and tell GHCP CODING AGENT to do it.
+
+![alt text](images-journey/issue-create-readme-mcp-server-ghcp-pr-coding-agent.png)
+
+This is the SESSION that GHCP CODING AGENT is using for testing and creating the README.md file:
+
+![alt text](images-journey/issue-create-readme-mcp-server-ghcp-pr-coding-agent-session-01.png)
+
+
+This is the README.md that I'll merege into the branch with the code, then follow, testing the MECP server and continue iterating:
+
+![alt text](images-journey/readme-mcp-server.png)
+
+I reviewed the readme, and fixed a few wrong points such as the .NET version (it's using .NET 9, not 10).
+
+Tested the MCP Server from the termina:
+
+
+
+Created a README.md explaining the UNIT TESTS created:
+
+PROMPT to create a README.md explaining the UNIT TESTS:
+
+![alt text](images-journey/prompt-create-readme-for-unit-tests.png)
+
+I can check that the created UNIT TESTS (mostly, internal, related to the FileKnowledgeBaseService and format/logic/prep for the MCP Server) are passing:
+
+![alt text](images-journey/mcp-server-unit-tests-passed.png)
+
+However, at the MCP protocol, the server was not working, I had to do quite a few iterations with GHCP from VS Code, create additional INTEGRATION TESTS so it checks at the MCP protocol, not just internal UNIT TESTS, etc.
+
+
+
+=========================================================================
+
+## Develop the KB MCP server with GHCP AGENT MODE in VS CODE (Feature implementation)
+
+Let's vibe code based on the specs-driven approach but now with **GHCP AGENT MODE in VS CODE**.
+
+### Prompt 7 - Develop the **implementation code** for feature KB MCP server
+
+Now that we have crafted all the definitions for the feature, let's code!.
+
+For the actual implementation, I'm using another pre-defined prompt template approach. 
+
+**PRE-WRITTEN TEMPLATE PROMPT for coding the implementation:**
+
+It's placed at **.github/prompts** folder, named **implement-code.prompt.md**.
+
+The following is the content of this pre-writen specs prompt where **the great thing about it is that it's 100% generic!**, you don't need to change/update it per feature because it'll get all the context needed from the provided feature's specs and implementation-plan documents that you need to provide as part of the context.
+
+
+**.github/prompts/implement-code.prompt.md**
+
+(Note that I'm in AGENT MODE and enabled context7 MCP Server for additional SDK/Frameworks/Languages context)
+
+```
+---
+mode: 'agent'
+tools: ['context7']
+description: 'Implement the coding of an implementation-plan, step by step'
+---
+Your task is to implement each step of the provided plan, one at a time.
+
+The plan is just a suggestion to guide you in the right direction.
+
+You do not have to strictly follow it if it does not make sense.
+
+ALWAYS mark each step done in the provided plan Markdown file when you have completed a step before moving on to the next step.
+```
+
+
+
+**PROMPT 6 at GHCP chat window:**
+
+This is the simple prompt at GHCP chat:
+
+(Use **"Agent mode"** and **GPT-5**):
+
+![alt text](images-journey/prompt-07.png)
+
+```
+PROMPT 7:
+Follow and run the provided pre-written prompt attached plus the additional context docs provided.
+```
+
+**IMPORTANT:** Also, note the attached global context files (in the chat window as additional context) so while advancing on the implementation, all the related documents should **keep consistency** between them.
+Specs and implementation plan should not be "fire and forget" and keep coding, but it should be a single whole atomic unit, consistent.
+
+If codes goes a different path, specs and architecture docs should also be updated and aligned.
+
+
+Now, I run the prompt 6 for creating the KB MCP server feature's implementation plan.
+
+GHCP chat responds with a summary of the task to be done:
