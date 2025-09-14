@@ -1,0 +1,86 @@
+Azure Managed Grafana Knowledge Base
+
+Azure Managed Grafana is a fully managed service for open-source Grafana, providing a complete monitoring and observability solution for your Azure resources and applications. This service eliminates the complexity of managing Grafana infrastructure while delivering enterprise-grade security, compliance, and reliability.
+
+Key Features and Capabilities:
+
+Fully Managed Service:
+Azure Managed Grafana takes care of all infrastructure management, including updates, patches, scaling, and high availability. This allows teams to focus on building dashboards and analyzing data rather than maintaining infrastructure. The service automatically handles backup and disaster recovery, ensuring your monitoring setup remains reliable and resilient.
+
+Built-in Azure Integration:
+The service provides seamless integration with Azure Monitor, Application Insights, and Azure Data Explorer, enabling immediate access to your Azure resource metrics and logs. Pre-configured data sources reduce setup time and ensure optimal performance when querying Azure services.
+
+Enterprise Security:
+Azure Managed Grafana implements Azure Active Directory (AAD) authentication and role-based access control (RBAC), providing enterprise-grade security for your monitoring environment. The service supports conditional access policies and multi-factor authentication to protect sensitive monitoring data.
+
+Scalability and Performance:
+The managed service automatically scales based on usage patterns and dashboard complexity, ensuring consistent performance even with large datasets and complex visualizations. Azure's global infrastructure provides low-latency access to monitoring data from multiple regions.
+
+Getting Started Guide:
+
+Prerequisites:
+To begin using Azure Managed Grafana, you need an active Azure subscription with appropriate permissions to create resources. Ensure you have access to the Azure resources you want to monitor, such as virtual machines, containers, or application services.
+
+Creating Your First Instance:
+Navigate to the Azure portal and search for "Azure Managed Grafana" in the marketplace. Select the service and choose your subscription, resource group, and region. Configure basic settings including the instance name and pricing tier based on your monitoring requirements.
+
+Configuring Data Sources:
+After deployment, access your Grafana instance through the provided URL. Configure data sources by navigating to Configuration > Data Sources. Azure Monitor and Application Insights data sources can be configured with managed identity authentication for seamless access to your Azure resources.
+
+Building Dashboards:
+Create your first dashboard by selecting "+" and then "Dashboard" from the main menu. Add panels by clicking "Add Panel" and configure visualizations using data from your configured sources. Grafana provides numerous visualization types including graphs, tables, heatmaps, and single stat panels.
+
+Pricing Information:
+
+Standard Tier:
+The Standard tier provides essential Grafana capabilities with Azure integration, suitable for small to medium deployments. This tier includes basic alerting, dashboard sharing, and standard data source connectors. Pricing is based on active users and includes generous limits for dashboards and data retention.
+
+Premium Tier:
+The Premium tier offers advanced features including enhanced alerting capabilities, advanced authentication options, and priority support. This tier is designed for enterprise deployments requiring sophisticated monitoring workflows and compliance features.
+
+Integration Options:
+
+Azure Monitor Integration:
+Azure Managed Grafana provides native integration with Azure Monitor, allowing direct access to platform metrics, activity logs, and resource health data. This integration includes optimized queries and pre-built dashboard templates for common Azure services.
+
+Application Insights Connection:
+Connect Application Insights to monitor application performance, user behavior, and custom telemetry. The integration supports advanced querying capabilities using KQL (Kusto Query Language) and provides insights into application dependencies and performance bottlenecks.
+
+Third-Party Data Sources:
+Beyond Azure services, Azure Managed Grafana supports numerous third-party data sources including Prometheus, InfluxDB, Elasticsearch, and MySQL. This flexibility allows organizations to consolidate monitoring from multiple platforms into a single Grafana instance.
+
+Common Use Cases:
+
+Infrastructure Monitoring:
+Monitor Azure virtual machines, container instances, and Kubernetes clusters using built-in Azure Monitor integration. Create comprehensive dashboards showing resource utilization, performance metrics, and health status across your entire Azure infrastructure.
+
+Application Performance Monitoring:
+Track application performance using Application Insights integration, monitoring response times, error rates, and user engagement metrics. Create alerts for performance degradation and establish SLAs for critical application components.
+
+Business Intelligence:
+Leverage Grafana's powerful visualization capabilities to create business dashboards combining operational metrics with business KPIs. Connect to Azure SQL Database, Cosmos DB, and other data sources to provide comprehensive business insights.
+
+Best Practices:
+
+Dashboard Organization:
+Organize dashboards using folders and tags to maintain clarity as your monitoring environment grows. Implement naming conventions and documentation standards to ensure team members can easily find and understand dashboard purposes.
+
+Alert Configuration:
+Configure meaningful alerts that provide actionable insights rather than noise. Use appropriate alert thresholds based on historical data and business requirements. Implement escalation policies to ensure critical issues receive immediate attention.
+
+Performance Optimization:
+Optimize query performance by using appropriate time ranges and aggregation intervals. Consider the impact of complex queries on dashboard loading times and system performance. Implement caching strategies for frequently accessed data.
+
+Security Considerations:
+Regularly review user access and permissions to ensure appropriate data access controls. Implement data source security best practices and monitor access logs for unusual activity. Keep sensitive information out of dashboard annotations and comments.
+
+Troubleshooting:
+
+Common Issues:
+Data source connection problems are often related to authentication or network connectivity. Verify managed identity configurations and firewall rules when experiencing connection issues. Check Azure resource permissions if data is not appearing in dashboards.
+
+Performance Problems:
+Slow dashboard loading typically results from inefficient queries or excessive data retrieval. Review query patterns and consider adjusting time ranges or aggregation levels. Monitor resource utilization in the Azure portal to identify potential bottlenecks.
+
+Support Resources:
+Azure Managed Grafana includes comprehensive documentation and community support through Grafana forums. Premium tier customers receive priority support through Azure support channels. Regular updates and feature announcements are available through Azure documentation and release notes.

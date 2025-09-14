@@ -102,7 +102,25 @@
 
 **Impact**: May require multiple queries for comprehensive information but improves system reliability and performance.
 
-# Tradeoff 14: Chat Agent conversation complexity - Single query-response vs. multi-turn conversations
+
+# Tradeoff 14: Search vs. Full Content Exposure
+
+**Decision**: Removed the prototype `search_knowledge` excerpt tool and associated search DTOs in favor of a single `get_kb_content` tool returning full raw text.
+
+**Reason**: Prototype scope prioritized simplicity and reduced round-trips; excerpt logic added maintenance overhead without delivering materially different value for a small text corpus.
+
+**Impact**: Codebase is smaller (fewer models, tests, and tool wiring). Future reintroduction of search/semantic retrieval can start clean with an embedding-based design rather than repurposed excerpt semantics.
+
+# Tradeoff 15: Path Resolution Complexity vs. Maintainability
+
+**Decision**: Simplified knowledge base file path resolution to four deterministic checks (absolute, current working directory, AppContext.BaseDirectory, project folder) and removed broader heuristic candidate enumeration.
+
+**Reason**: Heuristic list added complexity and duplicated path segments (risk of mistakes) without increasing success rate for supported launch modes (`dotnet run --project`, test execution).
+
+**Impact**: Clearer code, fewer branches. Slightly less resilient to unconventional working directories; acceptable for prototype scope and easily extendable later.
+
+
+# Tradeoff 16: Chat Agent conversation complexity - Single query-response vs. multi-turn conversations
 
 **Decision**: Implement simple single query-response pattern instead of complex multi-turn conversation management for prototype/POC.
 
@@ -110,7 +128,7 @@
 
 **Impact**: Limited conversation context and follow-up handling but sufficient for validating core value proposition.
 
-# Tradeoff 15: Chat Agent response generation - Out-of-box LLM vs. fine-tuned models
+# Tradeoff 17: Chat Agent response generation - Out-of-box LLM vs. fine-tuned models
 
 **Decision**: Use Azure AI Foundry out-of-the-box capabilities with basic prompt engineering rather than fine-tuned or specialized models.
 
@@ -118,7 +136,7 @@
 
 **Impact**: May generate less domain-specific responses but enables faster development and easier model management.
 
-# Tradeoff 16: Chat Agent error handling - Basic vs. comprehensive error management
+# Tradeoff 18: Chat Agent error handling - Basic vs. comprehensive error management
 
 **Decision**: Implement basic error handling with simple fallback messages instead of sophisticated error recovery.
 
@@ -126,7 +144,7 @@
 
 **Impact**: Limited error recovery capabilities but sufficient for demonstration and validation purposes.
 
-# Tradeoff 17: Chat Agent testing strategy - Manual vs. automated validation
+# Tradeoff 19: Chat Agent testing strategy - Manual vs. automated validation
 
 **Decision**: Use manual testing and qualitative review instead of automated semantic evaluation for prototype/POC.
 
@@ -134,7 +152,7 @@
 
 **Impact**: Limited test coverage but enables faster iteration and validation of core concepts.
 
-# Tradeoff 18: Chat Agent integration pattern - Direct orchestration vs. autonomous operation
+# Tradeoff 20: Chat Agent integration pattern - Direct orchestration vs. autonomous operation
 
 **Decision**: Integrate Chat Agent through Orchestration Agent rather than enabling direct user interaction.
 
@@ -142,7 +160,7 @@
 
 **Impact**: Adds coordination complexity but provides better architectural flexibility for future enhancements.
 
-# Tradeoff 19: Chat Agent response formatting - Plain text vs. rich formatting
+# Tradeoff 21: Chat Agent response formatting - Plain text vs. rich formatting
 
 **Decision**: Generate plain text responses without rich formatting, links, or structured data for prototype/POC.
 
@@ -150,10 +168,11 @@
 
 **Impact**: Less engaging user experience but enables focus on conversational logic and knowledge integration.
 
-# Tradeoff 20: Chat Agent prompt management - Static vs. dynamic prompts
+# Tradeoff 22: Chat Agent prompt management - Static vs. dynamic prompts
 
 **Decision**: Use static, hardcoded prompts instead of dynamic prompt template management for prototype/POC.
 
 **Reason**: Reduces configuration complexity and enables faster development iteration.
 
 **Impact**: Limited prompt customization but sufficient for demonstrating core conversational capabilities.
+
