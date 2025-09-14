@@ -105,5 +105,4 @@ public class SearchKnowledgeToolTests
         Assert.True(root.TryGetProperty("details", out _));
     }
 
-    // Removed multi-result formatting test (search removed in excerpt mode)
 }
