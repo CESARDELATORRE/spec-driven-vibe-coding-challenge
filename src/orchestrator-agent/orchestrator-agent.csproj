@@ -16,4 +16,7 @@
     <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.54.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.54.0" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
 </Project>

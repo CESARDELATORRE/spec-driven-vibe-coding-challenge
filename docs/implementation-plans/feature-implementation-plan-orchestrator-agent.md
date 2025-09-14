@@ -274,7 +274,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     ```
   - **Override Strategy**: For dynamic paths in CI/containers, set `KbMcpServer__ExecutablePath` environment variable.
 
-### - [ ] Step 8: Build and Run Application
+### - [x] Step 8: Build and Run Application
   - **Task**: Ensure application builds and runs successfully with proper secrets configuration
   - **Files**: No new files - validation step
   - **Commands**:
@@ -284,6 +284,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     ```
   - **User Intervention**: Ensure required environment variables are exported before running.
   - **Dependencies**: All previous steps completed, Azure OpenAI secrets configured
+  - **Status**: Validated. Application launches with `appsettings.json` copied to output (csproj updated with CopyToOutput). No runtime errors without Azure OpenAI env vars (graceful disclaimers remain for LLM path).
 
 ### - [ ] Step 9: Unit Tests
   - **Task**: Create unit tests for MCP tools with mock configuration
