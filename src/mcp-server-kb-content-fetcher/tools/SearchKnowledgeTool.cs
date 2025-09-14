@@ -6,11 +6,8 @@ using System.Text.Json;
 namespace McpServerKbContentFetcher.Tools;
 
 /// <summary>
-/// MCP tool now repurposed (prototype simplification) to expose a truncated excerpt
-/// of the full knowledge base content (up to a caller-provided or default max length).
-/// Original search functionality has been removed per updated prototype requirement
-/// to eliminate the fixed query and instead return raw content (capped) for downstream
-/// embedding / reasoning without extra round-trips.
+/// Provides functionality to return a truncated excerpt of the full knowledge base content,
+/// up to a specified or default maximum length.
 /// </summary>
 public class SearchKnowledgeTool
 {
