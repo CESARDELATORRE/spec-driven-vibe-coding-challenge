@@ -1176,6 +1176,56 @@ I can check that the created UNIT TESTS (mostly, internal, related to the FileKn
 
 However, at the MCP protocol, the server was not working, I had to do quite a few iterations with GHCP from VS Code, create additional INTEGRATION TESTS so it checks at the MCP protocol, not just internal UNIT TESTS, etc.
 
+After many iterations with GHCP at VS Code:
+
+```
+Summary
+I have successfully completed the implementation of integration tests for the get_kb_info and search_knowledge tools that test through the MCP protocol accessing the internal .txt file. Here's what was accomplished:
+
+What Was Done
+Identified MCP Format Issue: The original integration tests were skipped because the tools returned custom response objects instead of MCP-compatible content arrays.
+
+Updated Tool Return Types:
+
+Modified GetKbInfoTool.cs to return object[] with MCP content format [{ "type": "text", "text": "..." }]
+Modified SearchKnowledgeTool.cs to return object[] with MCP content format
+Both tools now serialize their responses as JSON within the MCP content structure
+Implemented Working Integration Tests:
+
+GetKbInfo_Tool_Should_Return_Knowledge_Base_Status() - Tests knowledge base metadata retrieval
+SearchKnowledge_Tool_Should_Return_Pricing_Results() - Tests search functionality with "pricing" query
+Both tests validate MCP protocol communication and actual content from the internal knowledge base file
+Fixed Unit Tests: Updated all 26 unit tests to work with the new object[] return format using reflection-based property access and JSON parsing.
+
+Current State
+✅ Integration Tests: 3/3 passing (handshake + 2 tool invocation tests)
+✅ Unit Tests: 26/26 passing (all tool functionality tests)
+✅ MCP Protocol Compliance: Tools return proper content arrays as expected by MCP clients
+✅ End-to-End Validation: Full MCP protocol communication from JSON-RPC to knowledge base file access confirmed working
+Key Technical Details
+MCP Content Format: [{ "type": "text", "text": "{JSON-serialized-data}" }]
+Integration Test Approach: Spawns real MCP server process, sends JSON-RPC calls via STDIN, validates responses
+Knowledge Base Access: Tests confirm tools successfully read from and search the actual .txt knowledge base file
+Error Handling: Proper error responses maintained in MCP format
+The integration tests now successfully demonstrate that both get_kb_info and search_knowledge tools work correctly through the MCP protocol, accessing the internal knowledge base file as requested.
+```
+
+I completely changed the INEGRATION TESTS approach that GHCP had with my btter approach using MCP protocol, as a black box.
+I provided my INTEGRATION TEST code that I developed in the past, as example, from here:
+
+https://github.com/CESARDELATORRE/agentic-workflow-solution-accelerator/blob/main/tests/mcp-server-kb-content-fetcher.integration-tests/SimpleMcpServerTests.cs
+
+This is what GHCP answered and therefore, we changed the approaches:
+
+![alt text](images-journey/ghcp-coding-agent-issues-code-from-pr-01.png)
+
+![alt text](images-journey/ghcp-coding-agent-issues-code-from-pr-02.png)
+
+![alt text](images-journey/ghcp-coding-agent-issues-code-from-pr-03.png)
+
+After doing the REFACTORING for the INTEGRATION TESTS:
+
+![alt text](images-journey/ghcp-coding-agent-issues-code-from-pr-04.png)
 
 
 =========================================================================

@@ -22,6 +22,17 @@
         [X] Develop prototype (Spec-driven vibe approach)
         [X] Create/save journal log with all prompts, co-reasoning and actions
 
+
+- MCP SERVER evolve:
+Next (Optional) Follow-ups
+Consider adding a unit test for GetKbContentTool.
+Add a test ensuring search tool still functions when KB unavailable (edge case).
+Remove double-serialization remnants on the server side (currently acceptable, but could streamline).
+Introduce dynamic query parameters for search tool when ready.
+
+
+
+
 - Review ARCHITECTURE doc.
 
 - ADD to JOURNAL LOG DAY 2:
