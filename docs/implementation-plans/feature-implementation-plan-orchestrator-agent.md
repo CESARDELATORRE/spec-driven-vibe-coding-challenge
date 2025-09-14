@@ -94,9 +94,9 @@ Before starting implementation, configure Azure OpenAI user secrets:
     ```
 
 - [ ] Step 3: KB MCP Client Integration (Inline)
-  - **Task**: Implement KB MCP client connection directly in the MCP tool method
+  - **Task**: Implement KB MCP client connection directly in the MCP tool method using configurable server path
   - **Files**: No separate files - integrated into OrchestratorTools.cs
-  - **Dependencies**: MCP SDK client components
+  - **Dependencies**: MCP SDK client components, configuration
   - **Pseudocode**:
     ```csharp
     // Inside AskDomainQuestionAsync method
@@ -104,13 +104,29 @@ Before starting implementation, configure Azure OpenAI user secrets:
     {
         try
         {
-            string kbMcpServerPath = Path.GetFullPath(Path.Combine(
-                AppContext.BaseDirectory, "../../../../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher.exe"));
+            // Get KB server path from configuration
+            var kbServerPath = config["KbMcpServer:ExecutablePath"];
+            if (string.IsNullOrEmpty(kbServerPath))
+            {
+                Console.Error.WriteLine("KB MCP Server path not configured");
+                usedKb = false;
+                disclaimers.Add("KB server not configured");
+                return; // Continue without KB
+            }
+
+            string resolvedPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, kbServerPath));
+            if (!File.Exists(resolvedPath))
+            {
+                Console.Error.WriteLine($"KB MCP Server executable not found: {resolvedPath}");
+                usedKb = false;
+                disclaimers.Add("KB server executable not found");
+                return; // Continue without KB
+            }
             
             await using IMcpClient kbClient = await McpClientFactory.CreateAsync(
                 new StdioClientTransport(new() {
                     Name = "kb-mcp-server",
-                    Command = kbMcpServerPath,
+                    Command = resolvedPath,
                     Arguments = Array.Empty<string>()
                 }));
             
@@ -237,7 +253,27 @@ Before starting implementation, configure Azure OpenAI user secrets:
     await builder.Build().RunAsync();
     ```
 
-- [ ] Step 7: Build and Run Application
+- [ ] Step 7: Configuration File
+  - **Task**: Create configuration file with KB server path and other settings
+  - **Files**:
+    - `src/orchestrator-agent/appsettings.json`: Configuration including KB server path
+  - **Dependencies**: None
+  - **Pseudocode**:
+    ```json
+    {
+      "KbMcpServer": {
+        "ExecutablePath": "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher.exe"
+      },
+      "GreetingPatterns": ["hi", "hello", "hey", "greetings"],
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information"
+        }
+      }
+    }
+    ```
+
+- [ ] Step 8: Build and Run Application
   - **Task**: Ensure application builds and runs successfully with proper secrets configuration
   - **Files**: No new files - validation step
   - **Commands**:
@@ -248,7 +284,7 @@ Before starting implementation, configure Azure OpenAI user secrets:
   - **User Intervention**: Verify user secrets are configured before running
   - **Dependencies**: All previous steps completed, Azure OpenAI secrets configured
 
-- [ ] Step 8: Unit Tests
+- [ ] Step 9: Unit Tests
   - **Task**: Create unit tests for MCP tools with mock configuration
   - **Files**:
     - `tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj`: Test project
@@ -266,7 +302,7 @@ Before starting implementation, configure Azure OpenAI user secrets:
     }
     ```
 
-- [ ] Step 9: Integration Tests
+- [ ] Step 10: Integration Tests
   - **Task**: Test MCP server coordination with real KB server using test secrets
   - **Files**:
     - `tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj`: Integration test project
@@ -274,7 +310,7 @@ Before starting implementation, configure Azure OpenAI user secrets:
   - **Dependencies**: In-process test host, MCP test harness, real KB MCP server, test Azure OpenAI configuration
   - **User Intervention**: Configure test user secrets or environment variables for integration tests
 
-- [ ] Step 10: Run All Tests
+- [ ] Step 11: Run All Tests
   - **Task**: Execute complete test suite to validate implementation with security requirements
   - **Files**: No new files - validation step
   - **Commands**:
@@ -342,17 +378,6 @@ return JsonSerializer.Serialize(new {
 - Provide clear error messages for missing configuration
 - Implement graceful degradation when services unavailable
 
-## Success Criteria
-- MCP server starts successfully via STDIO transport using `Host.CreateEmptyApplicationBuilder` pattern
-- Azure OpenAI configuration loaded securely from user secrets
-- ask_domain_question tool handles sample AMG queries by coordinating KB lookup and LLM response
-- ChatCompletionAgent directly integrates KB tools and provides contextual answers
-- Graceful degradation when KB MCP Server offline
-- Input validation prevents malformed requests
-- No secrets exposed in logs or error messages
-- Response time < 5 seconds for typical queries
-- All unit and integration tests pass
-
 ## Notes
 - The user secrets GUID `8ca9129d-caec-411b-aa66-b43ef94e65c1` is arbitrary and changeable
 - For new projects, consider using `dotnet user-secrets init` to generate a fresh GUID
@@ -367,3 +392,6 @@ return JsonSerializer.Serialize(new {
 - Focus on single-turn interactions, defer conversation memory
 - Avoid over-engineering - keep everything in the MCP tools class for prototype simplicity
 - Security-first approach: validate configuration, handle missing secrets gracefully
+- Use configuration-based KB server path for flexibility across environments
+- Support relative paths resolved from application base directory
+- Graceful degradation when KB server not found or misconfigured
