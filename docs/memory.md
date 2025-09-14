@@ -59,6 +59,10 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Detailed implementation plan for the KB MCP Server feature
 **Details**: Step-by-step implementation guide with 10 steps covering project setup, services, MCP tools, testing, and configuration. Uses domain-agnostic naming following coding rules for reusability across different knowledge domains
 
+#### `/docs/implementation-plans/feature-implementation-plan-orchestrator-agent.md` 
+**Purpose**: Detailed implementation plan for the Orchestration Agent MCP Server feature 
+**Details**: Step-by-step implementation guide with 12 steps covering project setup, MCP client integration, Semantic Kernel ChatCompletionAgent coordination, KB server communication via STDIO, and testing. Aligned with working code patterns using Host.CreateEmptyApplicationBuilder and MCP client factory approach. 
+ 
 ## Development Guidelines
 
 ### `/.github/copilot-instructions.md`
