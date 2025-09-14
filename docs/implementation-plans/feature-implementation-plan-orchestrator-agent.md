@@ -3,95 +3,124 @@
 ## Overview
 This plan implements a simple MCP server that coordinates between Semantic Kernel's ChatCompletionAgent and KB MCP Server for single-turn question-answering. Following the provided code approach, the orchestration agent will use MCP client to connect to the KB server and integrate it directly with Semantic Kernel's ChatCompletionAgent for maximum simplicity.
 
-## Prerequisites: Azure OpenAI Configuration
-Before starting implementation, configure Azure OpenAI user secrets:
-
-1. **Provision Azure OpenAI Service**: Deploy a model (e.g., gpt-4o-mini) in Azure OpenAI Services
-2. **Collect Configuration**: From Azure portal, obtain:
-   - AzureOpenAI:Endpoint
-   - AzureOpenAI:DeploymentName  
-   - AzureOpenAI:ApiKey
-3. **Create User Secrets**: Create `secrets.json` at the user secrets location
-   - **Note**: The GUID `8ca9129d-caec-411b-aa66-b43ef94e65c1` is arbitrary and can be changed
-   - **Location**: `%APPDATA%\Microsoft\UserSecrets\{UserSecretsId}\secrets.json`
-   - **Default for this project**: `%APPDATA%\Microsoft\UserSecrets\8ca9129d-caec-411b-aa66-b43ef94e65c1\secrets.json`
-4. **Populate Secrets**:
-   ```json
-   {
-     "AzureOpenAI:Endpoint": "https://your-endpoint-url/",
-     "AzureOpenAI:DeploymentName": "your-model-deployment-name",
-     "AzureOpenAI:ApiKey": "your-model-api-key"
-   }
-   ```
-
-**Alternative**: Generate new GUID with `dotnet user-secrets init` in the project directory.
 
 ## Implementation Steps
 
 - [ ] Step 1: Project Setup and Structure
-  - **Task**: Create the orchestration agent project with proper folder structure, dependencies, and user secrets configuration
+  - **Task**: Create the orchestration agent project with proper folder structure and dependency references. Secrets will be supplied by environment variables (User Secrets optional for local dev only).
   - **Files**:
-    - `src/orchestrator-agent/orchestrator-agent.csproj`: Main project file with MCP SDK, Semantic Kernel dependencies, and configurable user secrets ID
-    - `src/orchestrator-agent/Program.cs`: Host builder with MCP server configuration using `Host.CreateEmptyApplicationBuilder`
-  - **Dependencies**: .NET 9, MCP SDK, Semantic Kernel, Azure OpenAI connector. NuGet Packages:
+    - `src/orchestrator-agent/orchestrator-agent.csproj`: Main project file with MCP SDK + Semantic Kernel dependencies.
+    - `src/orchestrator-agent/Program.cs`: Host builder with MCP server configuration using `Host.CreateEmptyApplicationBuilder`.
+  - **Dependencies**: .NET 9, MCP SDK, Semantic Kernel, Azure OpenAI connector.
     ```
     ModelContextProtocol
     Microsoft.SemanticKernel
     Microsoft.SemanticKernel.Agents.Core
     Microsoft.SemanticKernel.Connectors.OpenAI
-    Microsoft.Extensions.Configuration.UserSecrets
     Microsoft.Extensions.Hosting
+    Microsoft.Extensions.Configuration.EnvironmentVariables
+    Microsoft.Extensions.Configuration.UserSecrets (optional dev convenience)
     ```
-  - **User Intervention**: Choose to use provided GUID `8ca9129d-caec-411b-aa66-b43ef94e65c1` or generate new one with `dotnet user-secrets init`
-  - **Pseudocode**:
+  - **Environment Variable Contract**: (Required for runtime)
+    - `AzureOpenAI__Endpoint`
+    - `AzureOpenAI__DeploymentName`
+    - `AzureOpenAI__ApiKey` (omit if using AAD later)
+  - **Azure OpenAI Configuration (moved from prerequisites)**:
+    1. Provision Azure OpenAI & deploy model (e.g., gpt-4o-mini).
+    2. Collect values: endpoint URL, deployment name, API key (if not using AAD yet).
+    3. Export environment variables (works for local shell, Docker, CI, Kubernetes):
+       ```bash
+       export AzureOpenAI__Endpoint="https://your-resource-name.openai.azure.com/"
+       export AzureOpenAI__DeploymentName="gpt-4o-mini"
+       export AzureOpenAI__ApiKey="YOUR_KEY_VALUE"
+       ```
+    4. Future: Replace `AzureOpenAI__ApiKey` with Managed Identity + Azure Key Vault provider (no code changes required due to configuration abstraction).
+    5. Never bake these values into images or commit them. Use orchestrator/hosting platform secret management.
+  - **Local Development Secret Handling (Recommended Options)**:
+    - Create a git-ignored file at repo root named `dev.env` with:
+      ```dotenv
+      AzureOpenAI__Endpoint=https://your-resource-name.openai.azure.com/
+      AzureOpenAI__DeploymentName=gpt-4o-mini
+      AzureOpenAI__ApiKey=YOUR_KEY_VALUE
+      ```
+      Add `dev.env` (and optionally `*.env`) to `.gitignore`. Load before running:
+      ```bash
+      set -a; source dev.env; set +a   # bash / Git Bash
+      ```
+      PowerShell example (one-off):
+      ```powershell
+      Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $name=$matches[1]; $val=$matches[2]; [Environment]::SetEnvironmentVariable($name,$val) } }
+      ```
+    - Optional VS Code launch (avoid committing secrets): create `.vscode/launch.local.json` (git-ignored) with:
+      ```json
+      {
+        "version": "0.2.0",
+        "configurations": [
+          {
+            "name": "Run Orchestrator Agent",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/orchestrator-agent/bin/Debug/net9.0/orchestrator-agent.dll",
+            "env": {
+              "AzureOpenAI__Endpoint": "https://your-resource-name.openai.azure.com/",
+              "AzureOpenAI__DeploymentName": "gpt-4o-mini",
+              "AzureOpenAI__ApiKey": "YOUR_KEY_VALUE"
+            }
+          }
+        ]
+      }
+      ```
+      Do NOT store secrets in the standard `launch.json` if it is committed.
+    - User Secrets intentionally omitted to enforce a single portable pattern (env vars) across local + container + CI.
+  - **Pseudocode (csproj)**:
     ```xml
-    <!-- orchestrator-agent.csproj -->
     <Project Sdk="Microsoft.NET.Sdk">
       <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <!-- Use provided GUID or generate new with: dotnet user-secrets init -->
-        <UserSecretsId>8ca9129d-caec-411b-aa66-b43ef94e65c1</UserSecretsId>
       </PropertyGroup>
-      <!-- Package references -->
     </Project>
     ```
 
 - [ ] Step 2: MCP Tools Implementation
-  - **Task**: Create MCP tools following the provided static class pattern, using ChatCompletionAgent directly with secure configuration
+  - **Task**: Create MCP tools following the static class pattern, using ChatCompletionAgent directly with configuration loaded from environment variables (User Secrets only if dev environment).
   - **Files**:
-    - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Static class with `[McpServerToolType]` containing both tools
-  - **Dependencies**: MCP tool attributes, Semantic Kernel ChatCompletionAgent, configuration with user secrets
+  - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Static class with `[McpServerToolType]` containing both tools.
+  - **Dependencies**: MCP tool attributes, Semantic Kernel ChatCompletionAgent, configuration providers (env vars + optional user secrets), LINQ.
   - **Pseudocode**:
-    ```csharp
-    [McpServerToolType]
-    public static class OrchestratorTools
+  ```csharp
+  [McpServerToolType]
+  public static class OrchestratorTools
+  {
+    [McpServerTool, Description("Ask domain question with KB lookup")]
+    public static async Task<string> AskDomainQuestionAsync(
+      string question, bool includeKb = true, int maxKbResults = 2)
     {
-        [McpServerTool, Description("Ask domain question with KB lookup")]
-        public static async Task<string> AskDomainQuestionAsync(
-            string question, bool includeKb = true, int maxKbResults = 2)
-        {
-            // 1. Get secure configuration via ConfigurationBuilder with user secrets
-            var config = new ConfigurationBuilder()
-                .AddUserSecrets<Program>()
-                .AddEnvironmentVariables()
-                .Build();
-            
-            // 2. Validate Azure OpenAI configuration
-            // 3. Create MCP client to KB server (if includeKb)
-            // 4. Create kernel with Azure OpenAI using secrets
-            // 5. Add KB tools to kernel as functions (if KB available)
-            // 6. Create ChatCompletionAgent directly
-            // 7. Invoke agent with user question
-            // 8. Return formatted response with disclaimers
-        }
-        
-        [McpServerTool, Description("Get orchestrator status")]
-        public static async Task<string> GetOrchestratorStatusAsync()
-        {
-            // Simple status check including Azure OpenAI connectivity
-        }
+      // 1. Build configuration (env vars first-class; user secrets optional for dev)
+      var env = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+      var configBuilder = new ConfigurationBuilder()
+        .AddEnvironmentVariables();
+      if (string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase))
+      {
+        configBuilder.AddUserSecrets<Program>(optional: true); // no-op in container
+      }
+      var config = configBuilder.Build();
+
+      // 2. Validate Azure OpenAI configuration
+      // 3. Optionally connect to KB MCP server (includeKb + heuristics)
+      // 4. Build kernel with Azure OpenAI connector
+      // 5. Add KB tools to kernel if available
+      // 6. Create ChatCompletionAgent
+      // 7. Invoke agent with user question
+      // 8. Return structured JSON response
     }
-    ```
+        
+    [McpServerTool, Description("Get orchestrator status")]
+    public static async Task<string> GetOrchestratorStatusAsync()
+    {
+      // Report availability of required env vars + (optional) KB path
+    }
+  }
+  ```
 
 - [ ] Step 3: KB MCP Client Integration (Inline)
   - **Task**: Implement KB MCP client connection directly in the MCP tool method using configurable server path
@@ -145,104 +174,64 @@ Before starting implementation, configure Azure OpenAI user secrets:
     ```
 
 - [ ] Step 4: Direct ChatCompletionAgent Usage with Secure Configuration
-  - **Task**: Use ChatCompletionAgent directly in the MCP tool with Azure OpenAI secrets
-  - **Files**: Integrated into OrchestratorTools.cs
-  - **Dependencies**: Semantic Kernel, Azure OpenAI connector, user secrets
+  - **Task**: Use ChatCompletionAgent directly with Azure OpenAI settings loaded from environment variables.
+  - **Files**: Integrated into `OrchestratorTools.cs`.
+  - **Dependencies**: Semantic Kernel, Azure OpenAI connector.
   - **Pseudocode**:
-    ```csharp
-    // Inside AskDomainQuestionAsync method - secure configuration validation
-    if (config["AzureOpenAI:ApiKey"] is not { } apiKey)
-    {
-        return "Please configure AzureOpenAI:ApiKey in user secrets";
-    }
-    if (config["AzureOpenAI:Endpoint"] is not { } endpoint)
-    {
-        return "Please configure AzureOpenAI:Endpoint in user secrets";
-    }
-    if (config["AzureOpenAI:DeploymentName"] is not { } deploymentName)
-    {
-        return "Please configure AzureOpenAI:DeploymentName in user secrets";
-    }
+  ```csharp
+  // Inside AskDomainQuestionAsync - secure configuration validation via env vars
+  string? apiKey = config["AzureOpenAI:ApiKey"]; // populated by AzureOpenAI__ApiKey env var
+  string? endpoint = config["AzureOpenAI:Endpoint"]; // AzureOpenAI__Endpoint
+  string? deploymentName = config["AzureOpenAI:DeploymentName"]; // AzureOpenAI__DeploymentName
 
-    var kernel = Kernel.CreateBuilder()
-        .AddAzureOpenAIChatCompletion(endpoint, deploymentName, apiKey)
-        .Build();
-    
-    // Add KB tools if available (from step 3)
-    
-    OpenAIPromptExecutionSettings executionSettings = new() {
-        Temperature = 0,
-        FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
-    };
-    
-    ChatCompletionAgent agent = new() {
-        Instructions = "Answer questions using available KB tools when relevant. Be concise and domain-focused.",
-        Name = "DomainQA_Agent",
-        Kernel = kernel,
-        Arguments = new KernelArguments(executionSettings)
-    };
-    
-    try
-    {
-        var response = await agent.InvokeAsync(question).FirstAsync();
-        // Use response as needed
-    }
-    catch (Exception ex)
-    {
-        // Optionally log ex (without exposing sensitive info)
-        return $"Sorry, there was a problem contacting the Azure OpenAI service: {ex.Message}";
-    }
-    ```
+  if (string.IsNullOrWhiteSpace(endpoint)) return "Missing AzureOpenAI__Endpoint environment variable";
+  if (string.IsNullOrWhiteSpace(deploymentName)) return "Missing AzureOpenAI__DeploymentName environment variable";
+  if (string.IsNullOrWhiteSpace(apiKey)) return "Missing AzureOpenAI__ApiKey environment variable (or configure AAD auth)";
+
+  var kernel = Kernel.CreateBuilder()
+    .AddAzureOpenAIChatCompletion(endpoint, deploymentName, apiKey)
+    .Build();
+
+  OpenAIPromptExecutionSettings execSettings = new() {
+    Temperature = 0,
+    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+  };
+
+  var agent = new ChatCompletionAgent {
+    Instructions = "Answer questions using available KB tools when relevant. Be concise and domain-focused.",
+    Name = "DomainQA_Agent",
+    Kernel = kernel,
+    Arguments = new KernelArguments(execSettings)
+  };
+  ```
 
 - [ ] Step 5: Error Handling and Validation (Inline)
-  - **Task**: Add comprehensive input validation, security checks, and error handling directly in tool methods
-  - **Files**: Integrated into OrchestratorTools.cs
-  - **Dependencies**: Configuration validation, logging, security validation
+  - **Task**: Add input validation, environment variable presence checks, and graceful degradation.
+  - **Files**: Integrated into `OrchestratorTools.cs`.
+  - **Dependencies**: Configuration validation, logging.
   - **Pseudocode**:
-    ```csharp
-    // Security validation - never log secrets
-    if (config["AzureOpenAI:ApiKey"] is not { } apiKey)
-    {
-        string error = "Please provide a valid AzureOpenAI:ApiKey in user secrets";
-        Console.Error.WriteLine(error);
-        return error;
-    }
-    
-    // Input validation
-    if (string.IsNullOrWhiteSpace(question))
-    {
-        return "Question is required";
-    }
-    if (question.Length < 5)
-    {
-        return "Question must be at least 5 characters";
-    }
-    if (maxKbResults < 1 || maxKbResults > 3)
-    {
-        maxKbResults = Math.Clamp(maxKbResults, 1, 3);
-    }
-    
-    // Simple heuristics for KB skip, with greeting patterns from configuration
-    bool ShouldSkipKb(string question, IConfiguration config)
-    {
-        if (question.Length < 5) return true;
-        
-        // Load greeting patterns from configuration (e.g., appsettings.json)
-        // Load greeting patterns from configuration (e.g., appsettings.json)
-        var greetings = config.GetSection("GreetingPatterns").Get<string[]>();
-        if (greetings == null || greetings.Length == 0)
-        {
-            // Option 1: Throw or log error to enforce configuration-driven approach
-            throw new InvalidOperationException("GreetingPatterns must be defined in configuration.");
-            // Option 2 (alternative): Use a centralized constant, e.g., AppDefaults.GreetingPatterns
-            // greetings = AppDefaults.GreetingPatterns;
-        }
-        // Build regex pattern dynamically
-        var pattern = @"^\s*(" + string.Join("|", greetings.Select(Regex.Escape)) + @")\b.*";
-        if (Regex.IsMatch(question, pattern, RegexOptions.IgnoreCase)) return true;
-        return false;
-    }
-    ```
+  ```csharp
+  // Never log actual secrets
+  if (string.IsNullOrWhiteSpace(apiKey))
+  {
+    const string error = "Azure OpenAI API key missing (AzureOpenAI__ApiKey).";
+    Console.Error.WriteLine(error);
+    return error;
+  }
+
+  if (string.IsNullOrWhiteSpace(question)) return "Question is required";
+  if (question.Length < 5) return "Question must be at least 5 characters";
+  maxKbResults = Math.Clamp(maxKbResults, 1, 3);
+
+  bool ShouldSkipKb(string q, IConfiguration cfg)
+  {
+    if (q.Length < 5) return true;
+    var greetings = cfg.GetSection("GreetingPatterns").Get<string[]>() ?? Array.Empty<string>();
+    if (greetings.Length == 0) return false; // fallback: do not skip
+    var pattern = @"^\s*(" + string.Join("|", greetings.Select(Regex.Escape)) + @")\b.*";
+    return Regex.IsMatch(q, pattern, RegexOptions.IgnoreCase);
+  }
+  ```
 
 - [ ] Step 6: Program.cs Setup
   - **Task**: Configure MCP server startup following the working pattern
@@ -262,27 +251,20 @@ Before starting implementation, configure Azure OpenAI user secrets:
     ```
 
 - [ ] Step 7: Configuration File
-  - **Task**: Create configuration file with KB server path and other settings
+  - **Task**: Provide non-secret configuration (KB path, patterns). Secrets remain only in env vars.
   - **Files**:
-    - `src/orchestrator-agent/appsettings.json`: Configuration including KB server path
-  - **Dependencies**: None
+    - `src/orchestrator-agent/appsettings.json`: Non-sensitive defaults.
   - **Pseudocode**:
     ```json
     {
       "KbMcpServer": {
-        // Set the path to the KB MCP server executable. Use an environment variable or adjust for your platform/build.
-        "ExecutablePath": "${KB_MCP_SERVER_PATH}"
-        // Example for Windows: "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher.exe"
-        // Example for Linux/macOS: "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher"
+        "ExecutablePath": "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher" 
       },
       "GreetingPatterns": ["hi", "hello", "hey", "greetings"],
-      "Logging": {
-        "LogLevel": {
-          "Default": "Information"
-        }
-      }
+      "Logging": { "LogLevel": { "Default": "Information" } }
     }
     ```
+  - **Override Strategy**: For dynamic paths in CI/containers, set `KbMcpServer__ExecutablePath` environment variable.
 
 - [ ] Step 8: Build and Run Application
   - **Task**: Ensure application builds and runs successfully with proper secrets configuration
@@ -292,7 +274,7 @@ Before starting implementation, configure Azure OpenAI user secrets:
     dotnet build src/orchestrator-agent/orchestrator-agent.csproj
     dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
     ```
-  - **User Intervention**: Verify user secrets are configured before running
+  - **User Intervention**: Ensure required environment variables are exported before running.
   - **Dependencies**: All previous steps completed, Azure OpenAI secrets configured
 
 - [ ] Step 9: Unit Tests
@@ -319,7 +301,7 @@ Before starting implementation, configure Azure OpenAI user secrets:
     - `tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj`: Integration test project
     - `tests/orchestrator-agent.integration-tests/McpServerIntegrationTests.cs`: End-to-end tool invocation tests
   - **Dependencies**: In-process test host, MCP test harness, real KB MCP server, test Azure OpenAI configuration
-  - **User Intervention**: Configure test user secrets or environment variables for integration tests
+  - **User Intervention**: Provide test env vars (can use dummy values when mocking Azure OpenAI layer).
 
 - [ ] Step 11: Run All Tests
   - **Task**: Execute complete test suite to validate implementation with security requirements
@@ -335,25 +317,30 @@ Before starting implementation, configure Azure OpenAI user secrets:
 
 ### Secure Configuration Pattern (Steps 1, 4, 5)
 ```csharp
-// Use ConfigurationBuilder with user secrets - never hardcode secrets
-var config = new ConfigurationBuilder()
-    .AddUserSecrets<Program>()
-    .AddEnvironmentVariables()
-    .Build();
-
-// Validate required configuration without logging sensitive data
-if (config["AzureOpenAI:ApiKey"] is not { } apiKey)
+// Layering: appsettings.json (added in Program.cs), then env vars; user secrets only if Development
+var env = builder.Environment.EnvironmentName;
+builder.Configuration
+  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+  .AddJsonFile($"appsettings.{env}.json", optional: true)
+  .AddEnvironmentVariables();
+if (builder.Environment.IsDevelopment())
 {
-    return "Please configure AzureOpenAI:ApiKey in user secrets";
+  builder.Configuration.AddUserSecrets<Program>(optional: true); // convenience only
 }
+
+// Later inside tool method:
+string? apiKey = config["AzureOpenAI:ApiKey"]; // from AzureOpenAI__ApiKey
 ```
 
-### User Secrets Project Configuration
-```xml
-<PropertyGroup>
-  <UserSecretsId>8ca9129d-caec-411b-aa66-b43ef94e65c1</UserSecretsId>
-</PropertyGroup>
-```
+### Environment Variable Reference
+| Purpose | Key | Notes |
+|---------|-----|-------|
+| Azure OpenAI endpoint | AzureOpenAI__Endpoint | Required |
+| Azure OpenAI deployment | AzureOpenAI__DeploymentName | Required |
+| Azure OpenAI API key | AzureOpenAI__ApiKey | Required unless using AAD |
+| KB MCP server executable path | KbMcpServer__ExecutablePath | Optional override |
+
+> Double underscore maps to section nesting in .NET configuration (e.g., AzureOpenAI__Endpoint -> AzureOpenAI:Endpoint).
 
 ### Response Format with Security Considerations
 ```csharp
@@ -367,37 +354,28 @@ return JsonSerializer.Serialize(new {
 }, new JsonSerializerOptions { WriteIndented = true });
 ```
 
-### User Secrets Configuration Flexibility
-```xml
-<!-- Option 1: Use provided GUID for consistency with examples -->
-<UserSecretsId>8ca9129d-caec-411b-aa66-b43ef94e65c1</UserSecretsId>
+### Local Dev Convenience (Optional User Secrets)
+Developers may still use `dotnet user-secrets set AzureOpenAI:ApiKey <value>` etc. This is **never required** for containers and should not be relied on in CI/CD. Environment variables remain the contract.
 
-<!-- Option 2: Generate new GUID -->
-<!-- Run: dotnet user-secrets init (generates new GUID automatically) -->
-```
-
-### Why This GUID?
-- **Consistency**: Ensures all team members use same secrets location during development
-- **Examples**: Aligns with provided code samples and documentation
-- **Arbitrary**: No technical significance - any valid GUID works
-- **Changeable**: Can be updated anytime by changing .csproj and moving secrets file
+### Why Not Rely Solely on User Secrets?
+- **Non-portable**: User Secrets only exist on a dev machine file system.
+- **Containers**: They are not present in container images unless manually copied (risk) or mounted (friction).
+- **Scaling**: Environment-driven configuration is stateless and orchestration-friendly.
+- **Future Upgrade Path**: Easy to introduce Azure Key Vault provider later without refactoring tool code.
 
 ### Security Requirements
-- Never log or expose API keys, endpoints, or sensitive configuration
-- Use user secrets for all Azure OpenAI configuration
-- Validate all configuration before use
-- Provide clear error messages for missing configuration
-- Implement graceful degradation when services unavailable
+- Never log or expose API keys or raw configuration values.
+- Supply secrets via environment variables (production & containers). Optional: user secrets only in local Development.
+- Validate all required configuration at startup/tool entry; fail fast with clear, non-sensitive error messages.
+- Prepare for future secret provider layering (e.g., Azure Key Vault) without changing tool code (centralize config access).
+- Implement graceful degradation when KB server is unavailable (respond without KB context + disclaimers).
 
 ## Notes
-- The user secrets GUID `8ca9129d-caec-411b-aa66-b43ef94e65c1` is arbitrary and changeable
-- For new projects, consider using `dotnet user-secrets init` to generate a fresh GUID
-- All developers must use the same GUID for shared development environments
-- The GUID has no relationship to Azure services - it's purely for local secrets organization
-- Follow the working `Host.CreateEmptyApplicationBuilder` pattern from provided code
-- Use `ConfigurationBuilder` with user secrets for secure configuration access
-- Use ChatCompletionAgent directly without wrapper services for maximum simplicity
-- Integrate KB MCP server as external process via STDIO transport
+- Secrets are never baked into images, code, or committed files.
+- Local optional user secrets do not replace env vars as the portability contract.
+- Follow the working `Host.CreateEmptyApplicationBuilder` pattern.
+- Use ChatCompletionAgent directly without extra abstraction.
+- Integrate KB MCP server as external process via STDIO transport.
 - Log to stderr to avoid MCP protocol interference, never log secrets
 - Keep KB server path configurable for different environments
 - Focus on single-turn interactions, defer conversation memory
