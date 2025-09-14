@@ -37,12 +37,7 @@ public class McpServerProtocolTests
     File.Exists(path).Should().BeTrue("Server project file must exist for integration test to run");
     await using var client = await StdioMcpClient.StartAsync(path);
 
-        var init = await client.SendRequestAsync(new
-        {
-            jsonrpc = "2.0",
-            method = "initialize",
-            @params = new { protocolVersion = "2024-11-05", capabilities = new { }, clientInfo = new { name = "integration-tests", version = "1.0" } }
-        });
+        var init = await client.InitializeAsync();
 
         init.Should().NotBeNullOrEmpty();
         using (var doc = JsonDocument.Parse(init))
@@ -73,12 +68,7 @@ public class McpServerProtocolTests
     File.Exists(path).Should().BeTrue();
     await using var client = await StdioMcpClient.StartAsync(path);
 
-        await client.SendRequestAsync(new
-        {
-            jsonrpc = "2.0",
-            method = "initialize",
-            @params = new { protocolVersion = "2024-11-05", capabilities = new { }, clientInfo = new { name = "integration-tests", version = "1.0" } }
-        });
+        await client.InitializeAsync();
 
         var response = await client.SendRequestAsync(new
         {
@@ -112,12 +102,7 @@ public class McpServerProtocolTests
     File.Exists(path).Should().BeTrue();
     await using var client = await StdioMcpClient.StartAsync(path);
 
-        await client.SendRequestAsync(new
-        {
-            jsonrpc = "2.0",
-            method = "initialize",
-            @params = new { protocolVersion = "2024-11-05", capabilities = new { }, clientInfo = new { name = "integration-tests", version = "1.0" } }
-        });
+        await client.InitializeAsync();
 
         var response = await client.SendRequestAsync(new
         {

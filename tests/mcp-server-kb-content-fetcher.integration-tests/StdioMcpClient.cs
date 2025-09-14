@@ -71,8 +71,8 @@ internal sealed class StdioMcpClient : IAsyncDisposable
         var stdin = new StreamWriter(proc.StandardInput.BaseStream, new UTF8Encoding(false)) { AutoFlush = true };
         var stdout = new StreamReader(proc.StandardOutput.BaseStream, Encoding.UTF8);
 
-        // Allow minimal warm-up; MCP servers usually ready quickly.
-        await Task.Delay(750, cancellationToken);
+    // Allow warm-up; occasionally first request raced process startup in CI.
+    await Task.Delay(1250, cancellationToken);
 
         return new StdioMcpClient(proc, stdin, stdout);
     }
@@ -126,9 +126,26 @@ internal sealed class StdioMcpClient : IAsyncDisposable
         throw new TimeoutException($"Timed out waiting for response with id {id}");
     }
 
+    /// <summary>
+    /// Convenience wrapper for tests doing an initialize then returning the raw response.
+    /// </summary>
+    public Task<string> InitializeAsync(string protocolVersion = "2024-11-05", CancellationToken ct = default) =>
+        SendRequestAsync(new
+        {
+            jsonrpc = "2.0",
+            method = "initialize",
+            @params = new
+            {
+                protocolVersion,
+                capabilities = new { },
+                clientInfo = new { name = "integration-tests", version = "1.0" }
+            }
+        }, cancellationToken: ct);
+
     private static async Task<string?> ReadLineWithTimeoutAsync(StreamReader reader, TimeSpan timeout, CancellationToken ct)
     {
-        var task = reader.ReadLineAsync().AsTask();
+        // ReadLineAsync already returns a Task<string?> in this target framework; no need for AsTask()
+        var task = reader.ReadLineAsync();
         var completed = await Task.WhenAny(task, Task.Delay(timeout, ct));
         if (completed == task)
         {
