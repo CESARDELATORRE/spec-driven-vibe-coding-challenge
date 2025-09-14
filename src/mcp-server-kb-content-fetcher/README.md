@@ -12,6 +12,7 @@ A Knowledge Base MCP (Model Context Protocol) Server that provides AI agents wit
 - [Configuration](#configuration)
 - [Running the Server](#running-the-server)
 - [Testing](#testing)
+ - [Diagnostic CLI Mode](#diagnostic-cli-mode)
 - [GitHub Copilot Integration](#github-copilot-integration)
 - [MCP Tools](#mcp-tools)
 - [Troubleshooting](#troubleshooting)
@@ -196,6 +197,46 @@ info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 ```
 
+## Diagnostic CLI Mode
+
+An optional diagnostics-only mode allows you to query the knowledge base without initiating the MCP server handshake. This is helpful for quick validation of content loading or search logic. It is intentionally gated behind a required `--cli-mode` flag to ensure the default behavior stays MCP-pure.
+
+Warning:
+- Do NOT add `--cli-mode` to your `.vscode/mcp.json` or any MCP client configuration. MCP clients expect STDIO protocol messages (initialize, tools/list, etc.).
+- CLI output is raw JSON intended for human inspection or simple scripting, not MCP tooling.
+
+Examples:
+```bash
+# Get knowledge base info (size, availability, metadata)
+dotnet run --project src/mcp-server-kb-content-fetcher -- --cli-mode --get-kb-info
+
+# Perform a search (default max results = 3)
+dotnet run --project src/mcp-server-kb-content-fetcher -- --cli-mode --search "Azure Managed Grafana pricing"
+
+# Perform a search with explicit max results
+dotnet run --project src/mcp-server-kb-content-fetcher -- --cli-mode --search "dashboard" --max-results 5
+```
+
+Sample output (`--get-kb-info`):
+```json
+{"info":{"fileSizeBytes":7421,"contentLength":7421,"isAvailable":true,"description":"Azure Managed Grafana knowledge base content (file loaded in memory)","lastModified":"2025-09-14T14:21:07.1234567Z"},"status":"available"}
+```
+
+Sample output (`--search`):
+```json
+{"query":"pricing","total":1,"results":[{"matchStrength":1,"position":1234,"length":220,"content":"Pricing:\nAzure Managed Grafana uses a pay-as-you-go pricing model...","context":"... preceding context ... Pricing: Azure Managed Grafana uses a pay-as-you-go pricing model ... following context ..."}]}
+```
+
+Exit Codes:
+- 0: Successful execution of CLI action
+- 1: Knowledge base initialization failure
+
+Internals:
+- CLI flags are stripped before host building so they do not leak into generic host configuration binding.
+- The same `IKnowledgeBaseService` implementation powers both CLI and MCP tool execution paths.
+
+If you need to debug MCP behavior itself, do not use CLI mode—run normally and send proper JSON-RPC messages to stdin.
+
 ## Testing
 
 ### Unit Tests
@@ -251,38 +292,70 @@ echo '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' | dotnet run
 
 ## GitHub Copilot Integration
 
-### Setting Up Copilot with MCP Server
+### Recommended: Configure Via `.vscode/mcp.json`
 
-1. **Configure Copilot Settings** (VS Code):
-   ```json
-   {
-     "github.copilot.advanced": {
-       "mcp.servers": {
-         "kb-content-fetcher": {
-           "command": "dotnet",
-           "args": ["run", "--project", "./src/mcp-server-kb-content-fetcher"],
-           "env": {
-             "DOTNET_ENVIRONMENT": "Development"
-           }
-         }
-       }
-     }
-   }
-   ```
+As of the current MCP-enabled Copilot previews, the preferred, shareable, version-controlled approach is to define MCP servers in a workspace-level file: `.vscode/mcp.json`.
 
-2. **Using Copilot with KB Server**:
-   - Start the MCP server in the background
-   - Use Copilot chat with prompts like:
-     - "Search the knowledge base for Azure Managed Grafana pricing"
-     - "What are the key features of Azure Managed Grafana?"
-     - "How do I get started with Azure Managed Grafana?"
+Benefits:
+- Keeps configuration in the repo (onboard collaborators instantly)
+- Supports multiple servers + secure prompted inputs
+- Avoids cluttering global/user `settings.json`
+- Single source of truth for tooling (matches existing `mcp.json` already in this repo)
 
-3. **Copilot Chat Commands**:
-   ```bash
-   # In Copilot Chat
-   @workspace /mcp search_knowledge "Azure Monitor integration"
-   @workspace /mcp get_kb_info
-   ```
+Example entry to add (or confirm) inside `.vscode/mcp.json` under `servers`:
+
+```jsonc
+{
+  "servers": {
+    "kb-content-fetcher": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "./src/mcp-server-kb-content-fetcher"
+      ]
+    }
+  }
+}
+```
+
+If you also define other MCP servers (e.g., `github`, `perplexity-ask`, `context7`), keep them in the same `servers` object—do not duplicate root keys.
+
+### (Alternative / Legacy) User Settings JSON Method
+You can still configure via user/workspace `settings.json`, but this is less portable:
+
+```jsonc
+{
+  "github.copilot.advanced": {
+    "mcp.servers": {
+      "kb-content-fetcher": {
+        "command": "dotnet",
+        "args": ["run", "--project", "./src/mcp-server-kb-content-fetcher"]
+      }
+    }
+  }
+}
+```
+
+Use this only if your editor build does not yet pick up the `.vscode/mcp.json` manifest.
+
+### Using Copilot With the KB Server
+1. Ensure the server definition exists in `.vscode/mcp.json`.
+2. Open a Copilot Chat panel; Copilot should auto-start the server on first tool invocation.
+3. Invoke tools with natural language or explicit commands:
+
+Prompts you can try:
+- "Search the knowledge base for Azure Managed Grafana pricing"
+- "What are the key features of Azure Managed Grafana?"
+- "Give me the knowledge base status"
+
+Explicit tool calls in chat (syntax may vary slightly by build):
+```bash
+@workspace /mcp search_knowledge "Azure Monitor integration"
+@workspace /mcp get_kb_info
+```
+
+If tools are not discovered, open the command palette and reload the window, or verify there are no launch errors in the MCP output / logs.
 
 ### Claude Desktop Integration
 
@@ -292,10 +365,7 @@ echo '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' | dotnet run
      "mcpServers": {
        "kb-content-fetcher": {
          "command": "dotnet",
-         "args": ["run", "--project", "/path/to/mcp-server-kb-content-fetcher"],
-         "env": {
-           "DOTNET_ENVIRONMENT": "Production"
-         }
+         "args": ["run", "--project", "/path/to/mcp-server-kb-content-fetcher"]
        }
      }
    }

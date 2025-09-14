@@ -42,6 +42,14 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Detailed implementation plan for the KB MCP Server feature
 **Details**: Step-by-step implementation guide with 10 steps covering project setup, services, MCP tools, testing, and configuration. Uses domain-agnostic naming following coding rules for reusability across different knowledge domains
 
+### `/tests/mcp-server-kb-content-fetcher.integration-tests/mcp-server-kb-content-fetcher.integration-tests.csproj`
+**Purpose**: Project file for integration tests exercising real MCP STDIO protocol
+**Details**: References main project; includes xUnit + coverlet packages
+
+### `/tests/mcp-server-kb-content-fetcher.integration-tests/McpServerProtocolTests.cs`
+**Purpose**: End-to-end MCP protocol tests (initialize, tools/list, tools/call)
+**Details**: Launches server with `dotnet run`, sends JSON-RPC over redirected STDIN/STDOUT, asserts tool discovery & search results
+
 ## Development Guidelines
 
 ### `/.github/copilot-instructions.md`

@@ -6,23 +6,53 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 
-// Simple CLI parsing for direct (non-MCP) usage to avoid JSON piping complexity
-// Supported examples:
-// dotnet run --project src/mcp-server-kb-content-fetcher -- --get-kb-info
-// dotnet run --project src/mcp-server-kb-content-fetcher -- --search "Azure Managed Grafana pricing" --max-results 5
-var cliArgs = args.ToList();
-var useCliGetInfo = cliArgs.Contains("--get-kb-info", StringComparer.OrdinalIgnoreCase);
-var searchFlagIndex = cliArgs.FindIndex(a => string.Equals(a, "--search", StringComparison.OrdinalIgnoreCase));
-var hasCliSearch = searchFlagIndex >= 0 && searchFlagIndex + 1 < cliArgs.Count;
+// Optional CLI Mode (diagnostics): Enabled ONLY when --cli-mode flag is present.
+// This ensures default usage remains pure MCP server behavior.
+// Usage examples (diagnostic only, not part of MCP protocol):
+// dotnet run --project src/mcp-server-kb-content-fetcher -- --cli-mode --get-kb-info
+// dotnet run --project src/mcp-server-kb-content-fetcher -- --cli-mode --search "Azure Managed Grafana pricing" --max-results 5
+var originalArgs = args.ToList();
+var cliMode = originalArgs.Remove("--cli-mode");
+
+// Parse additional CLI flags only if cli-mode is active
+var useCliGetInfo = false;
+var hasCliSearch = false;
+var searchFlagIndex = -1;
 var maxResults = 0;
-var maxResultsIndex = cliArgs.FindIndex(a => string.Equals(a, "--max-results", StringComparison.OrdinalIgnoreCase));
-if (maxResultsIndex >= 0 && maxResultsIndex + 1 < cliArgs.Count && int.TryParse(cliArgs[maxResultsIndex + 1], out var parsed))
+string? cliSearchQuery = null; // captured early so we can safely remove args later
+if (cliMode)
 {
-    maxResults = parsed;
+    useCliGetInfo = originalArgs.Contains("--get-kb-info", StringComparer.OrdinalIgnoreCase);
+    searchFlagIndex = originalArgs.FindIndex(a => string.Equals(a, "--search", StringComparison.OrdinalIgnoreCase));
+    hasCliSearch = searchFlagIndex >= 0 && searchFlagIndex + 1 < originalArgs.Count;
+    if (hasCliSearch)
+    {
+        // capture the raw search term before we mutate/remove args
+        cliSearchQuery = originalArgs[searchFlagIndex + 1];
+    }
+    var maxResultsIndex = originalArgs.FindIndex(a => string.Equals(a, "--max-results", StringComparison.OrdinalIgnoreCase));
+    if (maxResultsIndex >= 0 && maxResultsIndex + 1 < originalArgs.Count && int.TryParse(originalArgs[maxResultsIndex + 1], out var parsed))
+    {
+        maxResults = parsed;
+    }
 }
 
-// Create the host builder with MCP server configuration
-var builder = Host.CreateApplicationBuilder(args); // we keep full host even for CLI simplicity & option binding
+// Remove custom flags before building host (avoid leaking into generic host / config binding)
+if (cliMode)
+{
+    originalArgs.Remove("--get-kb-info");
+    if (searchFlagIndex >= 0 && searchFlagIndex + 1 < originalArgs.Count)
+    {
+        // remove search term value first, then flag
+        var term = originalArgs[searchFlagIndex + 1];
+        originalArgs.Remove(term);
+        originalArgs.Remove("--search");
+    }
+    originalArgs.Remove("--max-results");
+}
+
+// Create the host builder with sanitized args (MCP path unaffected when cliMode=false)
+var builder = Host.CreateApplicationBuilder(originalArgs.ToArray());
 
 // Configure logging to stderr to avoid corrupting MCP STDIO communication
 builder.Logging.ClearProviders();
@@ -43,13 +73,20 @@ builder.Services.AddSingleton<IKnowledgeBaseService, FileKnowledgeBaseService>()
 builder.Services.AddSingleton<SearchKnowledgeTool>();
 builder.Services.AddSingleton<GetKbInfoTool>();
 
-// Configure MCP server
+// Pre-build a lightweight service provider for tool resolution (avoids leaking DI parameter into schema)
+var toolServiceProvider = builder.Services.BuildServiceProvider();
+
+// Configure MCP server with delegates that ignore the JSON 'tool' placeholder object
 builder.Services.AddMcpServer()
     .WithStdioServerTransport()
     .WithTools(new[]
     {
         McpServerTool.Create(
-            (SearchKnowledgeTool tool, string query, int? max_results) => tool.SearchAsync(query, max_results),
+            (string query, int? max_results) =>
+            {
+                var tool = toolServiceProvider.GetRequiredService<SearchKnowledgeTool>();
+                return tool.SearchAsync(query, max_results);
+            },
             new McpServerToolCreateOptions
             {
                 Name = "search_knowledge",
@@ -57,7 +94,11 @@ builder.Services.AddMcpServer()
             }),
 
         McpServerTool.Create(
-            (GetKbInfoTool tool) => tool.GetInfoAsync(),
+            () =>
+            {
+                var tool = toolServiceProvider.GetRequiredService<GetKbInfoTool>();
+                return tool.GetInfoAsync();
+            },
             new McpServerToolCreateOptions
             {
                 Name = "get_kb_info",
@@ -67,8 +108,8 @@ builder.Services.AddMcpServer()
 
 var app = builder.Build();
 
-// If simple CLI mode requested, perform action and exit (skip MCP server startup)
-if (useCliGetInfo || hasCliSearch)
+// If CLI mode requested, perform action(s) and exit (skip MCP server startup)
+if (cliMode && (useCliGetInfo || hasCliSearch))
 {
     var cliLogger = app.Services.GetRequiredService<ILogger<Program>>();
     var kbService = app.Services.GetRequiredService<IKnowledgeBaseService>();
@@ -93,27 +134,27 @@ if (useCliGetInfo || hasCliSearch)
         return 0;
     }
 
-    if (hasCliSearch)
-    {
-        var query = cliArgs[searchFlagIndex + 1];
-        if (maxResults <= 0) maxResults = 3;
-        var results = await kbService.SearchAsync(query, maxResults);
-        var payload = new
+        if (hasCliSearch && !string.IsNullOrWhiteSpace(cliSearchQuery))
         {
-            query,
-            total = results.Count(),
-            results = results.Select(r => new
+            var query = cliSearchQuery;
+            if (maxResults <= 0) maxResults = 3;
+            var results = await kbService.SearchAsync(query, maxResults);
+            var payload = new
             {
-                r.MatchStrength,
-                r.Position,
-                r.Length,
-                r.Content,
-                r.Context
-            })
-        };
-        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(payload));
-        return 0;
-    }
+                query,
+                total = results.Count(),
+                results = results.Select(r => new
+                {
+                    r.MatchStrength,
+                    r.Position,
+                    r.Length,
+                    r.Content,
+                    r.Context
+                })
+            };
+            Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(payload));
+            return 0;
+        }
 }
 
 // Initialize knowledge base service

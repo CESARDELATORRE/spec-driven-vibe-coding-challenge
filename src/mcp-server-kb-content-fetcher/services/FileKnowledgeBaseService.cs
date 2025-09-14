@@ -123,14 +123,14 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
     /// <summary>
     /// Search for content in the knowledge base using case-insensitive partial matching
     /// </summary>
-    public async Task<IEnumerable<SearchResult>> SearchAsync(string query, int maxResults = 3)
+    public Task<IEnumerable<SearchResult>> SearchAsync(string query, int maxResults = 3)
     {
         try
         {
             if (!_isInitialized || string.IsNullOrWhiteSpace(query))
             {
                 _logger.LogWarning("Search attempted but knowledge base not initialized or empty query");
-                return Array.Empty<SearchResult>();
+                return Task.FromResult<IEnumerable<SearchResult>>(Array.Empty<SearchResult>());
             }
 
             // Ensure maxResults doesn't exceed configuration limit
@@ -199,19 +199,19 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
             }
 
             _logger.LogInformation("Search completed. Found {ResultCount} results for query: '{Query}'", results.Count, query);
-            return results;
+            return Task.FromResult<IEnumerable<SearchResult>>(results);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during search for query: '{Query}'", query);
-            return Array.Empty<SearchResult>();
+            return Task.FromResult<IEnumerable<SearchResult>>(Array.Empty<SearchResult>());
         }
     }
 
     /// <summary>
     /// Get information about the knowledge base
     /// </summary>
-    public async Task<KnowledgeBaseInfo> GetInfoAsync()
+    public Task<KnowledgeBaseInfo> GetInfoAsync()
     {
         try
         {
@@ -227,12 +227,12 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
             _logger.LogDebug("Knowledge base info requested. Available: {IsAvailable}, Content length: {ContentLength}", 
                 info.IsAvailable, info.ContentLength);
 
-            return info;
+            return Task.FromResult(info);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting knowledge base info");
-            return new KnowledgeBaseInfo { IsAvailable = false };
+            return Task.FromResult(new KnowledgeBaseInfo { IsAvailable = false });
         }
     }
 
