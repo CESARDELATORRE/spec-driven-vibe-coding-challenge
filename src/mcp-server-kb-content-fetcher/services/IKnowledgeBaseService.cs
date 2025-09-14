@@ -26,4 +26,12 @@ public interface IKnowledgeBaseService
     /// </summary>
     /// <returns>True if initialization successful</returns>
     Task<bool> InitializeAsync();
+
+    /// <summary>
+    /// Get the full raw knowledge base content as a single string.
+    /// Intended for prototype usage where file size is manageable and
+    /// agents may want direct embedding or downstream processing.
+    /// </summary>
+    /// <returns>Raw knowledge base text content (empty if not initialized)</returns>
+    Task<string> GetRawContentAsync();
 }

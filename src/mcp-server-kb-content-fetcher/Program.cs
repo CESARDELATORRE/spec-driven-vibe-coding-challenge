@@ -73,12 +73,14 @@ builder.Services.AddSingleton<IKnowledgeBaseService, FileKnowledgeBaseService>()
 // Register tool classes for dependency injection (singletons sharing the SAME service instances as the host)
 builder.Services.AddSingleton<SearchKnowledgeTool>();
 builder.Services.AddSingleton<GetKbInfoTool>();
+builder.Services.AddSingleton<GetKbContentTool>();
 
 // We'll resolve the concrete tool instances AFTER the host is built so that we do not create a second
 // independent service provider (the previous approach caused a second IKnowledgeBaseService instance
 // that was never initialized, leading to empty / unavailable KB state inside tools).
 SearchKnowledgeTool? searchToolRef = null;
 GetKbInfoTool? getKbInfoToolRef = null;
+GetKbContentTool? getKbContentToolRef = null;
 
 // Configure MCP server tools. The delegates capture the above refs which will be populated post-build.
 builder.Services.AddMcpServer()
@@ -107,6 +109,17 @@ builder.Services.AddMcpServer()
             {
                 Name = "get_kb_info",
                 Description = "Get information about the Azure Managed Grafana knowledge base"
+            }),
+        McpServerTool.Create(
+            () =>
+            {
+                if (getKbContentToolRef is null) throw new InvalidOperationException("GetKbContentTool not initialized");
+                return getKbContentToolRef.GetContentAsync();
+            },
+            new McpServerToolCreateOptions
+            {
+                Name = "get_kb_content",
+                Description = "Return full raw knowledge base content (prototype convenience tool)"
             })
     });
 
@@ -115,6 +128,7 @@ var app = builder.Build();
 // Resolve tool instances now (single shared provider) so delegates use the initialized KB service instance
 searchToolRef = app.Services.GetRequiredService<SearchKnowledgeTool>();
 getKbInfoToolRef = app.Services.GetRequiredService<GetKbInfoTool>();
+getKbContentToolRef = app.Services.GetRequiredService<GetKbContentTool>();
 
 // If CLI mode requested, perform action(s) and exit (skip MCP server startup)
 if (cliMode && (useCliGetInfo || hasCliSearch))

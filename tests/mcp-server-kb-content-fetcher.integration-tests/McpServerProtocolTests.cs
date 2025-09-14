@@ -147,4 +147,35 @@ public class McpServerProtocolTests
         payload.RootElement.TryGetProperty("totalMatches", out var totalMatchesEl).Should().BeTrue();
         totalMatchesEl.GetInt32().Should().BeGreaterThanOrEqualTo(0);
     }
+
+    [Fact(Timeout = 30000)]
+    public async Task GetKbContent_Tool_Should_Return_Full_Content()
+    {
+        var path = Path.GetFullPath(ServerProjectPath);
+        Console.Error.WriteLine($"[TEST] Using server project path: {path}");
+        File.Exists(path).Should().BeTrue();
+        await using var client = await StdioMcpClient.StartAsync(path);
+
+        await client.InitializeAsync();
+
+        var response = await client.SendRequestAsync(new
+        {
+            jsonrpc = "2.0",
+            method = "tools/call",
+            @params = new { name = "get_kb_content", arguments = new { } }
+        });
+
+        response.Should().NotBeNullOrEmpty();
+        using var doc = JsonDocument.Parse(response);
+        doc.RootElement.TryGetProperty("result", out var result).Should().BeTrue();
+        result.TryGetProperty("content", out var content).Should().BeTrue();
+        var text = content[0].GetProperty("text").GetString();
+        text.Should().NotBeNullOrEmpty();
+        using var payload = JsonDocument.Parse(text!);
+        payload.RootElement.TryGetProperty("status", out var statusEl).Should().BeTrue();
+        payload.RootElement.TryGetProperty("contentLength", out var lenEl).Should().BeTrue();
+        lenEl.GetInt32().Should().BeGreaterThan(0);
+        payload.RootElement.TryGetProperty("content", out var rawEl).Should().BeTrue();
+        rawEl.GetString().Should().Contain("Azure Managed Grafana");
+    }
 }

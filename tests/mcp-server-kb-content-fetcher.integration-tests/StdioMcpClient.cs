@@ -36,17 +36,51 @@ internal sealed class StdioMcpClient : IAsyncDisposable
             throw new FileNotFoundException("Server project file not found", serverProjectCsprojPath);
         }
 
-        var psi = new ProcessStartInfo
+        var projectDir = Path.GetDirectoryName(serverProjectCsprojPath)!;
+        var projectName = Path.GetFileNameWithoutExtension(serverProjectCsprojPath);
+        // Assume test build already compiled the server. Just locate existing exe or dll.
+        string? exePath = Directory.GetFiles(projectDir, projectName + ".exe", SearchOption.AllDirectories)
+            .FirstOrDefault(p => p.Contains(Path.Combine("bin","Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
+        string? dllPath = null;
+        if (exePath == null)
         {
-            FileName = "dotnet",
-            Arguments = $"run --project \"{serverProjectCsprojPath}\"",
-            UseShellExecute = false,
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true,
-            WorkingDirectory = Path.GetDirectoryName(serverProjectCsprojPath)
-        };
+            dllPath = Directory.GetFiles(projectDir, projectName + ".dll", SearchOption.AllDirectories)
+                .FirstOrDefault(p => p.Contains(Path.Combine("bin","Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
+            if (dllPath == null)
+            {
+                throw new FileNotFoundException("Could not locate built server binary (exe or dll)");
+            }
+        }
+
+        ProcessStartInfo psi;
+        if (exePath != null)
+        {
+            psi = new ProcessStartInfo
+            {
+                FileName = exePath,
+                Arguments = string.Empty,
+                UseShellExecute = false,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WorkingDirectory = Path.GetDirectoryName(exePath)!
+            };
+        }
+        else
+        {
+            psi = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = $"\"{dllPath}\"",
+                UseShellExecute = false,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WorkingDirectory = Path.GetDirectoryName(dllPath)!
+            };
+        }
 
         var proc = new Process { StartInfo = psi, EnableRaisingEvents = true };
         if (!proc.Start())

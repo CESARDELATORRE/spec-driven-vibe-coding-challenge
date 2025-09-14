@@ -237,6 +237,19 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
     }
 
     /// <summary>
+    /// Returns the raw knowledge base content (empty string if not initialized)
+    /// </summary>
+    public Task<string> GetRawContentAsync()
+    {
+        if (!_isInitialized)
+        {
+            _logger.LogWarning("Raw content requested before initialization complete");
+            return Task.FromResult(string.Empty);
+        }
+        return Task.FromResult(_content);
+    }
+
+    /// <summary>
     /// Create a search result with context around the matched content
     /// </summary>
     private SearchResult? CreateSearchResult(int position, int length, int matchStrength)
