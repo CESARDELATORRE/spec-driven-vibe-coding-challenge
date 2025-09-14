@@ -125,8 +125,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   }
   ```
 
-### - [ ] Step 3: KB MCP Client Integration (Inline)
+### - [x] Step 3: KB MCP Client Integration (Inline)
   - **Task**: Implement KB MCP client connection directly in the MCP tool method using configurable server path
+  - **Status**: Implemented. `AskDomainQuestionAsync` now launches KB MCP server process (if configured), lists tools, invokes `get_kb_content` when available, captures/truncates content, and adds disclaimers on degradation. `search_knowledge` invocation deferred to later refinement.
   - **Files**: No separate files - integrated into OrchestratorTools.cs
   - **Dependencies**: MCP SDK client components, configuration
   - **Pseudocode**:

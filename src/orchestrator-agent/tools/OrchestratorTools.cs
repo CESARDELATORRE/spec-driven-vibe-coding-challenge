@@ -2,9 +2,10 @@ using System.ComponentModel;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.IO;
 using ModelContextProtocol.Server;
 using Microsoft.Extensions.Configuration;
-// NOTE: Semantic Kernel and MCP client usings will be reintroduced in Steps 3-4 when their code paths are active.
+using ModelContextProtocol.Client; // Step 3 KB client integration
 
 /// <summary>
 /// Prototype Orchestrator MCP tools. Single-turn answer generation with optional KB lookup.
@@ -68,26 +69,106 @@ public static class OrchestratorTools
         string? deploymentName = config["AzureOpenAI:DeploymentName"]; // AzureOpenAI__DeploymentName
         string? apiKey = config["AzureOpenAI:ApiKey"]; // AzureOpenAI__ApiKey
 
-        // Heuristic placeholder (full logic in Step 5): skip KB if greeting / very short
-        bool heuristicSkipKb = ShouldSkipKb(question);
-        bool attemptKb = includeKb && !heuristicSkipKb; // Actual KB call added in Step 3
+    // Heuristic placeholder (full logic in Step 5): skip KB if greeting / very short
+    bool heuristicSkipKb = ShouldSkipKb(question);
+    bool attemptKb = includeKb && !heuristicSkipKb;
 
         // Placeholder arrays for future KB & answer data
         var kbResults = new List<object>();
         var disclaimers = new List<string>();
 
+        bool usedKb = false;
         if (heuristicSkipKb)
         {
-            disclaimers.Add("KB skipped by heuristic for short or greeting-like input (placeholder)");
+            disclaimers.Add("KB skipped by heuristic for short or greeting-like input");
         }
         else if (attemptKb)
         {
-            // Step 2: Not yet calling KB. We'll populate in Step 3.
-            disclaimers.Add("KB integration pending (Step 3)");
+            // Step 3: Attempt to spin up and connect to KB MCP server and list tools / fetch content.
+            try
+            {
+                var kbPathConfig = config["KbMcpServer:ExecutablePath"]; // overrideable via KbMcpServer__ExecutablePath
+                if (string.IsNullOrWhiteSpace(kbPathConfig))
+                {
+                    disclaimers.Add("KB server path not configured (KbMcpServer__ExecutablePath)");
+                }
+                else
+                {
+                    // Resolve relative path from orchestrator base dir
+                    string resolved = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, kbPathConfig));
+                    if (!File.Exists(resolved) && File.Exists(resolved + ".exe"))
+                    {
+                        resolved = resolved + ".exe"; // Windows dev convenience
+                    }
+                    if (!File.Exists(resolved))
+                    {
+                        disclaimers.Add($"KB executable not found at resolved path: {resolved}");
+                    }
+                    else
+                    {
+                        await using IMcpClient kbClient = await McpClientFactory.CreateAsync(
+                            new StdioClientTransport(new()
+                            {
+                                Name = "kb-mcp-server",
+                                Command = resolved,
+                                Arguments = Array.Empty<string>()
+                            }));
+
+                        var kbToolList = await kbClient.ListToolsAsync().ConfigureAwait(false);
+                        // Identify content tool(s) for this prototype (search or get_kb_content)
+                        var contentTool = kbToolList.FirstOrDefault(t => t.Name == "get_kb_content" || t.Name == "search_knowledge");
+                        if (contentTool is null)
+                        {
+                            disclaimers.Add("KB tools available but no recognized content tool (get_kb_content/search_knowledge)");
+                        }
+                        else
+                        {
+                            // For Step 3 we do a minimal invocation only if get_kb_content exists (cheap). search_knowledge requires args (defer until Step 5 refinement)
+                            if (contentTool.Name == "get_kb_content")
+                            {
+                                try
+                                {
+                                    var invocation = await kbClient.CallToolAsync(contentTool.Name, new Dictionary<string, object?>()).ConfigureAwait(false);
+                                    string? raw = invocation?.ToString();
+                                    if (!string.IsNullOrWhiteSpace(raw))
+                                    {
+                                        // Truncate overly large content for prototype (3000 char cap per spec rationale)
+                                        const int cap = 3000;
+                                        string snippet = raw.Length > cap ? raw.Substring(0, cap) + "...[truncated]" : raw;
+                                        kbResults.Add(new { snippet, truncated = raw.Length > cap });
+                                        usedKb = true;
+                                    }
+                                    else
+                                    {
+                                        disclaimers.Add("KB content tool returned empty result");
+                                    }
+                                }
+                                catch (Exception exContent)
+                                {
+                                    Console.Error.WriteLine($"KB content invocation failed: {exContent.Message}");
+                                    disclaimers.Add("Failed to retrieve KB content");
+                                }
+                            }
+                            else
+                            {
+                                // search_knowledge will be implemented with query args in Step 5 once we shape prompt & error flows.
+                                disclaimers.Add("search_knowledge tool detected but query invocation deferred to later step");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"KB integration error (graceful degradation): {ex.Message}");
+                disclaimers.Add("Answer generated without knowledge base due to KB error");
+            }
         }
 
         // Chat / LLM not yet invoked (Step 4). Provide placeholder answer.
-        string answer = "(Placeholder) Answer generation not implemented yet. Steps 3-4 will enrich this.";
+        string answer = usedKb
+            ? "(Placeholder) KB content retrieved; LLM synthesis pending in Step 4."
+            : "(Placeholder) No KB enrichment; LLM synthesis pending in Step 4.";
 
         // Token estimate placeholder (later we can approximate based on prompt length)
         int tokensEstimate = Math.Max(20, question.Length / 4);
@@ -95,7 +176,7 @@ public static class OrchestratorTools
         var response = new
         {
             answer,
-            usedKb = false, // Will become true when Step 3 actually integrates KB
+            usedKb,
             kbResults,
             disclaimers = disclaimers.ToArray(),
             tokensEstimate,
