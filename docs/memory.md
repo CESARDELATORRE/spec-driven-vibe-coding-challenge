@@ -20,6 +20,14 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Technical architecture and technology stack recommendations with evolution path
 **Details**: Defines four architecture variants from prototype to production, technology selections (.NET, MCP, Semantic Kernel), and testing strategies
 
+### `/docs/specs/feature-specs-kb-mcp-server.md`
+**Purpose**: Detailed functional specification for the Knowledge Base MCP Server feature
+**Details**: Complete feature specification including user journey, functional requirements, MCP tools (search_knowledge, get_kb_info), prototype constraints, and startup loading rationale appendix
+
+### `/docs/specs/feature-specs-chat-agent.md`
+**Purpose**: Functional specification for the Chat Agent component providing conversational AI capabilities
+**Details**: Defines user journey, functional requirements for prototype/POC scope, extensive out-of-scope items for future development, success metrics, and additional considerations for testing, configuration, and integration
+
 ### `/docs/tradeoffs.md`
 **Purpose**: Documents all technical and functional tradeoffs made during project development
 **Details**: Contains 13 documented tradeoffs covering integration environment, knowledge base complexity, search behavior, and implementation decisions with reasoning and impact analysis
@@ -60,6 +68,9 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Template prompt for generating KB MCP Server feature specifications
 **Details**: Reusable prompt template with embedded rules for prototype/POC focus and specification generation guidelines
 
+### `/.github/prompts/feature.specs.chat-agent.prompt.md`
+**Purpose**: Template prompt for generating Chat Agent feature specifications
+**Details**: Reusable prompt template with embedded rules for prototype/POC focus, simple user journey design, and functional requirements structuring
 ### `/.github/prompts/feature.implementation-plan.prompt.md`
 **Purpose**: Template prompt for generating feature implementation plans
 **Details**: Generic prompt template for creating detailed implementation plans from feature specifications, with rules for prototype/POC simplicity and references to updated coding rules
