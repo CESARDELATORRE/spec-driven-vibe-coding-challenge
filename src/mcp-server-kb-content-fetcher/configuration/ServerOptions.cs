@@ -21,13 +21,5 @@ public class KnowledgeBaseOptions
     /// </summary>
     public string FilePath { get; set; } = "datasets/knowledge-base.txt";
 
-    /// <summary>
-    /// Maximum number of search results to return per query
-    /// </summary>
-    public int MaxResultsPerSearch { get; set; } = 3;
-
-    /// <summary>
-    /// Maximum content length per search result
-    /// </summary>
-    public int MaxContentLengthPerResult { get; set; } = 3000;
+    // (Removed) Search-related limits no longer applicable in excerpt-only prototype
 }

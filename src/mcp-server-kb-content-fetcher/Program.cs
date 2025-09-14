@@ -11,45 +11,22 @@ using ModelContextProtocol.Server;
 // This ensures default usage remains pure MCP server behavior.
 // Usage examples (diagnostic only, not part of MCP protocol):
 // dotnet run --project src/mcp-server-kb-content-fetcher -- --cli-mode --get-kb-info
-// dotnet run --project src/mcp-server-kb-content-fetcher -- --cli-mode --search "Azure Managed Grafana pricing" --max-results 5
 var originalArgs = args.ToList();
 var cliMode = originalArgs.Remove("--cli-mode");
 
 // Parse additional CLI flags only if cli-mode is active
 var useCliGetInfo = false;
-var hasCliSearch = false;
-var searchFlagIndex = -1;
-var maxResults = 0;
-string? cliSearchQuery = null; // captured early so we can safely remove args later
+// (Deprecated) search CLI options removed
 if (cliMode)
 {
     useCliGetInfo = originalArgs.Contains("--get-kb-info", StringComparer.OrdinalIgnoreCase);
-    searchFlagIndex = originalArgs.FindIndex(a => string.Equals(a, "--search", StringComparison.OrdinalIgnoreCase));
-    hasCliSearch = searchFlagIndex >= 0 && searchFlagIndex + 1 < originalArgs.Count;
-    if (hasCliSearch)
-    {
-        // capture the raw search term before we mutate/remove args
-        cliSearchQuery = originalArgs[searchFlagIndex + 1];
-    }
-    var maxResultsIndex = originalArgs.FindIndex(a => string.Equals(a, "--max-results", StringComparison.OrdinalIgnoreCase));
-    if (maxResultsIndex >= 0 && maxResultsIndex + 1 < originalArgs.Count && int.TryParse(originalArgs[maxResultsIndex + 1], out var parsed))
-    {
-        maxResults = parsed;
-    }
 }
 
 // Remove custom flags before building host (avoid leaking into generic host / config binding)
 if (cliMode)
 {
     originalArgs.Remove("--get-kb-info");
-    if (searchFlagIndex >= 0 && searchFlagIndex + 1 < originalArgs.Count)
-    {
-        // remove search term value first, then flag
-        var term = originalArgs[searchFlagIndex + 1];
-        originalArgs.Remove(term);
-        originalArgs.Remove("--search");
-    }
-    originalArgs.Remove("--max-results");
+    // removed legacy search flags
 }
 
 // Create the host builder with sanitized args (MCP path unaffected when cliMode=false)
@@ -131,52 +108,27 @@ getKbInfoToolRef = app.Services.GetRequiredService<GetKbInfoTool>();
 getKbContentToolRef = app.Services.GetRequiredService<GetKbContentTool>();
 
 // If CLI mode requested, perform action(s) and exit (skip MCP server startup)
-if (cliMode && (useCliGetInfo || hasCliSearch))
+if (cliMode && useCliGetInfo)
 {
     var cliLogger = app.Services.GetRequiredService<ILogger<Program>>();
     var kbService = app.Services.GetRequiredService<IKnowledgeBaseService>();
     await kbService.InitializeAsync();
 
-    if (useCliGetInfo)
+    var info = await kbService.GetInfoAsync();
+    var payload = new
     {
-        var info = await kbService.GetInfoAsync();
-        var payload = new
+        info = new
         {
-            info = new
-            {
-                fileSizeBytes = info.FileSizeBytes,
-                contentLength = info.ContentLength,
-                isAvailable = info.IsAvailable,
-                description = info.Description,
-                lastModified = info.LastModified.ToUniversalTime().ToString("o")
-            },
-            status = info.IsAvailable ? "available" : "unavailable"
-        };
-        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(payload));
-        return 0;
-    }
-
-        if (hasCliSearch && !string.IsNullOrWhiteSpace(cliSearchQuery))
-        {
-            var query = cliSearchQuery;
-            if (maxResults <= 0) maxResults = 3;
-            var results = await kbService.SearchAsync(query, maxResults);
-            var payload = new
-            {
-                query,
-                total = results.Count(),
-                results = results.Select(r => new
-                {
-                    r.MatchStrength,
-                    r.Position,
-                    r.Length,
-                    r.Content,
-                    r.Context
-                })
-            };
-            Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(payload));
-            return 0;
-        }
+            fileSizeBytes = info.FileSizeBytes,
+            contentLength = info.ContentLength,
+            isAvailable = info.IsAvailable,
+            description = info.Description,
+            lastModified = info.LastModified.ToUniversalTime().ToString("o")
+        },
+        status = info.IsAvailable ? "available" : "unavailable"
+    };
+    Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(payload));
+    return 0;
 }
 
 // Initialize knowledge base service

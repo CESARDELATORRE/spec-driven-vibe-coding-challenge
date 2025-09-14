@@ -24,9 +24,7 @@ public class FileKnowledgeBaseServiceTests
         {
             KnowledgeBase = new KnowledgeBaseOptions
             {
-                FilePath = _testDataPath,
-                MaxResultsPerSearch = 3,
-                MaxContentLengthPerResult = 3000
+                FilePath = _testDataPath
             }
         };
         
@@ -69,9 +67,7 @@ public class FileKnowledgeBaseServiceTests
         {
             KnowledgeBase = new KnowledgeBaseOptions
             {
-                FilePath = "non-existent-file.txt",
-                MaxResultsPerSearch = 3,
-                MaxContentLengthPerResult = 3000
+                FilePath = "non-existent-file.txt"
             }
         };
         
@@ -87,90 +83,6 @@ public class FileKnowledgeBaseServiceTests
         Assert.False(result);
     }
 
-    [Fact]
-    public async Task SearchAsync_WithValidQuery_ReturnsResults()
-    {
-        // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        await service.InitializeAsync();
-
-        // Act
-        var results = await service.SearchAsync("Azure Managed Grafana", 3);
-
-        // Assert
-        Assert.NotNull(results);
-        Assert.NotEmpty(results);
-        
-        var resultList = results.ToList();
-        Assert.True(resultList.Count <= 3);
-        
-        // Check that results contain the search term
-        Assert.Contains(resultList, r => r.Context.Contains("Azure Managed Grafana", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public async Task SearchAsync_WithEmptyQuery_ReturnsEmptyResults()
-    {
-        // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        await service.InitializeAsync();
-
-        // Act
-        var results = await service.SearchAsync("", 3);
-
-        // Assert
-        Assert.NotNull(results);
-        Assert.Empty(results);
-    }
-
-    [Fact]
-    public async Task SearchAsync_WithNullQuery_ReturnsEmptyResults()
-    {
-        // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        await service.InitializeAsync();
-
-        // Act
-        var results = await service.SearchAsync(null!, 3);
-
-        // Assert
-        Assert.NotNull(results);
-        Assert.Empty(results);
-    }
-
-    [Fact]
-    public async Task SearchAsync_WithCaseInsensitiveQuery_ReturnsResults()
-    {
-        // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        await service.InitializeAsync();
-
-        // Act
-        var results = await service.SearchAsync("GRAFANA", 3);
-
-        // Assert
-        Assert.NotNull(results);
-        Assert.NotEmpty(results);
-        
-        var resultList = results.ToList();
-        Assert.Contains(resultList, r => r.Context.Contains("Grafana", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public async Task SearchAsync_RespectMaxResults_LimitsResults()
-    {
-        // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        await service.InitializeAsync();
-
-        // Act
-        var results = await service.SearchAsync("the", 1); // Common word that should have multiple matches
-
-        // Assert
-        Assert.NotNull(results);
-        var resultList = results.ToList();
-        Assert.True(resultList.Count <= 1);
-    }
 
     [Fact]
     public async Task GetInfoAsync_WithInitializedService_ReturnsValidInfo()
@@ -206,18 +118,4 @@ public class FileKnowledgeBaseServiceTests
         Assert.Equal(0, info.ContentLength);
     }
 
-    [Fact]
-    public async Task SearchAsync_WithUninitializedService_ReturnsEmptyResults()
-    {
-        // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        // Note: Not calling InitializeAsync
-
-        // Act
-        var results = await service.SearchAsync("test", 3);
-
-        // Assert
-        Assert.NotNull(results);
-        Assert.Empty(results);
-    }
 }

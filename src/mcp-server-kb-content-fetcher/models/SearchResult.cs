@@ -1,35 +1,6 @@
 namespace McpServerKbContentFetcher.Models;
 
-/// <summary>
-/// Represents a search result from the knowledge base
-/// </summary>
-public class SearchResult
-{
-    /// <summary>
-    /// The matched content snippet
-    /// </summary>
-    public string Content { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Context surrounding the matched content (before and after)
-    /// </summary>
-    public string Context { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Position of the match in the original text
-    /// </summary>
-    public int Position { get; set; }
-
-    /// <summary>
-    /// Relevance score or match strength (basic implementation)
-    /// </summary>
-    public int MatchStrength { get; set; }
-
-    /// <summary>
-    /// Length of the matched content
-    /// </summary>
-    public int Length { get; set; }
-}
+// (Removed) SearchResult class – legacy search functionality deprecated.
 
 /// <summary>
 /// Basic information about the knowledge base

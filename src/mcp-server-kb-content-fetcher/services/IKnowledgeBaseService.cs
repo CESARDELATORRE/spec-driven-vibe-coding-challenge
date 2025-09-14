@@ -7,13 +7,6 @@ namespace McpServerKbContentFetcher.Services;
 /// </summary>
 public interface IKnowledgeBaseService
 {
-    /// <summary>
-    /// Search for content in the knowledge base
-    /// </summary>
-    /// <param name="query">Search query string</param>
-    /// <param name="maxResults">Maximum number of results to return</param>
-    /// <returns>List of search results</returns>
-    Task<IEnumerable<SearchResult>> SearchAsync(string query, int maxResults = 3);
 
     /// <summary>
     /// Get information about the knowledge base
