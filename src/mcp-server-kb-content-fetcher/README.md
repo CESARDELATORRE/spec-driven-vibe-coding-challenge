@@ -48,7 +48,7 @@ The KB MCP Server enables AI agents to access structured knowledge about Azure M
 
 - **.NET SDK**: .NET 9
 - **Git**: For source code management
-- **Text Editor**: VS Code, or any text editor
+- **MCP Protocol Compliance**: Standard MCP server interface for agent integration
 
 ### MCP Client
 
@@ -56,8 +56,12 @@ To interact with this server, you'll need an MCP-compatible client such as:
 - GitHub CoPilot in VS Code
 - Claude Desktop with MCP support
 - Custom MCP clients
-- MCP testing tools
-
+- Handshake + tool discovery test: Active (verifies protocol wiring)
+- Tool invocation tests: All passing
+  - Initialize + handshake (`initialize`)
+  - Tool discovery (`tools/list`) – asserts `search_knowledge` & `get_kb_info`
+  - Knowledge base info retrieval (`get_kb_info`)
+  - Fixed-query search (`search_knowledge`) returning >0 matches for the hard‑coded query "pricing"
 ## Installation
 
 ### 1. Clone the Repository
