@@ -257,10 +257,11 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     await builder.Build().RunAsync();
     ```
 
-### - [ ] Step 7: Configuration File
+### - [x] Step 7: Configuration File
   - **Task**: Provide non-secret configuration (KB path, patterns). Secrets remain only in env vars.
   - **Files**:
     - `src/orchestrator-agent/appsettings.json`: Non-sensitive defaults.
+  - **Status**: Implemented. Added default KB executable path (relative), greeting patterns array consumed by heuristic, and logging levels. Program.cs now treats appsettings.json as required.
   - **Pseudocode**:
     ```json
     {

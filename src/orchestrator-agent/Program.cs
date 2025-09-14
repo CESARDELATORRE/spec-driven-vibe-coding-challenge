@@ -14,7 +14,7 @@ var builder = Host.CreateEmptyApplicationBuilder(settings: null);
 // 2. Environment variables (primary portable contract)
 // 3. User Secrets ONLY in Development for local convenience
 builder.Configuration
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true) // will become non-optional once added in Step 7
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
 if (builder.Environment.IsDevelopment())

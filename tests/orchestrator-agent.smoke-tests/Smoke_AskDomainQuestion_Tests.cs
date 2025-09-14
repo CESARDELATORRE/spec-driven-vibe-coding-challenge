@@ -49,4 +49,14 @@ public class Smoke_AskDomainQuestion_Tests
         var disclaimers = root.GetProperty("disclaimers");
         disclaimers.EnumerateArray().Any(e => e.GetString()!.Contains("greeting heuristic")).Should().BeTrue();
     }
+
+    [Fact]
+    public async Task AskDomainQuestionAsync_ConfiguredGreetingPattern_TriggersSkip()
+    {
+        // Using default pattern 'greetings' present in appsettings.json
+        var json = await OrchestratorTools.AskDomainQuestionAsync("greetings orchestrator, status?", includeKb: true);
+        using var doc = JsonDocument.Parse(json);
+        var disclaimers = doc.RootElement.GetProperty("disclaimers");
+        disclaimers.EnumerateArray().Any(e => e.GetString()!.Contains("greeting heuristic")).Should().BeTrue();
+    }
 }
