@@ -1,16 +1,16 @@
 ---
 mode: 'edit'
-description: 'Create specs doc for a feature'
+description: 'Create specs doc for a feature: <FEATURE NAME>'
 ---
 
-Your goal is to generate a functional spec for implementing a feature based on the provided "in-line" idea below:
+Your goal is to generate a functional specification document for implementing a feature based on the inline idea below:
 
 <idea>
-Generate a feature specs document covering the following capabilities:
+Generate a feature specification document covering the following capabilities:
 
-- TBD 1
-- TBD 2
-- TBD 3
+- Capability 1 - Description.
+- Capability 2 - Description.
+- Capability 3 - Description.
 
 </idea>
 
@@ -31,7 +31,7 @@ RULES:
 - (Special rule for prototype/POC) Ensure the plan is easy to understand and implement
 - (Special rule for prototype/POC) Focus on features that can be realistically implemented within the constraints of a prototype or POC
 - (Special rule for prototype/POC) Avoid over-engineering or adding unnecessary complexity to the specs
-- (Special rule for prototype/POC) Keep the feture's specs doc short and to the point, focusing on the most important aspects of the feature, no more than 2 or maximum 3 pages long. 
+- (Special rule for prototype/POC) Keep the feature's specs doc short and to the point, focusing on the most important aspects of the feature, no more than 2 or maximum 3 pages long. 
 
 NEXT:
 
@@ -42,5 +42,5 @@ FINALLY:
 
 When satisfied:
 
-- Output your plan in #folder:../../docs/specs/feature-name.md
+- Output your plan in #folder:../../docs/specs/feature-specs-<NAME>.md
 - DO NOT start writing any code or implementation plans. Follow instructions.
