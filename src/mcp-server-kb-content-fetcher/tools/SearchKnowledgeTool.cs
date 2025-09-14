@@ -1,6 +1,7 @@
 using McpServerKbContentFetcher.Models;
 using McpServerKbContentFetcher.Services;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace McpServerKbContentFetcher.Tools;
 
@@ -25,8 +26,8 @@ public class SearchKnowledgeTool
     /// </summary>
     /// <param name="query">Search keywords or phrases</param>
     /// <param name="max_results">Maximum number of results to return (optional, default: 3, max: 5)</param>
-    /// <returns>Search results with relevant content</returns>
-    public async Task<SearchKnowledgeResponse> SearchAsync(
+    /// <returns>MCP content array with search results</returns>
+    public async Task<object[]> SearchAsync(
         string query,
         int? max_results = null)
     {
@@ -39,11 +40,16 @@ public class SearchKnowledgeTool
             if (string.IsNullOrWhiteSpace(query))
             {
                 _logger.LogWarning("Empty or null query provided to SearchKnowledge tool");
-                return new SearchKnowledgeResponse
+                var emptyResult = JsonSerializer.Serialize(new
                 {
-                    Results = new List<SearchResultItem>(),
-                    TotalMatches = 0,
-                    Query = query ?? string.Empty
+                    query = query ?? string.Empty,
+                    totalMatches = 0,
+                    results = Array.Empty<object>()
+                }, new JsonSerializerOptions { WriteIndented = true });
+
+                return new object[]
+                {
+                    new { type = "text", text = emptyResult }
                 };
             }
 
@@ -53,40 +59,45 @@ public class SearchKnowledgeTool
 
             // Perform search
             var searchResults = await _knowledgeBaseService.SearchAsync(query, maxResults);
-            var resultItems = searchResults.Select(result => new SearchResultItem
+            var resultItems = searchResults.Select(result => new
             {
-                Content = result.Context,
-                MatchInfo = $"Match strength: {result.MatchStrength}, Position: {result.Position}"
-            }).ToList();
+                content = result.Context,
+                matchInfo = $"Match strength: {result.MatchStrength}, Position: {result.Position}",
+                matchStrength = result.MatchStrength,
+                position = result.Position
+            }).ToArray();
 
-            var response = new SearchKnowledgeResponse
+            var response = JsonSerializer.Serialize(new
             {
-                Results = resultItems,
-                TotalMatches = resultItems.Count,
-                Query = query
-            };
+                query,
+                totalMatches = resultItems.Length,
+                results = resultItems
+            }, new JsonSerializerOptions { WriteIndented = true });
 
             _logger.LogInformation("SearchKnowledge tool completed. Found {ResultCount} results for query: '{Query}'", 
-                response.TotalMatches, query);
+                resultItems.Length, query);
 
-            return response;
+            // Return MCP content array format
+            return new object[]
+            {
+                new { type = "text", text = response }
+            };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in SearchKnowledge tool for query: '{Query}'", query);
             
-            return new SearchKnowledgeResponse
+            var errorResult = JsonSerializer.Serialize(new
             {
-                Results = new List<SearchResultItem>
-                {
-                    new SearchResultItem
-                    {
-                        Content = "Search error occurred. Please try again with a different query.",
-                        MatchInfo = "Error"
-                    }
-                },
-                TotalMatches = 0,
-                Query = query ?? string.Empty
+                query = query ?? string.Empty,
+                totalMatches = 0,
+                error = "Search error occurred. Please try again with a different query.",
+                details = ex.Message
+            }, new JsonSerializerOptions { WriteIndented = true });
+
+            return new object[]
+            {
+                new { type = "text", text = errorResult }
             };
         }
     }

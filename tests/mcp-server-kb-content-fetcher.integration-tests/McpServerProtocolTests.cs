@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text;
-using Xunit;
 
 namespace IntegrationTests;
 

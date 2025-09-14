@@ -1,6 +1,7 @@
 using McpServerKbContentFetcher.Models;
 using McpServerKbContentFetcher.Services;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace McpServerKbContentFetcher.Tools;
 
@@ -23,8 +24,8 @@ public class GetKbInfoTool
     /// <summary>
     /// Get basic information about the knowledge base
     /// </summary>
-    /// <returns>Knowledge base information including size, availability, and basic statistics</returns>
-    public async Task<GetKbInfoResponse> GetInfoAsync()
+    /// <returns>MCP content array with knowledge base information</returns>
+    public async Task<object[]> GetInfoAsync()
     {
         try
         {
@@ -36,25 +37,42 @@ public class GetKbInfoTool
                 ? "Knowledge base is available and loaded"
                 : "Knowledge base is not available";
 
-            var response = new GetKbInfoResponse
+            // Format as structured info for MCP content
+            var infoText = JsonSerializer.Serialize(new
             {
-                Info = info,
-                Status = status
-            };
+                status,
+                info = new
+                {
+                    fileSizeBytes = info.FileSizeBytes,
+                    contentLength = info.ContentLength,
+                    isAvailable = info.IsAvailable,
+                    description = info.Description,
+                    lastModified = info.LastModified.ToString("o")
+                }
+            }, new JsonSerializerOptions { WriteIndented = true });
 
             _logger.LogInformation("GetKbInfo tool completed. Available: {IsAvailable}, Content length: {ContentLength}", 
                 info.IsAvailable, info.ContentLength);
 
-            return response;
+            // Return MCP content array format
+            return new object[]
+            {
+                new { type = "text", text = infoText }
+            };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in GetKbInfo tool");
             
-            return new GetKbInfoResponse
+            var errorText = JsonSerializer.Serialize(new
             {
-                Info = new KnowledgeBaseInfo { IsAvailable = false },
-                Status = "Error retrieving knowledge base information"
+                status = "Error retrieving knowledge base information",
+                error = ex.Message
+            }, new JsonSerializerOptions { WriteIndented = true });
+
+            return new object[]
+            {
+                new { type = "text", text = errorText }
             };
         }
     }
