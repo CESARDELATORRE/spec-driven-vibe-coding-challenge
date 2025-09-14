@@ -197,11 +197,16 @@ Before starting implementation, configure Azure OpenAI user secrets:
         maxKbResults = Math.Clamp(maxKbResults, 1, 3);
     }
     
-    // Simple heuristics for KB skip
-    bool ShouldSkipKb(string question)
+    // Simple heuristics for KB skip, with greeting patterns from configuration
+    bool ShouldSkipKb(string question, IConfiguration config)
     {
         if (question.Length < 5) return true;
-        if (Regex.IsMatch(question, @"^\s*(hi|hello|hey)\b.*", RegexOptions.IgnoreCase)) return true;
+        
+        // Load greeting patterns from configuration (e.g., appsettings.json)
+        var greetings = config.GetSection("GreetingPatterns").Get<string[]>() ?? new[] { "hi", "hello", "hey" };
+        // Build regex pattern dynamically
+        var pattern = @"^\s*(" + string.Join("|", greetings.Select(Regex.Escape)) + @")\b.*";
+        if (Regex.IsMatch(question, pattern, RegexOptions.IgnoreCase)) return true;
         return false;
     }
     ```
