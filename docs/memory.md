@@ -71,7 +71,6 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/.github/prompts/feature.specs.chat-agent.prompt.md`
 **Purpose**: Template prompt for generating Chat Agent feature specifications
 **Details**: Reusable prompt template with embedded rules for prototype/POC focus, simple user journey design, and functional requirements structuring
-=======
 ### `/.github/prompts/feature.implementation-plan.prompt.md`
 **Purpose**: Template prompt for generating feature implementation plans
 **Details**: Generic prompt template for creating detailed implementation plans from feature specifications, with rules for prototype/POC simplicity and references to updated coding rules
