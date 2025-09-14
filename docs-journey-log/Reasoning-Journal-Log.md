@@ -1124,16 +1124,57 @@ In the PR, while advancing, I see that it's going again for choosing .NET 8 for 
 
 But it finally is using .NET 9...
 
-Here's the result, initially finished! :)
+I can dig into the GHCP CODING AGENT session:
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-coding-agent-03try-session-01.png)
+
+And looks like the implementation this time is complete! :)
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-coding-agent-03try-session-02.png)
+
+Looks promising, it's passing tests and I took a look to the project's file dependencies and this time it's using the official MCP Server SDK for .NET Preview.
+
+I cloned the repo to review it deeper.
+I can see it's using .NET 9 and the MCP SDK for .NET Preview, latest Version="0.3.0-preview.4":
+
+![alt text](images-journey/issue-implement-mcp-server-ghcp-pr-coding-agent-03try-netproject.png)
+
+Here's the branch with the initial result as initially implemented by GHCP CODING AGENT! :)
 
 PR: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/pull/15 
 Branch: https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/tree/copilot/fix-11-2
 
+Now. let's check that it works!
+
+It still doesn't have instructions about how to build the project and test it, so I'm going to create an **issue** for it and tell GHCP CODING AGENT to do it.
+
+![alt text](images-journey/issue-create-readme-mcp-server-ghcp-pr-coding-agent.png)
+
+This is the SESSION that GHCP CODING AGENT is using for testing and creating the README.md file:
+
+![alt text](images-journey/issue-create-readme-mcp-server-ghcp-pr-coding-agent-session-01.png)
+
+
+This is the README.md that I'll merege into the branch with the code, then follow, testing the MECP server and continue iterating:
+
+![alt text](images-journey/readme-mcp-server.png)
+
+I reviewed the readme, and fixed a few wrong points such as the .NET version (it's using .NET 9, not 10).
+
+Tested the MCP Server from the termina:
 
 
 
+Created a README.md explaining the UNIT TESTS created:
 
+PROMPT to create a README.md explaining the UNIT TESTS:
 
+![alt text](images-journey/prompt-create-readme-for-unit-tests.png)
+
+I can check that the created UNIT TESTS (mostly, internal, related to the FileKnowledgeBaseService and format/logic/prep for the MCP Server) are passing:
+
+![alt text](images-journey/mcp-server-unit-tests-passed.png)
+
+However, at the MCP protocol, the server was not working, I had to do quite a few iterations with GHCP from VS Code, create additional INTEGRATION TESTS so it checks at the MCP protocol, not just internal UNIT TESTS, etc.
 
 
 
