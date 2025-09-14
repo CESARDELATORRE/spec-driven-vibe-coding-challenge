@@ -38,49 +38,36 @@ internal sealed class StdioMcpClient : IAsyncDisposable
 
         var projectDir = Path.GetDirectoryName(serverProjectCsprojPath)!;
         var projectName = Path.GetFileNameWithoutExtension(serverProjectCsprojPath);
-        // Assume test build already compiled the server. Just locate existing exe or dll.
-        string? exePath = Directory.GetFiles(projectDir, projectName + ".exe", SearchOption.AllDirectories)
-            .FirstOrDefault(p => p.Contains(Path.Combine("bin","Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
-        string? dllPath = null;
-        if (exePath == null)
+
+        // Best-effort: kill any lingering previous self-contained apphost processes (from earlier runs before we disabled apphost)
+        try
         {
-            dllPath = Directory.GetFiles(projectDir, projectName + ".dll", SearchOption.AllDirectories)
-                .FirstOrDefault(p => p.Contains(Path.Combine("bin","Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
-            if (dllPath == null)
+            foreach (var lingering in Process.GetProcessesByName(projectName))
             {
-                throw new FileNotFoundException("Could not locate built server binary (exe or dll)");
+                try { lingering.Kill(entireProcessTree: true); lingering.WaitForExit(3000); } catch { }
             }
         }
+        catch { }
 
-        ProcessStartInfo psi;
-        if (exePath != null)
+        // We intentionally disable apphost (UseAppHost=false), so always run via 'dotnet <dll>' to avoid locked exe copy issues.
+        string? dllPath = Directory.GetFiles(projectDir, projectName + ".dll", SearchOption.AllDirectories)
+            .FirstOrDefault(p => p.Contains(Path.Combine("bin","Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
+        if (dllPath == null)
         {
-            psi = new ProcessStartInfo
-            {
-                FileName = exePath,
-                Arguments = string.Empty,
-                UseShellExecute = false,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-                WorkingDirectory = Path.GetDirectoryName(exePath)!
-            };
+            throw new FileNotFoundException("Could not locate built server assembly (.dll). Ensure project is built before running integration tests.");
         }
-        else
+
+        var psi = new ProcessStartInfo
         {
-            psi = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = $"\"{dllPath}\"",
-                UseShellExecute = false,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-                WorkingDirectory = Path.GetDirectoryName(dllPath)!
-            };
-        }
+            FileName = "dotnet",
+            Arguments = $"\"{dllPath}\"",
+            UseShellExecute = false,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true,
+            WorkingDirectory = Path.GetDirectoryName(dllPath)!
+        };
 
         var proc = new Process { StartInfo = psi, EnableRaisingEvents = true };
         if (!proc.Start())

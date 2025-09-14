@@ -6,6 +6,8 @@
     <RootNamespace>mcp_server_kb_content_fetcher</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Disable apphost exe generation to avoid Windows file lock issues during rapid test runs -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>
