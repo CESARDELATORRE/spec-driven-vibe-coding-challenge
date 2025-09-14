@@ -22,6 +22,17 @@
         [X] Develop prototype (Spec-driven vibe approach)
         [X] Create/save journal log with all prompts, co-reasoning and actions
 
+
+- MCP SERVER evolve:
+Next (Optional) Follow-ups
+Consider adding a unit test for GetKbContentTool.
+Add a test ensuring search tool still functions when KB unavailable (edge case).
+Remove double-serialization remnants on the server side (currently acceptable, but could streamline).
+Introduce dynamic query parameters for search tool when ready.
+
+
+
+
 - Review ARCHITECTURE doc.
 
 - ADD to JOURNAL LOG DAY 2:
@@ -68,3 +79,16 @@ FEATURE:
 
 - Evaluate the creationg of a "decision log template" as suggested by GHCP.
 
+
+
+- GHCP CODING AGENT FIRWALL:
+Warning
+
+Firewall rules blocked me from connecting to one or more addresses (expand for details)
+I tried to connect to the following addresses, but was blocked by firewall rules:
+aka.ms
+Triggering command: curl -I -sSL --retry 5 --retry-delay 2 --connect-timeout 15 REDACTED (dns block)
+If you need me to access, download, or install something from one of these locations, you can either:
+
+Configure Actions setup steps to set up my environment, which run before the firewall is enabled
+Add the appropriate URLs or hosts to the custom allowlist in this repository's Copilot coding agent settings (admins only)

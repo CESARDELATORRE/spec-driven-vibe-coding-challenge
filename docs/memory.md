@@ -20,6 +20,15 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Technical architecture and technology stack recommendations with evolution path
 **Details**: Defines four architecture variants from prototype to production, technology selections (.NET, MCP, Semantic Kernel), and testing strategies
 
+### `/docs/specs/feature-specs-kb-mcp-server.md`
+**Purpose**: Detailed functional specification for the Knowledge Base MCP Server feature
+**Details**: Complete feature specification including user journey, functional requirements, MCP tools (search_knowledge, get_kb_info), prototype constraints, and startup loading rationale appendix
+
+### `/docs/specs/feature-specs-chat-agent.md`
+**Purpose**: Functional specification for the Chat Agent component providing conversational AI capabilities
+**Details**: Defines user journey, functional requirements for prototype/POC scope, extensive out-of-scope items for future development, success metrics, and additional considerations for testing, configuration, and integration
+
+
 ### `/docs/tradeoffs.md`
 **Purpose**: Documents all technical and functional tradeoffs made during project development
 **Details**: Contains 13 documented tradeoffs covering integration environment, knowledge base complexity, search behavior, and implementation decisions with reasoning and impact analysis
@@ -36,37 +45,24 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Detailed functional specification for the Knowledge Base MCP Server feature
 **Details**: Complete feature specification including user journey, functional requirements, MCP tools (search_knowledge, get_kb_info), prototype constraints, and startup loading rationale appendix
 
+#### `/docs/specs/feature-specs-chat-agent.md`
+**Purpose**: Functional specification for the Chat Agent component providing conversational AI capabilities
+**Details**: Defines user journey, functional requirements for prototype/POC scope, extensive out-of-scope items for future development, success metrics, and additional considerations for testing, configuration, and integration
+
+#### `/docs/specs/feature-specs-orchestrator-agent.md`
+**Purpose**: Functional specification for the Orchestration Agent MCP server
+**Details**: Defines user journey, MCP tools (ask_domain_question, get_orchestrator_status), functional requirements, success criteria, prototype constraints, and future evolution considerations. Scope limited to single-turn coordination of Chat Agent + KB MCP Server.
+
 ### Implementation plans documentation
 
 #### `/docs/implementation-plans/feature-implementation-plan-kb-mcp-server.md`
 **Purpose**: Detailed implementation plan for the KB MCP Server feature
 **Details**: Step-by-step implementation guide with 10 steps covering project setup, services, MCP tools, testing, and configuration. Uses domain-agnostic naming following coding rules for reusability across different knowledge domains
 
-### `/tests/mcp-server-kb-content-fetcher.integration-tests/mcp-server-kb-content-fetcher.integration-tests.csproj`
-**Purpose**: Project file for integration tests exercising real MCP STDIO protocol
-**Details**: References main project; includes xUnit + coverlet packages
-
-### `/tests/mcp-server-kb-content-fetcher.integration-tests/McpServerProtocolTests.cs`
-**Purpose**: End-to-end MCP protocol tests (initialize, tools/list, tools/call)
-**Details**: Launches server with `dotnet run`, sends JSON-RPC over redirected STDIN/STDOUT, asserts tool discovery (`get_kb_info`, `get_kb_content`) and tool responses (search tool deprecated)
-
-### `/src/mcp-server-kb-content-fetcher/tools/GetKbContentTool.cs`
-**Purpose**: MCP tool exposing full raw knowledge base text content for prototype agent consumption
-**Details**: Zero-argument tool returning status, contentLength, and full content string (loaded at startup via `FileKnowledgeBaseService`). Replaced need for prior excerpt/search prototype.
-
-### `/tests/mcp-server-kb-content-fetcher.integration-tests/README.md`
-**Purpose**: Documentation for running and extending MCP integration tests
-**Details**: Explains handshake test scope, skipped tool tests rationale, CLI & VS Code Test Explorer usage, and future enhancements
-
-### `/tests/mcp-server-kb-content-fetcher.unit-tests/tools/GetKbContentToolTests.cs`
-**Purpose**: Unit tests for `GetKbContentTool` covering success, empty content, and error scenarios
-**Details**: Mocks `IKnowledgeBaseService` to validate tool behavior without requiring file IO
-
-### (Removed) `/src/mcp-server-kb-content-fetcher/tools/SearchKnowledgeTool.cs`
-**Reason**: Redundant after adopting full content exposure via `get_kb_content`; excerpt/search prototype removed for simplicity in POC scope.
-
-### (Removed) `/src/mcp-server-kb-content-fetcher/models/SearchArgs.cs`
-**Reason**: No longer needed after deprecating `search_knowledge` tool.
+#### `/docs/implementation-plans/feature-implementation-plan-orchestrator-agent.md` 
+**Purpose**: Detailed implementation plan for the Orchestration Agent MCP Server feature 
+**Details**: Step-by-step implementation guide with 12 steps covering project setup, MCP client integration, Semantic Kernel ChatCompletionAgent coordination, KB server communication via STDIO, and testing. Updated to prioritize environment variables for secrets/config (portable to containers & cloud) with optional local User Secrets layering only in Development; anticipates future Azure Key Vault integration without refactoring tool code. 
+ 
 
 ## Development Guidelines
 
@@ -86,6 +82,9 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Template prompt for generating KB MCP Server feature specifications
 **Details**: Reusable prompt template with embedded rules for prototype/POC focus and specification generation guidelines
 
+### `/.github/prompts/feature.specs.chat-agent.prompt.md`
+**Purpose**: Template prompt for generating Chat Agent feature specifications
+**Details**: Reusable prompt template with embedded rules for prototype/POC focus, simple user journey design, and functional requirements structuring
 ### `/.github/prompts/feature.implementation-plan.prompt.md`
 **Purpose**: Template prompt for generating feature implementation plans
 **Details**: Generic prompt template for creating detailed implementation plans from feature specifications, with rules for prototype/POC simplicity and references to updated coding rules

@@ -19,7 +19,19 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
     - `src/mcp-server-kb-content-fetcher/mcp-server-kb-content-fetcher.csproj`: Console app project file with MCP SDK dependency
     - `src/mcp-server-kb-content-fetcher/Program.cs`: Main entry point using Host.CreateApplicationBuilder with MCP SDK fluent configuration and stderr logging
     - `src/mcp-server-kb-content-fetcher/appsettings.json`: Configuration for knowledge base file path and basic settings
-  - **Dependencies**: .NET 10 Preview 6+ or .NET 9 as fallback, Microsoft MCP SDK for .NET (latest popular/stable version, even if in preview state, since MCP is evolving very fast)
+  - **Dependencies**: 
+    - .NET 10 Preview 6+ or .NET 9 as fallback
+    - Microsoft MCP SDK for .NET:
+      Use the latest popular/stable version, even if in preview state, since MCP is evolving very fast.
+      The official MCP SDK for .NET is here:
+      https://www.nuget.org/packages/ModelContextProtocol/
+
+      Use MCP SDK version 0.3.0-preview.4 or newer, if available. 
+
+      You can add it to the solution with this command or the way you prefer:
+
+      `dotnet add package ModelContextProtocol --version 0.3.0-preview.4`
+
   - **Configuration Reasoning**: Using appsettings.json is simplest because it follows standard .NET configuration patterns, requires no command-line parsing logic, and automatically binds to strongly-typed options classes
 
 - [x] Step 2: Create Knowledge Base Service
@@ -152,7 +164,7 @@ builder.Logging.AddConsole(options =>
 
 ### .NET Dependencies Summary
 - .NET 10 Preview 6+ runtime or .NET 9 as fallback
-- Microsoft MCP SDK for .NET (ModelContextProtocol package) - Latest stable/popular version, even if in preview state
+- Microsoft MCP SDK for .NET (ModelContextProtocol package) - Latest stable/popular version, even if in preview state. Available here: https://www.nuget.org/packages/ModelContextProtocol/
 - Built-in .NET hosting and configuration abstractions
 - xUnit for testing framework
 - Sample Azure Managed Grafana knowledge base content file
