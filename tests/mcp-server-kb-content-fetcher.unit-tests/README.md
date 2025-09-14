@@ -33,6 +33,7 @@ These tests run in-memory (except for one controlled file-read scenario) and avo
 | `services/FileKnowledgeBaseServiceTests.cs` | Service initialization & search | Valid + invalid file path, pre/post initialization behavior, empty/null query handling, case-insensitive search, max results limiting, metadata correctness |
 | `tools/SearchKnowledgeToolTests.cs` | Search MCP tool adapter | Input sanitation (null/empty), max results clamping, delegation correctness, error wrapping, formatting (Match strength / Position), unchanged service call count |
 | `tools/GetKbInfoToolTests.cs` | Info MCP tool adapter | Availability status mapping, error shielding, partial info resilience, single invocation guarantee |
+| `tools/GetKbContentToolTests.cs` | Raw content dump tool | Full content retrieval, empty content handling, error propagation (status=error) |
 
 ### 1.5 Failure Modes & Coverage
 | Category | Examples Covered |
@@ -83,17 +84,15 @@ When introducing new functionality:
 
 ---
 
-## 2. INTEGRATION TESTS (Placeholder - TBD)
+## 2. INTEGRATION TESTS (Implemented)
 
-Planned scope for future integration tests (not yet implemented):
+See `../mcp-server-kb-content-fetcher.integration-tests/` for four protocol-level tests:
+- Initialize + tool discovery
+- `search_knowledge` (fixed query prototype)
+- `get_kb_info`
+- `get_kb_content` (raw full text)
 
-- End-to-end MCP server startup via `Program` entrypoint
-- Tool discovery (`tools/list`) and invocation via JSON-RPC over STDIO
-- Validation of logging routing to `stderr` (no protocol corruption)
-- Schema conformance of tool responses
-- Resilience to malformed MCP client requests
-
-These will live under: `tests/mcp-server-kb-content-fetcher.integration-tests/` and will use real process invocation rather than mocks.
+They launch the built DLL (not `dotnet run`) to avoid file locking and validate real STDIO JSON-RPC behavior.
 
 ---
 
@@ -102,6 +101,7 @@ These will live under: `tests/mcp-server-kb-content-fetcher.integration-tests/` 
 |-------------------|---------------------------|---------------------|
 | Startup loading | Knowledge base must load file at startup | `FileKnowledgeBaseServiceTests.InitializeAsync_WithValidFile_ReturnsTrue` |
 | Availability reporting | Provide KB info state | `GetKbInfoToolTests.*` (available/unavailable/error) |
+| Raw content retrieval | Provide full content for downstream embedding | `GetKbContentToolTests.*` |
 | Search capability | Case-insensitive partial search | Service search tests (valid query, case variant) |
 | Result limiting | Enforce max results | Service (max results limit) + Tool clamping tests |
 | Defensive input | Null/empty queries safe | Tool tests for empty/null query |
@@ -137,4 +137,4 @@ dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/ --collect:"XPlat Cod
 
 ---
 
-*Last updated: September 2025*
+*Last updated: September 2025 (includes raw content tool + integration test implementation)*

@@ -24,15 +24,16 @@ A Knowledge Base MCP (Model Context Protocol) Server that provides AI agents wit
 The KB MCP Server enables AI agents to access structured knowledge about Azure Managed Grafana through the Model Context Protocol. It provides:
 
 - **Knowledge Base Access**: Reads AMG-specific content from local plain text files
-- **Content Search**: Case-insensitive keyword search with partial matching
+- **Content Search**: Case-insensitive keyword search with partial matching (prototype currently exposes a fixed representative query through the MCP tool)
 - **Content Discovery**: Overview of knowledge base size and statistics
 - **MCP Protocol Compliance**: Standard MCP server interface for agent integration
 
 ## Features
 
 - 📁 **File-based Knowledge Storage**: Loads content from plain text files
-- 🔍 **Fast Search**: In-memory search with case-insensitive partial matching
-- 🔌 **MCP Integration**: Standard Model Context Protocol STDIO transport
+- 🔍 **Fast Search**: In-memory search with case-insensitive partial matching (zero-argument prototype tool delegates a fixed query: "pricing")
+- � **Raw Content Dump**: `get_kb_content` tool returns full raw knowledge base text (prototype convenience)
+- �🔌 **MCP Integration**: Standard Model Context Protocol STDIO transport
 - 📊 **Knowledge Base Info**: Statistics and metadata about available content
 - 🪵 **Structured Logging**: Console logging routed to stderr for MCP compatibility
 - ⚡ **Quick Response**: Content loaded at startup for immediate search responses
@@ -261,11 +262,13 @@ dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/ --collect:"XPlat Cod
 
 ### Integration Tests (MCP Protocol)
 
-The integration test project (`tests/mcp-server-kb-content-fetcher.integration-tests`) launches the real server (`dotnet run`) and performs an MCP STDIO handshake (`initialize` + `tools/list`).
+The integration test project (`tests/mcp-server-kb-content-fetcher.integration-tests`) launches the built DLL via `dotnet <assembly>` (we disabled apphost generation with `UseAppHost=false` to avoid Windows file locking problems during rapid test iterations). It performs a full MCP STDIO handshake and invokes each tool.
 
-Current status:
-- Handshake + tool discovery test: Active (verifies protocol wiring)
-- Tool invocation tests: Temporarily skipped pending alignment of return payload shape with the ModelContextProtocol helper library (tracked via TODOs in the test file)
+Current status (all GREEN):
+- ✅ Handshake + tool discovery (`initialize`, `tools/list`)
+- ✅ `search_knowledge` (zero-argument fixed query: `pricing`)
+- ✅ `get_kb_info`
+- ✅ `get_kb_content` (raw full text dump)
 
 Run from repository root:
 ```bash
@@ -289,10 +292,7 @@ See `tests/mcp-server-kb-content-fetcher.integration-tests/README.md` for deeper
   - `SearchKnowledgeToolTests`: MCP tool parameter validation
   - `GetKbInfoToolTests`: Knowledge base info functionality
 
-- **Integration Tests**: Test MCP protocol compliance (**IMPLEMENTATION OF INTEGRATION TESTS is still TBD**)
-  - `McpServerIntegrationTests`: End-to-end MCP communication
-  - STDIO transport verification
-  - Tool discovery and execution
+- **Integration Tests**: Protocol-level tests (see `McpServerProtocolTests`) exercising initialize, tools/list, and each tool call (`search_knowledge`, `get_kb_info`, `get_kb_content`).
 
 ### Manual Testing with MCP Client
 
@@ -394,26 +394,18 @@ If tools are not discovered, open the command palette and reload the window, or 
 
 ### search_knowledge
 
-Search the knowledge base for keyword matches.
+Prototype search tool (current sprint simplification). Exposed as a zero-argument tool that always executes a representative fixed query (`pricing`) against the in-memory content and returns up to 3 matches. This ensured deterministic end-to-end protocol validation while deferring parameter binding complexity.
 
-**Parameters:**
-- `query` (string): Search keywords or phrases
-- `max_results` (optional int): Maximum results to return (default: 3, max: 5)
+Planned (future): Reintroduce `query` and optional `max_results` arguments once stable embedding / parameter schema strategy is finalized.
 
-**Example:**
+**Invocation (MCP):**
 ```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
-    "name": "search_knowledge",
-    "arguments": {
-      "query": "Azure Monitor integration",
-      "max_results": 3
-    }
-  }
-}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"search_knowledge","arguments":{}}}
+```
+
+**Response Payload (excerpt inside `result.content[0].text`):**
+```json
+{"query":"pricing","totalMatches":3,"results":[{"content":"...","matchInfo":"Match strength: 1, Position: 2197"}]} 
 ```
 
 ### get_kb_info
@@ -432,6 +424,26 @@ Retrieve knowledge base information and statistics.
     "name": "get_kb_info",
     "arguments": {}
   }
+}
+```
+
+### get_kb_content
+
+Returns the full raw knowledge base text plus metadata.
+
+**Parameters:** None
+
+**Invocation:**
+```json
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_kb_content","arguments":{}}}
+```
+
+**Response Payload (excerpt inside `result.content[0].text`):**
+```json
+{
+  "status": "ok",
+  "contentLength": 7402,
+  "content": "Azure Managed Grafana Knowledge Base\r\n\r\nAzure Managed Grafana is ..."
 }
 ```
 
@@ -566,8 +578,9 @@ src/mcp-server-kb-content-fetcher/
 │   ├── IKnowledgeBaseService.cs          # Service interface
 │   └── FileKnowledgeBaseService.cs       # File-based implementation
 ├── tools/                                 # MCP tools
-│   ├── SearchKnowledgeTool.cs            # Search functionality
-│   └── GetKbInfoTool.cs                  # Info functionality
+│   ├── SearchKnowledgeTool.cs            # Prototype fixed-query search tool
+│   ├── GetKbInfoTool.cs                  # Knowledge base metadata tool
+│   └── GetKbContentTool.cs               # Raw content dump tool
 ├── models/                                # Data models
 │   ├── SearchResult.cs                   # Search result model
 │   └── ToolModels.cs                     # Tool request/response models
@@ -582,9 +595,10 @@ tests/
 │   │   └── FileKnowledgeBaseServiceTests.cs
 │   └── tools/
 │       ├── SearchKnowledgeToolTests.cs
-│       └── GetKbInfoToolTests.cs
+│       ├── GetKbInfoToolTests.cs
+│       └── GetKbContentToolTests.cs
 ├── mcp-server-kb-content-fetcher.integration-tests/
-│   └── McpServerIntegrationTests.cs
+│   └── McpServerProtocolTests.cs
 └── fixtures/
     └── test-knowledge-content.txt
 ```
@@ -649,4 +663,4 @@ For issues and questions:
 
 ---
 
-*Last updated: September 2025*
+*Last updated: September 2025 (includes get_kb_content tool + fixed DLL launch harness; apphost disabled)*

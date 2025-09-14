@@ -5,22 +5,23 @@ End-to-end integration tests for the `mcp-server-kb-content-fetcher` project. Th
 ## Current Coverage
 All implemented tests are active (no skips):
 - ✅ MCP handshake (`initialize`)
-- ✅ Tool discovery (`tools/list` – asserts presence of `search_knowledge` + `get_kb_info`)
-- ✅ `get_kb_info` tool invocation (validates structured MCP content payload with status + info fields)
-- ✅ `search_knowledge` tool invocation (zero-argument tool; validates implicit fixed query "pricing" returns positive `totalMatches`)
+- ✅ Tool discovery (`tools/list` – asserts presence of `search_knowledge`, `get_kb_info`, `get_kb_content`)
+- ✅ `get_kb_info` tool invocation (status + info fields)
+- ✅ `search_knowledge` tool invocation (zero-argument fixed query `pricing`)
+- ✅ `get_kb_content` tool invocation (verifies full content contains "Azure Managed Grafana")
 
 ## Project Layout
 ```
 /tests/mcp-server-kb-content-fetcher.integration-tests/
    ├── mcp-server-kb-content-fetcher.integration-tests.csproj
-   ├── McpServerProtocolTests.cs          # Three protocol-level test cases
+   ├── McpServerProtocolTests.cs          # Four protocol-level test cases
    ├── StdioMcpClient.cs                  # Reusable lightweight JSON-RPC over stdio client
    └── README.md                          # This file
 ```
 
 ## Execution Flow (Per Test)
 1. Resolve the server project path using layered fallbacks (repo root, relative, AppContext-based).
-2. Launch server: `dotnet run --project <csproj>` with redirected STDIN / STDOUT / STDERR.
+2. Launch server: `dotnet <built dll>` with redirected STDIN / STDOUT / STDERR (apphost disabled to avoid Windows copy locks).
 3. Send `initialize` request (JSON-RPC id auto-assigned by `StdioMcpClient`).
 4. Await matching response line whose `id` equals the request id.
 5. Send follow-up (`tools/list` or `tools/call`).
@@ -49,7 +50,13 @@ All implemented tests are active (no skips):
 }
 ```
 
-The inner `text` field itself contains JSON we re-parse (payload includes `query` – always `pricing` in this prototype – `totalMatches`, and result metadata). In this simplified iteration the tool accepts **no arguments**; a fixed representative query was chosen to guarantee stable end-to-end protocol validation while earlier parameter binding issues are deferred.
+The inner `text` field itself contains JSON we re-parse (payload includes `query` – always `pricing` in this prototype – `totalMatches`, and result metadata). In this simplified iteration the tool accepts **no arguments**; a fixed representative query guarantees stable end-to-end protocol validation while earlier parameter binding issues are deferred.
+
+### Example Tool Call Request (`get_kb_content` – raw content dump)
+```json
+{"jsonrpc":"2.0","method":"tools/call","id":3,"params":{"name":"get_kb_content","arguments":{}}}
+```
+Payload returns `status`, `contentLength`, and full `content` string.
 
 ## Running (CLI)
 From repository root:
@@ -91,12 +98,13 @@ Responsibilities:
 |----------|--------|
 | Dedicated `StdioMcpClient` | Encapsulates process + JSON-RPC mechanics; keeps tests focused on assertions |
 | Line-by-line response matching by `id` | Deterministic; ignores notifications noise |
-| `FluentAssertions` adoption | More readable, intention-revealing assertions |
-| Layered project path resolution | Resilient across IDEs, CI runners, and different working directories |
-| Re-parsing inner tool JSON payload | Tools currently embed structured JSON inside MCP text content element |
-| Zero-argument `search_knowledge` tool | Temporary simplification to ensure deterministic invocation while investigating prior input binding errors |
-| Uniform timeouts (30s per test) | Prevents indefinite hang while giving cold start headroom |
-| Logs to STDERR only | Avoids corrupting MCP STDOUT channel |
+| `FluentAssertions` adoption | Readable, intention-revealing assertions |
+| Layered project path resolution | Resilient across IDEs/CI environments |
+| Re-parsing inner tool JSON payload | Current prototype chooses JSON-in-text minimal path |
+| Zero-argument `search_knowledge` tool | Deterministic fixed query; parameter binding deferred |
+| Raw dump tool `get_kb_content` | Fastest path for downstream embedding experiments |
+| Disabled apphost (`UseAppHost=false`) | Avoids Windows executable file locks in rapid test cycles |
+| Logs to STDERR only | Prevents STDOUT protocol corruption |
 
 ## Common Issues & Fixes
 | Issue | Symptom | Resolution |
@@ -107,12 +115,12 @@ Responsibilities:
 | Hanging process after cancel | Tests slow to finish | Ensure no external debugger attached; client Dispose kills tree |
 
 ## Extending Tests (Next Candidates)
-- Reintroduce dynamic query + max_results parameters (once input binding investigation completes).
-- Add negative tool call (nonexistent tool → error).
-- Validate tool schema listing fields (names + descriptions not empty).
-- Add a max_results bounded search test (after restoring parameters).
-- Add concurrency test (sequential rapid calls) to confirm server stability.
-- Introduce `[Trait("Category","McpProtocol")]` for selective filtering.
+- Reintroduce dynamic query + max_results parameters for `search_knowledge`
+- Add negative tool call (nonexistent tool → error)
+- Validate tool schema listing fields (names + descriptions not empty)
+- Add pagination/chunking variant for large content (future `get_kb_content` evolution)
+- Concurrency / rapid-fire tool invocation stability test
+- Introduce `[Trait("Category","McpProtocol")]` for selective filtering
 
 ## FAQ
 **Why parse JSON inside `content[0].text`?**  
@@ -133,4 +141,4 @@ Keeps dependencies light and surfaces raw protocol traffic for early-phase debug
 - Introduce snapshot tests for response shapes (with redaction of volatile fields).
 
 ---
-_Last updated: 2025-09-14_
+_Last updated: 2025-09-14 (includes get_kb_content & DLL launch update)_

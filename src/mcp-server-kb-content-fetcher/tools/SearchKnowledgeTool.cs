@@ -6,7 +6,11 @@ using System.Text.Json;
 namespace McpServerKbContentFetcher.Tools;
 
 /// <summary>
-/// MCP tool for searching knowledge base content
+/// MCP tool now repurposed (prototype simplification) to expose a truncated excerpt
+/// of the full knowledge base content (up to a caller-provided or default max length).
+/// Original search functionality has been removed per updated prototype requirement
+/// to eliminate the fixed query and instead return raw content (capped) for downstream
+/// embedding / reasoning without extra round-trips.
 /// </summary>
 public class SearchKnowledgeTool
 {
@@ -22,64 +26,52 @@ public class SearchKnowledgeTool
     }
 
     /// <summary>
-    /// Search for knowledge base content based on query terms
+    /// Return an excerpt (prefix) of the full raw knowledge base content.
     /// </summary>
-    /// <param name="query">Search keywords or phrases</param>
-    /// <param name="max_results">Maximum number of results to return (optional, default: 3, max: 5)</param>
-    /// <returns>Plain object payload with search results (MCP server will wrap into content[])</returns>
-    public async Task<object> SearchAsync(
-        string query,
-        int? max_results = null)
+    /// <param name="maxLength">Maximum characters to return (default 3000)</param>
+    /// <returns>Payload describing excerpt and total length</returns>
+    public async Task<object> GetExcerptAsync(int maxLength = 3000)
     {
         try
         {
-            _logger.LogInformation("SearchKnowledge tool called with query: '{Query}', max_results: {MaxResults}", 
-                query, max_results);
+            if (maxLength <= 0) maxLength = 1;
+            if (maxLength > 10000) maxLength = 10000; // hard ceiling safety
 
-            // Validate input
-            if (string.IsNullOrWhiteSpace(query))
+            _logger.LogInformation("SearchKnowledge tool (excerpt mode) requested. maxLength={MaxLength}", maxLength);
+
+            var raw = await _knowledgeBaseService.GetRawContentAsync();
+            if (string.IsNullOrEmpty(raw))
             {
-                _logger.LogWarning("Empty or null query provided to SearchKnowledge tool");
+                _logger.LogWarning("Knowledge base content empty or not initialized when excerpt requested");
                 return new
                 {
-                    query = query ?? string.Empty,
-                    totalMatches = 0,
-                    results = Array.Empty<object>()
+                    status = "empty",
+                    totalLength = 0,
+                    excerptLength = 0,
+                    truncated = false,
+                    excerpt = string.Empty
                 };
             }
 
-            // Set default and validate max_results
-            var maxResults = max_results ?? 3;
-            maxResults = Math.Max(1, Math.Min(maxResults, 5)); // Ensure between 1 and 5
-
-            // Perform search
-            var searchResults = await _knowledgeBaseService.SearchAsync(query, maxResults);
-            var resultItems = searchResults.Select(result => new
-            {
-                content = result.Context,
-                matchInfo = $"Match strength: {result.MatchStrength}, Position: {result.Position}",
-                matchStrength = result.MatchStrength,
-                position = result.Position
-            }).ToArray();
-
-            _logger.LogInformation("SearchKnowledge tool completed. Found {ResultCount} results for query: '{Query}'", 
-                resultItems.Length, query);
+            var truncated = raw.Length > maxLength;
+            var excerpt = truncated ? raw.Substring(0, maxLength) : raw;
 
             return new
             {
-                query,
-                totalMatches = resultItems.Length,
-                results = resultItems
+                status = "ok",
+                totalLength = raw.Length,
+                excerptLength = excerpt.Length,
+                truncated,
+                excerpt
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in SearchKnowledge tool for query: '{Query}'", query);
+            _logger.LogError(ex, "Error creating content excerpt");
             return new
             {
-                query = query ?? string.Empty,
-                totalMatches = 0,
-                error = "Search error occurred. Please try again with a different query.",
+                status = "error",
+                error = "Failed to generate content excerpt",
                 details = ex.Message
             };
         }

@@ -87,17 +87,17 @@ builder.Services.AddMcpServer()
     .WithStdioServerTransport()
     .WithTools(new[]
     {
-        // Simplified zero-argument search tool: always performs a fixed 'pricing' query (prototype minimal viable behavior)
+        // Re-purposed: return a truncated excerpt (prefix) of the full KB content (default 3000 chars)
         McpServerTool.Create(
             () =>
             {
                 if (searchToolRef is null) throw new InvalidOperationException("SearchKnowledgeTool not initialized");
-                return searchToolRef.SearchAsync("pricing", 3);
+                return searchToolRef.GetExcerptAsync(3000);
             },
             new McpServerToolCreateOptions
             {
                 Name = "search_knowledge",
-                Description = "Search the Azure Managed Grafana knowledge base for relevant information"
+                Description = "Return a truncated excerpt (<=3000 chars) of the knowledge base content"
             }),
         McpServerTool.Create(
             () =>

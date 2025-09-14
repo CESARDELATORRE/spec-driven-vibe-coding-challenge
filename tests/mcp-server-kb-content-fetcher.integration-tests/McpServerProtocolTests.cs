@@ -113,7 +113,7 @@ public class McpServerProtocolTests
     }
 
     [Fact(Timeout = 30000)]
-    public async Task SearchKnowledge_Tool_Should_Return_Pricing_Results()
+    public async Task SearchKnowledge_Tool_Should_Return_Excerpt()
     {
     var path = Path.GetFullPath(ServerProjectPath);
     Console.Error.WriteLine($"[TEST] Using server project path: {path}");
@@ -142,10 +142,16 @@ public class McpServerProtocolTests
         var text = content[0].GetProperty("text").GetString();
         text.Should().NotBeNullOrEmpty();
         using var payload = JsonDocument.Parse(text!);
-        payload.RootElement.TryGetProperty("query", out var queryEl).Should().BeTrue();
-        queryEl.GetString().Should().Be("pricing");
-        payload.RootElement.TryGetProperty("totalMatches", out var totalMatchesEl).Should().BeTrue();
-        totalMatchesEl.GetInt32().Should().BeGreaterThanOrEqualTo(0);
+    payload.RootElement.TryGetProperty("status", out var statusEl).Should().BeTrue();
+    statusEl.GetString().Should().Be("ok");
+    payload.RootElement.TryGetProperty("excerpt", out var excerptEl).Should().BeTrue();
+    var excerpt = excerptEl.GetString();
+    excerpt.Should().NotBeNullOrEmpty();
+    excerpt!.Length.Should().BeLessOrEqualTo(3000);
+    payload.RootElement.TryGetProperty("excerptLength", out var excerptLenEl).Should().BeTrue();
+    excerptLenEl.GetInt32().Should().Be(excerpt.Length);
+    payload.RootElement.TryGetProperty("totalLength", out var totalLenEl).Should().BeTrue();
+    totalLenEl.GetInt32().Should().BeGreaterThan(excerpt.Length - 1); // usually larger in this dataset
     }
 
     [Fact(Timeout = 30000)]
