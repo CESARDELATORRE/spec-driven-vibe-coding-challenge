@@ -40,19 +40,19 @@ The KB MCP Server enables AI agents to access structured knowledge about Azure M
 
 ### Required Software
 
-- **.NET Runtime**: .NET 10 Preview 6+ or .NET 9 as fallback
+- **.NET Runtime**: .NET 9
 - **Operating System**: Windows, macOS, or Linux
-- **Memory**: Minimum 512MB RAM (for knowledge bases under 10MB)
 
 ### Development Prerequisites
 
-- **.NET SDK**: .NET 10 Preview 6+ or .NET 9 SDK
+- **.NET SDK**: .NET 9
 - **Git**: For source code management
-- **Text Editor**: Visual Studio, VS Code, or any text editor
+- **Text Editor**: VS Code, or any text editor
 
 ### MCP Client
 
 To interact with this server, you'll need an MCP-compatible client such as:
+- GitHub CoPilot in VS Code
 - Claude Desktop with MCP support
 - Custom MCP clients
 - MCP testing tools
@@ -63,7 +63,7 @@ To interact with this server, you'll need an MCP-compatible client such as:
 
 ```bash
 git clone https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge.git
-cd spec-driven-vibe-coding-challenge/src/mcp-server-kb-content-fetcher
+cd <YOUR-PATH>/src/mcp-server-kb-content-fetcher
 ```
 
 ### 2. Install Dependencies
@@ -71,9 +71,6 @@ cd spec-driven-vibe-coding-challenge/src/mcp-server-kb-content-fetcher
 ```bash
 # Restore NuGet packages
 dotnet restore
-
-# Install MCP SDK (if not already included)
-dotnet add package ModelContextProtocol --version 0.3.0-preview.4
 ```
 
 ## Building the Project
@@ -217,7 +214,7 @@ dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/ --filter ClassName=F
 dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/ --collect:"XPlat Code Coverage"
 ```
 
-### Integration Tests
+### Integration Tests (TBD)
 
 ```bash
 # Run integration tests
@@ -237,7 +234,7 @@ dotnet test
   - `SearchKnowledgeToolTests`: MCP tool parameter validation
   - `GetKbInfoToolTests`: Knowledge base info functionality
 
-- **Integration Tests**: Test MCP protocol compliance
+- **Integration Tests**: Test MCP protocol compliance (**IMPLEMENTATION OF INTEGRATION TESTS is still TBD**)
   - `McpServerIntegrationTests`: End-to-end MCP communication
   - STDIO transport verification
   - Tool discovery and execution
