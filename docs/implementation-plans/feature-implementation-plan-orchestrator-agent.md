@@ -83,8 +83,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     </Project>
     ```
 
-### - [ ] Step 2: MCP Tools Implementation
+### - [x] Step 2: MCP Tools Implementation
   - **Task**: Create MCP tools following the static class pattern, using ChatCompletionAgent directly with configuration loaded from environment variables (User Secrets only if dev environment).
+  - **Status**: Scaffold implemented. `AskDomainQuestionAsync` added with config loading, validation placeholders, structured JSON response, heuristic skip placeholder. Full KB + LLM logic deferred to Steps 3-4.
   - **Files**:
   - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Static class with `[McpServerToolType]` containing both tools.
   - **Dependencies**: MCP tool attributes, Semantic Kernel ChatCompletionAgent, configuration providers (env vars + optional user secrets), LINQ.

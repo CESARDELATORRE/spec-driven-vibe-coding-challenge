@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using ModelContextProtocol.Server;
 
 // Program.cs sets up the MCP server for the Orchestrator Agent (prototype scope)
