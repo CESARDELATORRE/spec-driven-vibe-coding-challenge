@@ -255,18 +255,28 @@ dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/ --filter ClassName=F
 dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/ --collect:"XPlat Code Coverage"
 ```
 
-### Integration Tests (TBD)
+### Integration Tests (MCP Protocol)
 
+The integration test project (`tests/mcp-server-kb-content-fetcher.integration-tests`) launches the real server (`dotnet run`) and performs an MCP STDIO handshake (`initialize` + `tools/list`).
+
+Current status:
+- Handshake + tool discovery test: Active (verifies protocol wiring)
+- Tool invocation tests: Temporarily skipped pending alignment of return payload shape with the ModelContextProtocol helper library (tracked via TODOs in the test file)
+
+Run from repository root:
 ```bash
-# Run integration tests
+# Run only integration tests
 dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/
 
-# Run integration tests with real MCP protocol testing
-dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/ --filter TestCategory=McpProtocol
-
-# Run all tests
+# Run all tests (unit + integration)
 dotnet test
 ```
+
+Troubleshooting:
+- If tests hang, ensure no stale server processes are running (`tasklist | findstr mcp-server` on Windows)
+- If path resolution fails, verify `datasets/knowledge-base.txt` exists relative to the project
+
+See `tests/mcp-server-kb-content-fetcher.integration-tests/README.md` for deeper usage instructions (including VS Code Test Explorer).
 
 ### Test Categories
 

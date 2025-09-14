@@ -50,6 +50,10 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: End-to-end MCP protocol tests (initialize, tools/list, tools/call)
 **Details**: Launches server with `dotnet run`, sends JSON-RPC over redirected STDIN/STDOUT, asserts tool discovery & search results
 
+### `/tests/mcp-server-kb-content-fetcher.integration-tests/README.md`
+**Purpose**: Documentation for running and extending MCP integration tests
+**Details**: Explains handshake test scope, skipped tool tests rationale, CLI & VS Code Test Explorer usage, and future enhancements
+
 ## Development Guidelines
 
 ### `/.github/copilot-instructions.md`
