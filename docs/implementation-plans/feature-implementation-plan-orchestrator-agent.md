@@ -239,11 +239,12 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   }
   ```
 
-### - [ ] Step 6: Program.cs Setup
+### - [x] Step 6: Program.cs Setup
   - **Task**: Configure MCP server startup following the working pattern
   - **Files**:
     - `src/orchestrator-agent/Program.cs`: Update with MCP server configuration using `Host.CreateEmptyApplicationBuilder`
   - **Dependencies**: Host builder, MCP server extensions
+  - **Status**: Implemented. Added configuration layering (appsettings optional placeholder until Step 7), environment variables, dev user secrets, stderr-only logging, and MCP server registration.
   - **Pseudocode**:
     ```csharp
     // Use the working pattern from provided code - minimal setup
