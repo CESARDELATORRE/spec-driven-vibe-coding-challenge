@@ -177,8 +177,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     }
     ```
 
-### - [ ] Step 4: Direct ChatCompletionAgent Usage with Secure Configuration
+### - [x] Step 4: Direct ChatCompletionAgent Usage with Secure Configuration
   - **Task**: Use ChatCompletionAgent directly with Azure OpenAI settings loaded from environment variables.
+  - **Status**: Implemented. Semantic Kernel prompt invocation added; constructs prompt with optional KB snippets, system instructions, concise answer requirement (<200 words), graceful degradation when config missing or LLM fails.
   - **Files**: Integrated into `OrchestratorTools.cs`.
   - **Dependencies**: Semantic Kernel, Azure OpenAI connector.
   - **Pseudocode**:
