@@ -28,9 +28,6 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Functional specification for the Chat Agent component providing conversational AI capabilities
 **Details**: Defines user journey, functional requirements for prototype/POC scope, extensive out-of-scope items for future development, success metrics, and additional considerations for testing, configuration, and integration
 
-### `/docs/specs/feature-specs-orchestrator-agent.md`
-**Purpose**: Functional specification for the Orchestration Agent MCP server
-**Details**: Defines user journey, MCP tools (ask_domain_question, get_orchestrator_status), functional requirements, success criteria, prototype constraints, and future evolution considerations. Scope limited to single-turn coordination of Chat Agent + KB MCP Server.
 
 ### `/docs/tradeoffs.md`
 **Purpose**: Documents all technical and functional tradeoffs made during project development
