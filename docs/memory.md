@@ -61,7 +61,7 @@ This document provides a brief description of each file's purpose and relevant d
 
 #### `/docs/implementation-plans/feature-implementation-plan-orchestrator-agent.md` 
 **Purpose**: Detailed implementation plan for the Orchestration Agent MCP Server feature 
-**Details**: Step-by-step implementation guide with 12 steps covering project setup, MCP client integration, Semantic Kernel ChatCompletionAgent coordination, KB server communication via STDIO, and testing. Aligned with working code patterns using Host.CreateEmptyApplicationBuilder and MCP client factory approach. 
+**Details**: Step-by-step implementation guide with 12 steps covering project setup, MCP client integration, Semantic Kernel ChatCompletionAgent coordination, KB server communication via STDIO, and testing. Updated to prioritize environment variables for secrets/config (portable to containers & cloud) with optional local User Secrets layering only in Development; anticipates future Azure Key Vault integration without refactoring tool code. 
  
 ## Development Guidelines
 
