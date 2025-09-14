@@ -48,7 +48,7 @@ public class GetKbInfoToolTests
         Assert.NotNull(result);
         var root = SerializeToJsonElement(result);
 
-        Assert.Equal("Knowledge base is available and loaded", root.GetProperty("status").GetString());
+    Assert.Equal("ok", root.GetProperty("status").GetString());
         var info = root.GetProperty("info");
         Assert.True(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(1000, info.GetProperty("contentLength").GetInt32());
@@ -77,7 +77,7 @@ public class GetKbInfoToolTests
         Assert.NotNull(result);
         var root = SerializeToJsonElement(result);
 
-        Assert.Equal("Knowledge base is not available", root.GetProperty("status").GetString());
+        Assert.Equal("unavailable", root.GetProperty("status").GetString());
         var info = root.GetProperty("info");
         Assert.False(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(0, info.GetProperty("contentLength").GetInt32());
@@ -87,7 +87,6 @@ public class GetKbInfoToolTests
     [Fact]
     public async Task GetInfoAsync_WhenServiceThrows_ReturnsErrorResponse()
     {
-        // Arrange
         _knowledgeBaseService.GetInfoAsync().Returns(Task.FromException<KnowledgeBaseInfo>(new Exception("Test exception")));
 
         // Act
@@ -136,7 +135,7 @@ public class GetKbInfoToolTests
         Assert.NotNull(result);
         var root = SerializeToJsonElement(result);
 
-        Assert.Equal("Knowledge base is available and loaded", root.GetProperty("status").GetString());
+    Assert.Equal("ok", root.GetProperty("status").GetString());
         var info = root.GetProperty("info");
         Assert.True(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(500, info.GetProperty("contentLength").GetInt32());

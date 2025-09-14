@@ -109,3 +109,11 @@
 **Reason**: Prototype scope prioritized simplicity and reduced round-trips; excerpt logic added maintenance overhead without delivering materially different value for a small text corpus.
 
 **Impact**: Codebase is smaller (fewer models, tests, and tool wiring). Future reintroduction of search/semantic retrieval can start clean with an embedding-based design rather than repurposed excerpt semantics.
+
+# Tradeoff 15: Path Resolution Complexity vs. Maintainability
+
+**Decision**: Simplified knowledge base file path resolution to four deterministic checks (absolute, current working directory, AppContext.BaseDirectory, project folder) and removed broader heuristic candidate enumeration.
+
+**Reason**: Heuristic list added complexity and duplicated path segments (risk of mistakes) without increasing success rate for supported launch modes (`dotnet run --project`, test execution).
+
+**Impact**: Clearer code, fewer branches. Slightly less resilient to unconventional working directories; acceptable for prototype scope and easily extendable later.

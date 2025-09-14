@@ -56,9 +56,13 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
     }
 
     /// <summary>
-    /// Attempts to resolve the configured knowledge base file path using multiple fallbacks.
-    /// This allows running the server from the repository root (e.g. with 'dotnet run --project ...')
-    /// while the dataset file physically lives under the project folder.
+    /// Resolve the configured knowledge base file path using a minimal deterministic sequence:
+    ///  1. If absolute and exists -> use
+    ///  2. Configured path relative to current working directory
+    ///  3. Path relative to AppContext.BaseDirectory (bin/... at runtime)
+    ///  4. Path under src/mcp-server-kb-content-fetcher/<configuredPath>
+    /// This is sufficient for typical 'dotnet run --project' usage and test execution without
+    /// maintaining a large candidate list that increases cognitive load.
     /// </summary>
     /// <param name="configuredPath">The path configured in options (may be relative)</param>
     /// <returns>Full path to existing file or null if not found</returns>
@@ -66,51 +70,51 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
     {
         try
         {
-            var candidates = new List<string>();
+            if (string.IsNullOrWhiteSpace(configuredPath)) return null;
 
-            // 1. As provided (relative to current working directory)
-            candidates.Add(Path.GetFullPath(configuredPath));
+            // 1. Absolute path
+            if (Path.IsPathRooted(configuredPath))
+            {
+                _logger.LogDebug("Probing KB path (absolute): {Path}", configuredPath);
+                if (File.Exists(configuredPath))
+                {
+                    _logger.LogDebug("Resolved KB path (absolute): {Path}", configuredPath);
+                    return configuredPath;
+                }
+            }
 
-            // 2. Relative to the AppContext base directory (bin/... folder at runtime)
+            // 2. Relative to current working directory
+            var cwdPath = Path.GetFullPath(configuredPath);
+            _logger.LogDebug("Probing KB path (cwd): {Path} exists={Exists}", cwdPath, File.Exists(cwdPath));
+            if (File.Exists(cwdPath)) { _logger.LogDebug("Resolved KB path (cwd): {Path}", cwdPath); return cwdPath; }
+
+            // 3. Relative to AppContext.BaseDirectory (bin folder at runtime)
             var baseDir = AppContext.BaseDirectory;
-            candidates.Add(Path.GetFullPath(Path.Combine(baseDir, configuredPath)));
+            var baseDirPath = Path.GetFullPath(Path.Combine(baseDir, configuredPath));
+            _logger.LogDebug("Probing KB path (baseDir): {Path} exists={Exists}", baseDirPath, File.Exists(baseDirPath));
+            if (File.Exists(baseDirPath)) { _logger.LogDebug("Resolved KB path (baseDir): {Path}", baseDirPath); return baseDirPath; }
 
-            // 3. Walk up from bin folder to repo root and reapply relative path
-            // Typical depth: bin/Debug/net9.0 => go up 3 levels
+            // 4. Project folder candidates (walk up three levels, then try direct + src/* variant)
             var up3 = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
-            candidates.Add(Path.Combine(up3, configuredPath));
+            var candidateDirectProject = Path.Combine(up3, configuredPath); // when up3 IS the project folder
+            var candidateViaSrc = Path.Combine(up3, "src", "mcp-server-kb-content-fetcher", configuredPath); // when up3 is repo root
+            var fileName = Path.GetFileName(configuredPath);
+            var candidateDatasetsDirect = Path.Combine(up3, "datasets", fileName);
+            var candidateDatasetsViaSrc = Path.Combine(up3, "src", "mcp-server-kb-content-fetcher", "datasets", fileName);
 
-            // 4. If path starts with 'datasets', try prefixing project folder path
-            if (!configuredPath.StartsWith("src", StringComparison.OrdinalIgnoreCase))
-            {
-                candidates.Add(Path.Combine(up3, "src", "mcp-server-kb-content-fetcher", configuredPath));
-            }
+            _logger.LogDebug("Probing KB path (project-direct): {Path} exists={Exists}", candidateDirectProject, File.Exists(candidateDirectProject));
+            if (File.Exists(candidateDirectProject)) { _logger.LogDebug("Resolved KB path (project-direct): {Path}", candidateDirectProject); return candidateDirectProject; }
 
-            // 5. If still not found and configured path isn't absolute but file name exists, brute force search under src project folder
-            if (!Path.IsPathRooted(configuredPath))
-            {
-                var fileName = Path.GetFileName(configuredPath);
-                var projectDatasets = Path.Combine(up3, "src", "mcp-server-kb-content-fetcher", "datasets", fileName);
-                candidates.Add(projectDatasets);
-            }
+            _logger.LogDebug("Probing KB path (project-src): {Path} exists={Exists}", candidateViaSrc, File.Exists(candidateViaSrc));
+            if (File.Exists(candidateViaSrc)) { _logger.LogDebug("Resolved KB path (project-src): {Path}", candidateViaSrc); return candidateViaSrc; }
 
-            foreach (var path in candidates.Where(p => !string.IsNullOrWhiteSpace(p)))
-            {
-                try
-                {
-                    if (File.Exists(path))
-                    {
-                        _logger.LogDebug("Resolved knowledge base file path candidate: {ResolvedPath}", path);
-                        return path;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogTrace(ex, "Error while probing candidate path: {Candidate}", path);
-                }
-            }
+            _logger.LogDebug("Probing KB path (datasets-direct): {Path} exists={Exists}", candidateDatasetsDirect, File.Exists(candidateDatasetsDirect));
+            if (File.Exists(candidateDatasetsDirect)) { _logger.LogDebug("Resolved KB path (datasets-direct): {Path}", candidateDatasetsDirect); return candidateDatasetsDirect; }
 
-            _logger.LogWarning("Unable to resolve knowledge base file. Tried candidates: {Candidates}", string.Join("; ", candidates));
+            _logger.LogDebug("Probing KB path (datasets-src): {Path} exists={Exists}", candidateDatasetsViaSrc, File.Exists(candidateDatasetsViaSrc));
+            if (File.Exists(candidateDatasetsViaSrc)) { _logger.LogDebug("Resolved KB path (datasets-src): {Path}", candidateDatasetsViaSrc); return candidateDatasetsViaSrc; }
+
+            _logger.LogWarning("Unable to resolve knowledge base file. Checked absolute, cwd, baseDir, project-direct, project-src, datasets-direct, datasets-src for: {Configured}", configuredPath);
             return null;
         }
         catch (Exception ex)
