@@ -110,3 +110,7 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/docs-journey-log/approaches-for-reasoning-journal-logging/`
 **Purpose**: Research outputs on different approaches for documenting the reasoning process
 **Details**: Contains analysis from M365 Copilot, ChatGPT, and Claude on best practices for logging development reasoning and decision-making processes
+
+### `/src/orchestrator-agent/`
+**Purpose**: Orchestration MCP server project coordinating ChatCompletionAgent and KB MCP server for single-turn Q&A (prototype).
+**Details**: Contains `Program.cs` for MCP host setup, `orchestrator-agent.csproj` with dependencies, and `tools/OrchestratorTools.cs` initial tool implementations (status + placeholder question tool to be expanded in later steps).

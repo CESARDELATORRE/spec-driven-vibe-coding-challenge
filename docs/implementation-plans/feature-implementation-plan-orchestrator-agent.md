@@ -6,11 +6,13 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 
 ## Implementation Steps
 
-- [ ] Step 1: Project Setup and Structure
+### - [x] Step 1: Project Setup and Structure
   - **Task**: Create the orchestration agent project with proper folder structure and dependency references. Secrets will be supplied by environment variables (User Secrets optional for local dev only).
   - **Files**:
     - `src/orchestrator-agent/orchestrator-agent.csproj`: Main project file with MCP SDK + Semantic Kernel dependencies.
     - `src/orchestrator-agent/Program.cs`: Host builder with MCP server configuration using `Host.CreateEmptyApplicationBuilder`.
+    - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Initial MCP tools static class (status + placeholder AskDomainQuestion) - to be expanded in later steps.
+  - **Status**: Implemented. Project compiles structure pending further tool logic (Steps 2+).
   - **Dependencies**: .NET 9, MCP SDK, Semantic Kernel, Azure OpenAI connector.
     ```
     ModelContextProtocol
@@ -81,7 +83,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     </Project>
     ```
 
-- [ ] Step 2: MCP Tools Implementation
+### - [ ] Step 2: MCP Tools Implementation
   - **Task**: Create MCP tools following the static class pattern, using ChatCompletionAgent directly with configuration loaded from environment variables (User Secrets only if dev environment).
   - **Files**:
   - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Static class with `[McpServerToolType]` containing both tools.
@@ -122,7 +124,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   }
   ```
 
-- [ ] Step 3: KB MCP Client Integration (Inline)
+### - [ ] Step 3: KB MCP Client Integration (Inline)
   - **Task**: Implement KB MCP client connection directly in the MCP tool method using configurable server path
   - **Files**: No separate files - integrated into OrchestratorTools.cs
   - **Dependencies**: MCP SDK client components, configuration
@@ -173,7 +175,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     }
     ```
 
-- [ ] Step 4: Direct ChatCompletionAgent Usage with Secure Configuration
+### - [ ] Step 4: Direct ChatCompletionAgent Usage with Secure Configuration
   - **Task**: Use ChatCompletionAgent directly with Azure OpenAI settings loaded from environment variables.
   - **Files**: Integrated into `OrchestratorTools.cs`.
   - **Dependencies**: Semantic Kernel, Azure OpenAI connector.
@@ -205,7 +207,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   };
   ```
 
-- [ ] Step 5: Error Handling and Validation (Inline)
+### - [ ] Step 5: Error Handling and Validation (Inline)
   - **Task**: Add input validation, environment variable presence checks, and graceful degradation.
   - **Files**: Integrated into `OrchestratorTools.cs`.
   - **Dependencies**: Configuration validation, logging.
@@ -233,7 +235,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   }
   ```
 
-- [ ] Step 6: Program.cs Setup
+### - [ ] Step 6: Program.cs Setup
   - **Task**: Configure MCP server startup following the working pattern
   - **Files**:
     - `src/orchestrator-agent/Program.cs`: Update with MCP server configuration using `Host.CreateEmptyApplicationBuilder`
@@ -250,7 +252,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     await builder.Build().RunAsync();
     ```
 
-- [ ] Step 7: Configuration File
+### - [ ] Step 7: Configuration File
   - **Task**: Provide non-secret configuration (KB path, patterns). Secrets remain only in env vars.
   - **Files**:
     - `src/orchestrator-agent/appsettings.json`: Non-sensitive defaults.
@@ -266,7 +268,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     ```
   - **Override Strategy**: For dynamic paths in CI/containers, set `KbMcpServer__ExecutablePath` environment variable.
 
-- [ ] Step 8: Build and Run Application
+### - [ ] Step 8: Build and Run Application
   - **Task**: Ensure application builds and runs successfully with proper secrets configuration
   - **Files**: No new files - validation step
   - **Commands**:
@@ -277,7 +279,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   - **User Intervention**: Ensure required environment variables are exported before running.
   - **Dependencies**: All previous steps completed, Azure OpenAI secrets configured
 
-- [ ] Step 9: Unit Tests
+### - [ ] Step 9: Unit Tests
   - **Task**: Create unit tests for MCP tools with mock configuration
   - **Files**:
     - `tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj`: Test project
@@ -295,7 +297,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     }
     ```
 
-- [ ] Step 10: Integration Tests
+### - [ ] Step 10: Integration Tests
   - **Task**: Test MCP server coordination with real KB server using test secrets
   - **Files**:
     - `tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj`: Integration test project

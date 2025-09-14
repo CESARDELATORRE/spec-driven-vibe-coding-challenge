@@ -1,0 +1,50 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orchestrator-agent", "src\orchestrator-agent\orchestrator-agent.csproj", "{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mcp-server-kb-content-fetcher", "src\mcp-server-kb-content-fetcher\mcp-server-kb-content-fetcher.csproj", "{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mcp-server-kb-content-fetcher.integration-tests", "tests\mcp-server-kb-content-fetcher.integration-tests\mcp-server-kb-content-fetcher.integration-tests.csproj", "{4D3BC05D-91FB-25FC-679E-DC44E93469D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mcp-server-kb-content-fetcher.unit-tests", "tests\mcp-server-kb-content-fetcher.unit-tests\mcp-server-kb-content-fetcher.unit-tests.csproj", "{D439ED08-A7E4-257A-C300-9FBF81B0CFA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F0C2B77-3A42-41F5-8F5C-6E5D9E0E7AA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D3BC05D-91FB-25FC-679E-DC44E93469D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D3BC05D-91FB-25FC-679E-DC44E93469D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D3BC05D-91FB-25FC-679E-DC44E93469D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D3BC05D-91FB-25FC-679E-DC44E93469D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D439ED08-A7E4-257A-C300-9FBF81B0CFA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D439ED08-A7E4-257A-C300-9FBF81B0CFA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D439ED08-A7E4-257A-C300-9FBF81B0CFA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D439ED08-A7E4-257A-C300-9FBF81B0CFA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1975D389-0A65-1C99-50AF-2AB2AC0E9A2C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{4D3BC05D-91FB-25FC-679E-DC44E93469D0} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{D439ED08-A7E4-257A-C300-9FBF81B0CFA4} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1C26FEF7-F298-486B-9AF6-4B2EEF7B8ED9}
+	EndGlobalSection
+EndGlobal
