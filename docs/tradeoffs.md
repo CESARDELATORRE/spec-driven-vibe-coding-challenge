@@ -101,3 +101,11 @@
 **Reason**: Ensures manageable response sizes and prevents context window issues in downstream agents.
 
 **Impact**: May require multiple queries for comprehensive information but improves system reliability and performance.
+
+# Tradeoff 14: Search vs. Full Content Exposure
+
+**Decision**: Removed the prototype `search_knowledge` excerpt tool and associated search DTOs in favor of a single `get_kb_content` tool returning full raw text.
+
+**Reason**: Prototype scope prioritized simplicity and reduced round-trips; excerpt logic added maintenance overhead without delivering materially different value for a small text corpus.
+
+**Impact**: Codebase is smaller (fewer models, tests, and tool wiring). Future reintroduction of search/semantic retrieval can start clean with an embedding-based design rather than repurposed excerpt semantics.

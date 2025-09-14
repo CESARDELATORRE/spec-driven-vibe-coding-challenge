@@ -1,7 +1,5 @@
 namespace McpServerKbContentFetcher.Models;
 
-// (Removed) SearchKnowledgeRequest/SearchKnowledgeResponse/SearchResultItem – legacy search removed.
-
 /// <summary>
 /// Response model for the get_kb_info MCP tool
 /// </summary>

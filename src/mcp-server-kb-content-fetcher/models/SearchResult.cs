@@ -1,7 +1,5 @@
 namespace McpServerKbContentFetcher.Models;
 
-// (Removed) SearchResult class – legacy search functionality deprecated.
-
 /// <summary>
 /// Basic information about the knowledge base
 /// </summary>
