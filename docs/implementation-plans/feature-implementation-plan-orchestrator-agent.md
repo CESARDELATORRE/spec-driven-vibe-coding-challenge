@@ -228,7 +228,15 @@ Before starting implementation, configure Azure OpenAI user secrets:
         if (question.Length < 5) return true;
         
         // Load greeting patterns from configuration (e.g., appsettings.json)
-        var greetings = config.GetSection("GreetingPatterns").Get<string[]>() ?? new[] { "hi", "hello", "hey" };
+        // Load greeting patterns from configuration (e.g., appsettings.json)
+        var greetings = config.GetSection("GreetingPatterns").Get<string[]>();
+        if (greetings == null || greetings.Length == 0)
+        {
+            // Option 1: Throw or log error to enforce configuration-driven approach
+            throw new InvalidOperationException("GreetingPatterns must be defined in configuration.");
+            // Option 2 (alternative): Use a centralized constant, e.g., AppDefaults.GreetingPatterns
+            // greetings = AppDefaults.GreetingPatterns;
+        }
         // Build regex pattern dynamically
         var pattern = @"^\s*(" + string.Join("|", greetings.Select(Regex.Escape)) + @")\b.*";
         if (Regex.IsMatch(question, pattern, RegexOptions.IgnoreCase)) return true;
