@@ -1,7 +1,7 @@
 using McpServerKbContentFetcher.Models;
 using McpServerKbContentFetcher.Services;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
+// No additional serialization needed; hosting layer handles JSON conversion.
 
 namespace McpServerKbContentFetcher.Tools;
 
@@ -33,31 +33,9 @@ public class GetKbInfoTool
 
             var info = await _knowledgeBaseService.GetInfoAsync();
             
-            var status = info.IsAvailable 
-                ? "Knowledge base is available and loaded"
-                : "Knowledge base is not available";
-
-            // Format as structured info for MCP content
-            var infoText = JsonSerializer.Serialize(new
+            var payload = new
             {
-                status,
-                info = new
-                {
-                    fileSizeBytes = info.FileSizeBytes,
-                    contentLength = info.ContentLength,
-                    isAvailable = info.IsAvailable,
-                    description = info.Description,
-                    lastModified = info.LastModified.ToString("o")
-                }
-            }, new JsonSerializerOptions { WriteIndented = true });
-
-            _logger.LogInformation("GetKbInfo tool completed. Available: {IsAvailable}, Content length: {ContentLength}", 
-                info.IsAvailable, info.ContentLength);
-
-            // Return plain object; hosting layer will serialize once into a single text content part
-            return new
-            {
-                status,
+                status = info.IsAvailable ? "ok" : "unavailable",
                 info = new
                 {
                     fileSizeBytes = info.FileSizeBytes,
@@ -67,6 +45,9 @@ public class GetKbInfoTool
                     lastModified = info.LastModified.ToString("o")
                 }
             };
+
+            _logger.LogInformation("GetKbInfo tool completed. status={Status} length={Length}", payload.status, info.ContentLength);
+            return payload;
         }
         catch (Exception ex)
         {
