@@ -94,11 +94,6 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
                         matchCount++;
                         longestMatch = Math.Max(longestMatch, term.Length);
                     }
-                    else if (contentLower.IndexOf(term, i, StringComparison.Ordinal) == i)
-                    {
-                        matchCount++;
-                        longestMatch = Math.Max(longestMatch, term.Length);
-                    }
                 }
 
                 // If we found any term matches, look for broader context matches
