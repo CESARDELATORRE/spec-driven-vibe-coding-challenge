@@ -20,28 +20,11 @@ public class GetKbInfoToolTests
         _tool = new GetKbInfoTool(_knowledgeBaseService, _logger);
     }
 
-    private static string ExtractTextFromMcpResponse(object[] mcpResponse)
+    private static JsonElement SerializeToJsonElement(object result)
     {
-        Assert.NotNull(mcpResponse);
-        Assert.Single(mcpResponse);
-        
-        var contentItem = mcpResponse[0];
-        Assert.NotNull(contentItem);
-        
-        // Use reflection to access the properties since it's an anonymous object
-        var typeProperty = contentItem.GetType().GetProperty("type");
-        var textProperty = contentItem.GetType().GetProperty("text");
-        
-        Assert.NotNull(typeProperty);
-        Assert.NotNull(textProperty);
-        
-        var type = typeProperty.GetValue(contentItem)?.ToString();
-        var text = textProperty.GetValue(contentItem)?.ToString();
-        
-        Assert.Equal("text", type);
-        Assert.NotNull(text);
-        
-        return text;
+        var json = JsonSerializer.Serialize(result);
+        using var doc = JsonDocument.Parse(json);
+        return doc.RootElement.Clone();
     }
 
     [Fact]
@@ -56,7 +39,6 @@ public class GetKbInfoToolTests
             Description = "Test knowledge base",
             LastModified = DateTime.UtcNow
         };
-
         _knowledgeBaseService.GetInfoAsync().Returns(knowledgeBaseInfo);
 
         // Act
@@ -64,13 +46,9 @@ public class GetKbInfoToolTests
 
         // Assert
         Assert.NotNull(result);
-        var jsonText = ExtractTextFromMcpResponse(result);
-        
-        using var jsonDoc = JsonDocument.Parse(jsonText);
-        var root = jsonDoc.RootElement;
-        
+        var root = SerializeToJsonElement(result);
+
         Assert.Equal("Knowledge base is available and loaded", root.GetProperty("status").GetString());
-        
         var info = root.GetProperty("info");
         Assert.True(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(1000, info.GetProperty("contentLength").GetInt32());
@@ -90,7 +68,6 @@ public class GetKbInfoToolTests
             Description = "Azure Managed Grafana knowledge base",
             LastModified = DateTime.MinValue
         };
-
         _knowledgeBaseService.GetInfoAsync().Returns(knowledgeBaseInfo);
 
         // Act
@@ -98,13 +75,9 @@ public class GetKbInfoToolTests
 
         // Assert
         Assert.NotNull(result);
-        var jsonText = ExtractTextFromMcpResponse(result);
-        
-        using var jsonDoc = JsonDocument.Parse(jsonText);
-        var root = jsonDoc.RootElement;
-        
+        var root = SerializeToJsonElement(result);
+
         Assert.Equal("Knowledge base is not available", root.GetProperty("status").GetString());
-        
         var info = root.GetProperty("info");
         Assert.False(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(0, info.GetProperty("contentLength").GetInt32());
@@ -122,11 +95,8 @@ public class GetKbInfoToolTests
 
         // Assert
         Assert.NotNull(result);
-        var jsonText = ExtractTextFromMcpResponse(result);
-        
-        using var jsonDoc = JsonDocument.Parse(jsonText);
-        var root = jsonDoc.RootElement;
-        
+        var root = SerializeToJsonElement(result);
+
         Assert.Equal("Error retrieving knowledge base information", root.GetProperty("status").GetString());
         Assert.True(root.TryGetProperty("error", out _));
     }
@@ -157,7 +127,6 @@ public class GetKbInfoToolTests
             Description = null!, // Missing description
             LastModified = DateTime.MinValue
         };
-
         _knowledgeBaseService.GetInfoAsync().Returns(knowledgeBaseInfo);
 
         // Act
@@ -165,13 +134,9 @@ public class GetKbInfoToolTests
 
         // Assert
         Assert.NotNull(result);
-        var jsonText = ExtractTextFromMcpResponse(result);
-        
-        using var jsonDoc = JsonDocument.Parse(jsonText);
-        var root = jsonDoc.RootElement;
-        
+        var root = SerializeToJsonElement(result);
+
         Assert.Equal("Knowledge base is available and loaded", root.GetProperty("status").GetString());
-        
         var info = root.GetProperty("info");
         Assert.True(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(500, info.GetProperty("contentLength").GetInt32());
