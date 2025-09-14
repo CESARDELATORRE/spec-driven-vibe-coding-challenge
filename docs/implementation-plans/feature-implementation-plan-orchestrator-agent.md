@@ -166,7 +166,16 @@ Before starting implementation, configure Azure OpenAI user secrets:
         Arguments = new KernelArguments(executionSettings)
     };
     
-    var response = await agent.InvokeAsync(question).FirstAsync();
+    try
+    {
+        var response = await agent.InvokeAsync(question).FirstAsync();
+        // Use response as needed
+    }
+    catch (Exception ex)
+    {
+        // Optionally log ex (without exposing sensitive info)
+        return $"Sorry, there was a problem contacting the Azure OpenAI service: {ex.Message}";
+    }
     ```
 
 - [ ] Step 5: Error Handling and Validation (Inline)
