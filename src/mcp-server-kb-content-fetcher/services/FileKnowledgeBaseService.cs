@@ -76,11 +76,12 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
             var results = new List<SearchResult>();
             var searchTerms = query.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
             var contentLower = _content.ToLowerInvariant();
+            var minTermLength = searchTerms.Length > 0 ? searchTerms.Min(term => term.Length) : 0;
 
             // Find all matches for all search terms
             var matches = new List<(int Position, int Length, int TermMatches)>();
 
-            for (int i = 0; i <= contentLower.Length - query.Length; i++)
+            for (int i = 0; i <= contentLower.Length - minTermLength; i++)
             {
                 var matchCount = 0;
                 var longestMatch = 0;
