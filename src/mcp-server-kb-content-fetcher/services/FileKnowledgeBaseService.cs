@@ -165,5 +165,4 @@ public class FileKnowledgeBaseService : IKnowledgeBaseService
         return Task.FromResult(_content);
     }
 
-    // Removed legacy search logic (prototype no longer supports ad-hoc term searches)
 }
