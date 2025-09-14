@@ -97,12 +97,34 @@ internal sealed class StdioMcpClient : IAsyncDisposable
         await _stdin.WriteLineAsync(json);
 
         var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(10);
-        var start = DateTime.UtcNow;
-        while (DateTime.UtcNow - start < effectiveTimeout)
+        var deadline = DateTime.UtcNow + effectiveTimeout;
+        Task<string?>? pendingRead = null; // ensure only one ReadLineAsync in-flight to avoid InvalidOperationException
+
+        while (DateTime.UtcNow < deadline)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var line = await ReadLineWithTimeoutAsync(_stdout, TimeSpan.FromMilliseconds(250), cancellationToken);
-            if (line == null) continue; // keep waiting
+
+            if (pendingRead == null)
+            {
+                pendingRead = _stdout.ReadLineAsync();
+            }
+
+            var slice = TimeSpan.FromMilliseconds(250);
+            var winner = await Task.WhenAny(pendingRead, Task.Delay(slice, cancellationToken));
+            if (winner != pendingRead)
+            {
+                // timeout slice elapsed; loop again keeping the same pending read alive
+                continue;
+            }
+
+            // Read completed
+            var line = await pendingRead; // may be null at EOF
+            pendingRead = null; // allow next line read
+            if (line == null)
+            {
+                // EOF: break early
+                break;
+            }
 
             Console.WriteLine($"<= {line}");
             try
@@ -110,19 +132,18 @@ internal sealed class StdioMcpClient : IAsyncDisposable
                 using var doc = JsonDocument.Parse(line);
                 if (doc.RootElement.TryGetProperty("id", out var idEl))
                 {
-                    // Match numeric or string id
                     if (idEl.ToString() == id!.ToString())
                     {
-                        return line; // Found our response
+                        return line; // matched response
                     }
                 }
-                // Otherwise it's likely a notification; continue loop.
             }
             catch
             {
-                // Non JSON line (should not happen on stdout), ignore.
+                // Ignore malformed line
             }
         }
+
         throw new TimeoutException($"Timed out waiting for response with id {id}");
     }
 
@@ -142,17 +163,7 @@ internal sealed class StdioMcpClient : IAsyncDisposable
             }
         }, cancellationToken: ct);
 
-    private static async Task<string?> ReadLineWithTimeoutAsync(StreamReader reader, TimeSpan timeout, CancellationToken ct)
-    {
-        // ReadLineAsync already returns a Task<string?> in this target framework; no need for AsTask()
-        var task = reader.ReadLineAsync();
-        var completed = await Task.WhenAny(task, Task.Delay(timeout, ct));
-        if (completed == task)
-        {
-            return await task; // may be null (EOF)
-        }
-        return null; // timed slice expired; caller decides to continue / loop
-    }
+    // (Removed ReadLineWithTimeoutAsync to avoid multiple concurrent ReadLineAsync calls which caused InvalidOperationException)
 
     public async ValueTask DisposeAsync()
     {

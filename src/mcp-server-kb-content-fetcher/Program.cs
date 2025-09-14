@@ -69,14 +69,17 @@ builder.Services.Configure<ServerOptions>(
 // Register knowledge base service
 builder.Services.AddSingleton<IKnowledgeBaseService, FileKnowledgeBaseService>();
 
-// Register tool classes for dependency injection
+// Register tool classes for dependency injection (singletons sharing the SAME service instances as the host)
 builder.Services.AddSingleton<SearchKnowledgeTool>();
 builder.Services.AddSingleton<GetKbInfoTool>();
 
-// Pre-build a lightweight service provider for tool resolution (avoids leaking DI parameter into schema)
-var toolServiceProvider = builder.Services.BuildServiceProvider();
+// We'll resolve the concrete tool instances AFTER the host is built so that we do not create a second
+// independent service provider (the previous approach caused a second IKnowledgeBaseService instance
+// that was never initialized, leading to empty / unavailable KB state inside tools).
+SearchKnowledgeTool? searchToolRef = null;
+GetKbInfoTool? getKbInfoToolRef = null;
 
-// Configure MCP server with delegates that ignore the JSON 'tool' placeholder object
+// Configure MCP server tools. The delegates capture the above refs which will be populated post-build.
 builder.Services.AddMcpServer()
     .WithStdioServerTransport()
     .WithTools(new[]
@@ -84,20 +87,19 @@ builder.Services.AddMcpServer()
         McpServerTool.Create(
             (string query, int? max_results) =>
             {
-                var tool = toolServiceProvider.GetRequiredService<SearchKnowledgeTool>();
-                return tool.SearchAsync(query, max_results);
+                if (searchToolRef is null) throw new InvalidOperationException("SearchKnowledgeTool not initialized");
+                return searchToolRef.SearchAsync(query, max_results);
             },
             new McpServerToolCreateOptions
             {
                 Name = "search_knowledge",
                 Description = "Search the Azure Managed Grafana knowledge base for relevant information"
             }),
-
         McpServerTool.Create(
             () =>
             {
-                var tool = toolServiceProvider.GetRequiredService<GetKbInfoTool>();
-                return tool.GetInfoAsync();
+                if (getKbInfoToolRef is null) throw new InvalidOperationException("GetKbInfoTool not initialized");
+                return getKbInfoToolRef.GetInfoAsync();
             },
             new McpServerToolCreateOptions
             {
@@ -107,6 +109,10 @@ builder.Services.AddMcpServer()
     });
 
 var app = builder.Build();
+
+// Resolve tool instances now (single shared provider) so delegates use the initialized KB service instance
+searchToolRef = app.Services.GetRequiredService<SearchKnowledgeTool>();
+getKbInfoToolRef = app.Services.GetRequiredService<GetKbInfoTool>();
 
 // If CLI mode requested, perform action(s) and exit (skip MCP server startup)
 if (cliMode && (useCliGetInfo || hasCliSearch))
