@@ -33,35 +33,11 @@ public static class OrchestratorTools
     [McpServerTool, Description("Gets orchestrator diagnostics information (only relevant env vars).")]
     public static string GetOrchestratorDiagnosticsInformation()
     {
-        // Minimal config snapshot
+        // Build unified configuration & resolve KB executable using shared helper
         var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
-        var config = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-            .AddEnvironmentVariables()
-            .Build();
-
+        var config = BuildBaseConfiguration();
         bool fakeLlmMode = string.Equals(config["Orchestrator:UseFakeLlm"], "true", StringComparison.OrdinalIgnoreCase);
-        string? kbPathConfig = config["KbMcpServer:ExecutablePath"];
-
-        // Simple KB executable presence check (kept but no complex probing now)
-        bool kbExecutableConfigured = !string.IsNullOrWhiteSpace(kbPathConfig);
-        bool kbExecutableResolved = false;
-        string? kbResolvedPath = null;
-        if (kbExecutableConfigured)
-        {
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(kbPathConfig))
-                {
-                    var candidate = Path.IsPathFullyQualified(kbPathConfig) ? kbPathConfig : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, kbPathConfig));
-                    if (File.Exists(candidate)) { kbExecutableResolved = true; kbResolvedPath = candidate; }
-                    else if (File.Exists(candidate + ".exe")) { kbExecutableResolved = true; kbResolvedPath = candidate + ".exe"; }
-                    else if (File.Exists(candidate + ".dll")) { kbExecutableResolved = true; kbResolvedPath = candidate + ".dll"; }
-                }
-            }
-            catch { }
-        }
+        var kbResolution = ResolveKbExecutable(config);
 
         // Only include environment variables relevant to MCP servers (as per dev.env.example)
         string[] relevantNames = new[]
@@ -84,12 +60,13 @@ public static class OrchestratorTools
             status = "Alive",
             environment,
             fakeLlmMode,
-            kbExecutableConfigured,
-            kbExecutableResolved,
-            kbResolvedPath = kbResolvedPath is null ? null : Path.GetFileName(kbResolvedPath),
+            kbExecutableConfigured = kbResolution.Configured,
+            kbExecutableResolved = kbResolution.Resolved,
+            kbResolvedPath = kbResolution.ResolvedPath is null ? null : Path.GetFileName(kbResolution.ResolvedPath),
             orchestratorExecutablePath = Environment.ProcessPath,
             orchestratorAssemblyLocation = typeof(OrchestratorTools).Assembly.Location,
             timestampUtc = DateTime.UtcNow.ToString("o"),
+            kbProbedSample = kbResolution.ProbedPaths.Count == 0 ? Array.Empty<string>() : kbResolution.ProbedPaths.Take(6).ToArray(),
             environmentVariables = ordered
         };
         return JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
@@ -175,99 +152,17 @@ public static class OrchestratorTools
             // Step 3: Attempt to spin up and connect to KB MCP server and list tools / fetch content.
             try
             {
-                var kbPathConfig = config["KbMcpServer:ExecutablePath"]; // overrideable via KbMcpServer__ExecutablePath
-                if (string.IsNullOrWhiteSpace(kbPathConfig))
+                var kbResolution = ResolveKbExecutable(config);
+                if (!kbResolution.Configured)
                 {
                     disclaimers.Add("KB server path not configured (KbMcpServer__ExecutablePath)");
                 }
                 else
                 {
-                            // Resolve the KB server executable robustly.
-                            // Strategy:
-                            // 1. Treat configured value as either absolute or relative.
-                            // 2. First attempt: relative to AppContext.BaseDirectory (existing behaviour).
-                            // 3. Fallback: attempt relative to repository root (walk up until .sln or .git detected) then combine.
-                            // 4. For each resolved base candidate, probe: exact, .exe, .dll.
-                            // 5. Use first successful probe.
-
-                            static IEnumerable<string> EnumerateRepoRootCandidates(string startingDirectory)
+                            if (!kbResolution.Resolved || kbResolution.Command is null)
                             {
-                                // Walk up 8 levels max looking for solution marker or .git
-                                var dir = new DirectoryInfo(startingDirectory);
-                                for (int i = 0; i < 8 && dir is not null; i++)
-                                {
-                                    bool marker = dir.EnumerateFiles("*.sln").Any() || dir.EnumerateDirectories(".git").Any();
-                                    if (marker)
-                                    {
-                                        yield return dir.FullName;
-                                    }
-                                    dir = dir.Parent;
-                                }
-                            }
-
-                            var baseDir = AppContext.BaseDirectory;
-                            var candidateBases = new List<string>();
-
-                            // If absolute provided, just use directly; else build relative candidates.
-                            if (Path.IsPathFullyQualified(kbPathConfig))
-                            {
-                                candidateBases.Add(kbPathConfig);
-                            }
-                            else
-                            {
-                                // Provided relative path.
-                                candidateBases.Add(Path.GetFullPath(Path.Combine(baseDir, kbPathConfig)));
-
-                                // Repository-root relative fallback (only add if different)
-                                foreach (var repoRoot in EnumerateRepoRootCandidates(baseDir))
-                                {
-                                    var repoRelative = Path.GetFullPath(Path.Combine(repoRoot, kbPathConfig));
-                                    if (!candidateBases.Contains(repoRelative, StringComparer.OrdinalIgnoreCase))
-                                    {
-                                        candidateBases.Add(repoRelative);
-                                    }
-                                }
-                            }
-
-                            string? chosenCommand = null;
-                            string[] chosenArgs = Array.Empty<string>();
-                            string? chosenResolvedBase = null;
-                            var probed = new List<string>();
-
-                            foreach (var resolvedBase in candidateBases)
-                            {
-                                bool existsExact = File.Exists(resolvedBase);
-                                bool existsDll = File.Exists(resolvedBase + ".dll");
-                                bool existsExe = File.Exists(resolvedBase + ".exe");
-                                probed.Add(resolvedBase);
-                                probed.Add(resolvedBase + ".exe");
-                                probed.Add(resolvedBase + ".dll");
-
-                                if (existsExact)
-                                {
-                                    chosenCommand = resolvedBase; // already executable (or script)
-                                    chosenResolvedBase = resolvedBase;
-                                }
-                                else if (existsExe)
-                                {
-                                    chosenCommand = resolvedBase + ".exe"; // Windows apphost
-                                    chosenResolvedBase = resolvedBase + ".exe";
-                                }
-                                else if (existsDll)
-                                {
-                                    chosenCommand = "dotnet";
-                                    chosenArgs = new[] { resolvedBase + ".dll" };
-                                    chosenResolvedBase = resolvedBase + ".dll";
-                                }
-
-                                if (chosenCommand is not null) break; // Stop at first success
-                            }
-
-                            if (chosenCommand is null)
-                            {
-                                disclaimers.Add($"KB executable not found after probing {probed.Count} paths");
-                                // Add a compact diagnostic entry listing first few probed paths.
-                                disclaimers.Add("Probed paths sample: " + string.Join(" | ", probed.Take(5)) + (probed.Count > 5 ? " ..." : string.Empty));
+                                disclaimers.Add($"KB executable not found after probing {kbResolution.ProbedPaths.Count} paths");
+                                disclaimers.Add("Probed paths sample: " + string.Join(" | ", kbResolution.ProbedPaths.Take(5)) + (kbResolution.ProbedPaths.Count > 5 ? " ..." : string.Empty));
                             }
                             else
                             {
@@ -277,8 +172,8 @@ public static class OrchestratorTools
                                         new StdioClientTransport(new()
                                         {
                                             Name = "kb-mcp-server",
-                                            Command = chosenCommand!,
-                                            Arguments = chosenArgs
+                                            Command = kbResolution.Command!,
+                                            Arguments = kbResolution.Arguments
                                         }));
 
                                     var kbToolList = await kbClient.ListToolsAsync().ConfigureAwait(false);
@@ -367,7 +262,7 @@ public static class OrchestratorTools
                                                 const int cap = 3000;
                                                 bool trunc = extracted!.Length > cap;
                                                 string snippet = trunc ? extracted.Substring(0, cap) + "...[truncated]" : extracted;
-                                                kbResults.Add(new { snippet, truncated = trunc, source = Path.GetFileName(chosenResolvedBase) });
+                                                kbResults.Add(new { snippet, truncated = trunc, source = Path.GetFileName(kbResolution.ResolvedPath) });
                                                 usedKb = true;
                                             }
                                             else
@@ -522,5 +417,125 @@ public static class OrchestratorTools
             if (!char.IsPunctuation(c) && !char.IsWhiteSpace(c)) return false;
         }
         return true;
+    }
+
+    // -------------------------------------------------------------------------
+    // Shared helper methods & lightweight data containers (added for refactor)
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Represents the result of attempting to resolve the KB MCP server executable.
+    /// </summary>
+    private sealed record KbExecutableResolutionResult(
+        bool Configured,
+        bool Resolved,
+        string? ResolvedPath,
+        string? Command,
+        string[] Arguments,
+        List<string> ProbedPaths);
+
+    /// <summary>
+    /// Builds the base configuration (appsettings + env vars) uniformly for all tools.
+    /// </summary>
+    private static IConfiguration BuildBaseConfiguration() => new ConfigurationBuilder()
+        .SetBasePath(AppContext.BaseDirectory)
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+        .AddEnvironmentVariables()
+        .Build();
+
+    /// <summary>
+    /// Centralized KB executable resolution used by both diagnostics and ask-domain tool.
+    /// Normalizes quotes, supports relative + repo-root, and probes . / .exe / .dll.
+    /// </summary>
+    private static KbExecutableResolutionResult ResolveKbExecutable(IConfiguration config)
+    {
+        string? raw = config["KbMcpServer:ExecutablePath"];
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return new(false, false, null, null, Array.Empty<string>(), new List<string>());
+        }
+
+        // Normalize surrounding quotes (common when values copied into dev.env with quotes)
+        string value = raw.Trim();
+        if ((value.StartsWith('"') && value.EndsWith('"')) || (value.StartsWith('\'') && value.EndsWith('\'')))
+        {
+            value = value.Substring(1, value.Length - 2).Trim();
+        }
+
+        var probed = new List<string>();
+        try
+        {
+            static IEnumerable<string> EnumerateRepoRootCandidates(string startingDirectory)
+            {
+                var dir = new DirectoryInfo(startingDirectory);
+                for (int i = 0; i < 8 && dir is not null; i++)
+                {
+                    bool marker = false;
+                    try { marker = dir.EnumerateFiles("*.sln").Any() || dir.EnumerateDirectories(".git").Any(); } catch { }
+                    if (marker) yield return dir.FullName;
+                    dir = dir.Parent;
+                }
+            }
+
+            var baseDir = AppContext.BaseDirectory;
+            var candidateBases = new List<string>();
+            if (Path.IsPathFullyQualified(value))
+            {
+                candidateBases.Add(value);
+            }
+            else
+            {
+                candidateBases.Add(Path.GetFullPath(Path.Combine(baseDir, value)));
+                foreach (var repoRoot in EnumerateRepoRootCandidates(baseDir))
+                {
+                    var repoRelative = Path.GetFullPath(Path.Combine(repoRoot, value));
+                    if (!candidateBases.Contains(repoRelative, StringComparer.OrdinalIgnoreCase))
+                    {
+                        candidateBases.Add(repoRelative);
+                    }
+                }
+            }
+
+            string? chosenCommand = null;
+            string[] chosenArgs = Array.Empty<string>();
+            string? resolvedPath = null;
+
+            foreach (var resolvedBase in candidateBases)
+            {
+                probed.Add(resolvedBase);
+                probed.Add(resolvedBase + ".exe");
+                probed.Add(resolvedBase + ".dll");
+
+                bool existsExact = File.Exists(resolvedBase);
+                bool existsExe = File.Exists(resolvedBase + ".exe");
+                bool existsDll = File.Exists(resolvedBase + ".dll");
+
+                if (existsExact)
+                {
+                    chosenCommand = resolvedBase;
+                    resolvedPath = resolvedBase;
+                }
+                else if (existsExe)
+                {
+                    chosenCommand = resolvedBase + ".exe";
+                    resolvedPath = resolvedBase + ".exe";
+                }
+                else if (existsDll)
+                {
+                    chosenCommand = "dotnet";
+                    chosenArgs = new[] { resolvedBase + ".dll" };
+                    resolvedPath = resolvedBase + ".dll";
+                }
+
+                if (chosenCommand is not null) break;
+            }
+
+            bool resolved = resolvedPath is not null;
+            return new(true, resolved, resolvedPath, chosenCommand, chosenArgs, probed);
+        }
+        catch
+        {
+            return new(true, false, null, null, Array.Empty<string>(), probed);
+        }
     }
 }

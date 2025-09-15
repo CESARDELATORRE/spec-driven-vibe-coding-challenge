@@ -102,6 +102,20 @@ $env:Orchestrator__UseFakeLlm
 
 ```
 
+In Bash:
+
+```bash
+echo "$AzureOpenAI__DeploymentName"
+
+echo "$AzureOpenAI__Endpoint"
+
+echo "$AzureOpenAI__ApiKey"
+
+echo "$KbMcpServer__ExecutablePath"
+
+echo "$Orchestrator__UseFakeLlm"
+```
+
 ### Using a dev.env file (Recommended Local Pattern)
 Maintain all non-secret configuration + secrets (API key) in a single git-ignored `dev.env` file for fast reloads across shells.
 
