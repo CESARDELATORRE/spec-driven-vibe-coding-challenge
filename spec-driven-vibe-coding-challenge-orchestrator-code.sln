@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orchestrator-agent.smoke-te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orchestrator-agent.unit-tests", "tests\orchestrator-agent.unit-tests\orchestrator-agent.unit-tests.csproj", "{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orchestrator-agent.integration-tests", "tests\orchestrator-agent.integration-tests\orchestrator-agent.integration-tests.csproj", "{6E1A0D6C-9A32-4C1F-8F27-3C3C3C9A9E10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E1A0D6C-9A32-4C1F-8F27-3C3C3C9A9E10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E1A0D6C-9A32-4C1F-8F27-3C3C3C9A9E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E1A0D6C-9A32-4C1F-8F27-3C3C3C9A9E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E1A0D6C-9A32-4C1F-8F27-3C3C3C9A9E10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +63,7 @@ Global
 		{D439ED08-A7E4-257A-C300-9FBF81B0CFA4} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{7D5A4A52-6E2C-41A2-B3F7-2E4F8D3B1C11} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{6E1A0D6C-9A32-4C1F-8F27-3C3C3C9A9E10} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1C26FEF7-F298-486B-9AF6-4B2EEF7B8ED9}
