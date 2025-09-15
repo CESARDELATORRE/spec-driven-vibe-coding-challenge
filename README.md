@@ -113,6 +113,17 @@ The repository includes a pre-configured [`.vscode/mcp.json`](.vscode/mcp.json) 
 
 > **💡 Note**: Ensure your `dev.env` is configured with Azure AI Foundry credentials before testing the orchestrator.
 
+
+**Example prompt for GitHub CoPilot in VS Code:**
+
+```
+Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.
+```
+
+![GHCP Prompt](/docs/_images/ghcp-vscode-ui-prompt-example.png)
+
+
+
 ### 🏠 Claude Desktop Integration
 
 Add to your Claude Desktop configuration file:
