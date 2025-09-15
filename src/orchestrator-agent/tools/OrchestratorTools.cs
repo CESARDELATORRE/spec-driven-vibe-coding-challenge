@@ -56,24 +56,47 @@ public static class OrchestratorTools
             try
             {
                 var baseDir = AppContext.BaseDirectory;
+
+                static IEnumerable<string> EnumerateRepoRootCandidates(string startingDirectory)
+                {
+                    var dir = new DirectoryInfo(startingDirectory);
+                    for (int i = 0; i < 8 && dir is not null; i++)
+                    {
+                        bool marker = false;
+                        try
+                        {
+                            marker = dir.EnumerateFiles("*.sln").Any() || dir.EnumerateDirectories(".git").Any();
+                        }
+                        catch { /* ignore permission issues */ }
+                        if (marker) yield return dir.FullName;
+                        dir = dir.Parent;
+                    }
+                }
+
+                var candidateBases = new List<string>();
                 if (Path.IsPathFullyQualified(kbPathConfig!))
                 {
-                    // Direct
-                    var direct = kbPathConfig!;
-                    if (File.Exists(direct) || File.Exists(direct + ".exe") || File.Exists(direct + ".dll"))
-                    {
-                        kbExecutableResolved = true;
-                        kbResolvedPath = File.Exists(direct) ? direct : (File.Exists(direct + ".exe") ? direct + ".exe" : direct + ".dll");
-                    }
+                    candidateBases.Add(kbPathConfig!);
                 }
                 else
                 {
-                    var primary = Path.GetFullPath(Path.Combine(baseDir, kbPathConfig!));
-                    IEnumerable<string> candidates = new[] { primary, primary + ".exe", primary + ".dll" };
-                    foreach (var c in candidates)
+                    candidateBases.Add(Path.GetFullPath(Path.Combine(baseDir, kbPathConfig!)));
+                    foreach (var repoRoot in EnumerateRepoRootCandidates(baseDir))
                     {
-                        if (File.Exists(c)) { kbExecutableResolved = true; kbResolvedPath = c; break; }
+                        var repoRelative = Path.GetFullPath(Path.Combine(repoRoot, kbPathConfig!));
+                        if (!candidateBases.Contains(repoRelative, StringComparer.OrdinalIgnoreCase))
+                        {
+                            candidateBases.Add(repoRelative);
+                        }
                     }
+                }
+
+                foreach (var resolvedBase in candidateBases)
+                {
+                    // Probe exact / exe / dll
+                    if (File.Exists(resolvedBase)) { kbExecutableResolved = true; kbResolvedPath = resolvedBase; break; }
+                    if (File.Exists(resolvedBase + ".exe")) { kbExecutableResolved = true; kbResolvedPath = resolvedBase + ".exe"; break; }
+                    if (File.Exists(resolvedBase + ".dll")) { kbExecutableResolved = true; kbResolvedPath = resolvedBase + ".dll"; break; }
                 }
             }
             catch { /* swallow diagnostics path errors */ }
