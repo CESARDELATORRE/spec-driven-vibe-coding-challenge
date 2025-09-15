@@ -106,12 +106,24 @@ The repository includes a pre-configured [`.vscode/mcp.json`](.vscode/mcp.json) 
 ```
 
 **Setup Steps:**
-1. ✅ Configuration is already in the repository
-2. 🔄 Reload VS Code window (Ctrl+Shift+P → "Developer: Reload Window")
-3. 💬 Open GitHub Copilot Chat panel
-4. 🧪 Test with queries (see examples below)
+1. ✅ Most configuration is already in the repository. But you need to configure a few ENVIRONMENT VARIABLES.
 
-> **💡 Note**: Ensure your `dev.env` is configured with Azure AI Foundry credentials before testing the orchestrator.
+You can set the ENV VARS directly in the OS or at the terminal level, as long as you do it before opening VS Code with "code .".
+
+For setting ENV VARS at the terminal leveL:
+Open terminal and go to the root folder of the repo.
+
+> **💡 IMPORTANT NOTE**: Ensure your `dev.env` is configured with Azure AI Foundry credentials and before testing the orchestrator.
+
+Set env vars with PowerShell by running this command:
+    ```powershell
+    Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
+    ```
+
+2. 🔄 VS Code with "code ." at the termina.
+3. 💬 Open GitHub Copilot Chat panel
+4. Start the MCP Servers from the mcp.json file or using "Ctrl+Shift+P"
+5. 🧪 Test with queries (see examples below)
 
 
 **Example prompt for GitHub CoPilot in VS Code:**
