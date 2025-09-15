@@ -127,6 +127,10 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Usage and integration guide for the Orchestrator MCP Server.
 **Details**: Documents tools (`get_orchestrator_status`, `ask_domain_question`), configuration via environment variables & appsettings, GitHub Copilot MCP client setup snippet, example prompts, troubleshooting, and security notes. Added post Step 11 for discoverability and onboarding.
 
+### `/src/orchestrator-agent/FUTURE-MULTI-AGENT-WORKFLOW-APPROACH.md`
+**Purpose**: Forward-looking architecture & roadmap for evolving from single-step Q&A to a multi-agent orchestration layer.
+**Details**: Compares Thin vs SK-Embedded vs Hybrid orchestrator patterns, defines staged migration plan, data contract evolution (steps, provenance), security & failure strategy, decision drivers, and actionable near-term steps (interfaces + extraction of Chat Agent). Serves as a living guide for incremental, low-risk scaling.
+
 ### `/dev.env.example`
 **Purpose**: Template of environment variables for local development.
 **Details**: Non-secret example values for Azure OpenAI and orchestrator flags; users copy to `dev.env` (ignored) to load variables easily. Includes fake LLM toggle and KB server executable path.

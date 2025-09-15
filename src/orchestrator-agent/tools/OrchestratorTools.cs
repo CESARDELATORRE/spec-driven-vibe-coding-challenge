@@ -89,6 +89,7 @@ public static class OrchestratorTools
         bool includeKb = true,
         int maxKbResults = 2)
     {
+        object? provenanceData = null; // will hold model/service provenance when LLM path executes
         // STEP 5: VALIDATION & ERROR HANDLING HARDENING
         // Early sanitize input (trim) for consistent checks.
         question = question?.Trim() ?? string.Empty;
@@ -314,6 +315,8 @@ public static class OrchestratorTools
             }
             else
             {
+                // Named serviceId to explicitly identify the registered Azure OpenAI chat completion service
+                const string azureServiceId = "primary-azure-openai"; // provenance: stable identifier for this service registration
                 if (fakeLlmMode)
                 {
                     // Simulated successful LLM path for integration testing without external calls.
@@ -328,7 +331,8 @@ public static class OrchestratorTools
                 else
                 {
                     var kernelBuilder = Kernel.CreateBuilder();
-                    kernelBuilder.AddAzureOpenAIChatCompletion(endpoint: endpoint!, deploymentName: deploymentName!, apiKey: apiKey!);
+                    // Register with explicit serviceId for provenance
+                    kernelBuilder.AddAzureOpenAIChatCompletion(serviceId: azureServiceId, endpoint: endpoint!, deploymentName: deploymentName!, apiKey: apiKey!);
                     Kernel kernel = kernelBuilder.Build();
                     chatAgentReady = true;
 
@@ -345,7 +349,7 @@ public static class OrchestratorTools
                         disclaimers.Add("Answer generated without knowledge base grounding");
                     }
 
-                    var execSettings = new OpenAIPromptExecutionSettings { Temperature = 0.2 };
+                    var execSettings = new OpenAIPromptExecutionSettings { Temperature = 0.2, ServiceId = azureServiceId };
 
                     ChatCompletionAgent agent = new()
                     {
@@ -356,11 +360,13 @@ public static class OrchestratorTools
                     };
 
                     AgentResponseItem<Microsoft.SemanticKernel.ChatMessageContent>? agentResponseItem = null;
+                    bool usedAgent = false; bool usedFallback = false;
                     try
                     {
                         agentResponseItem = await agent.InvokeAsync(question).FirstAsync().ConfigureAwait(false);
                         answer = agentResponseItem?.Message?.ToString() ?? "(empty response)";
                         disclaimers.Add("ChatCompletionAgent used");
+                        usedAgent = true;
                     }
                     catch (Exception agentEx)
                     {
@@ -373,6 +379,7 @@ public static class OrchestratorTools
                             var fallbackResult = await fallbackKernel.InvokePromptAsync(fallbackPrompt, new(execSettings)).ConfigureAwait(false);
                             answer = fallbackResult.ToString();
                             disclaimers.Add("Agent failed; fallback direct prompt used");
+                            usedFallback = true;
                         }
                         catch (Exception fallbackEx)
                         {
@@ -381,6 +388,22 @@ public static class OrchestratorTools
                             disclaimers.Add("Agent and fallback failed");
                         }
                     }
+                    // Store minimal provenance context for later inclusion
+                    provenanceData = new
+                    {
+                        provider = "azure-openai",
+                        serviceId = azureServiceId,
+                        deployment = deploymentName,
+                        temperature = execSettings.Temperature,
+                        mode = usedAgent ? "agent" : usedFallback ? "fallback-direct" : "unknown",
+                        kbGrounded = usedKb,
+                        explanations = new
+                        {
+                            serviceId = "Identifier assigned when registering the chat completion service in the Kernel (lets you choose among multiple models).",
+                            deployment = "Azure OpenAI deployment name (maps to a specific model + configuration in your Azure resource).",
+                            temperature = "Sampling variability 0..2; lower is more deterministic and focused."
+                        }
+                    };                    
                 }
             }
         }
@@ -416,6 +439,7 @@ public static class OrchestratorTools
                 kbResultsClamped,
                 fakeLlmMode
             },
+            provenance = provenanceData,
             status = "scaffold"
         };
 
