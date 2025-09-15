@@ -95,6 +95,11 @@ $env:AzureOpenAI__DeploymentName
 $env:AzureOpenAI__Endpoint
 
 $env:AzureOpenAI__ApiKey
+
+$env:KbMcpServer__ExecutablePath
+
+$env:
+
 ```
 
 ### Using a dev.env file (Recommended Local Pattern)
@@ -120,6 +125,28 @@ Maintain all non-secret configuration + secrets (API key) in a single git-ignore
   * Windows CMD (creates a throwaway batch wrapper):
     ```cmd
     for /f "usebackq tokens=1,2 delims==" %a in (dev.env) do set %a=%b
+    ```
+    > NOTE: This `for /f` syntax is a classic **cmd.exe** construct. If you paste it into **PowerShell** you will get a parser error like *"Missing opening '(' after keyword 'for'"*. Use one of the PowerShell examples instead (see below) when in a PowerShell terminal.
+
+  * PowerShell (single-line robust loader alternative – ignores comments/blank lines):
+    ```powershell
+    Get-Content dev.env | Where-Object {$_ -notmatch '^(#|$)'} | ForEach-Object {
+      $k,$v = $_ -split '=',2; if ($k) { $env:$k = $v }
+    }
+    ```
+    Or a slightly more explicit version handling trimming:
+    ```powershell
+    foreach ($line in Get-Content dev.env) {
+      if ($line -match '^(#|\s*$)') { continue }
+      if ($line -match '^(.*?)=(.*)$') {
+        $name = $matches[1].Trim(); $value = $matches[2].Trim()
+        $env:$name = $value
+      }
+    }
+    ```
+    Verify afterwards:
+    ```powershell
+    $env:AzureOpenAI__Endpoint; $env:AzureOpenAI__DeploymentName; if ($env:AzureOpenAI__ApiKey) { 'API key present' } else { 'API key missing' }
     ```
 3. Verify key variables loaded:
   ```bash
@@ -163,6 +190,65 @@ The orchestrator launch logic prefers:
 2. `<base>.exe`
 3. `<base>.dll` (launched via `dotnet <dll>`)
 This means you can keep using the extensionless base path in configuration while having flexibility across platforms.
+
+### Environment Variable Propagation (VS Code MCP Launches)
+Servers launched from the VS Code MCP Servers panel inherit only the environment present when VS Code started. Sourcing `dev.env` later in a different terminal does not update those already running processes.
+
+Implication: A variable visible during manual `dotnet run` can appear missing in MCP tool diagnostics if VS Code was opened earlier without it.
+
+#### Strategies to Provide Environment Variables
+| Strategy | How | Pros | Cons |
+|----------|-----|------|------|
+| Start VS Code from prepared shell | Source `dev.env` then run `code .` | Mirrors manual runs; no file edits | Must remember each time |
+| `.vscode/mcp.json` env block (non-secrets) | Add keys under `servers.orchestrator-agent.env` | Reproducible per workspace | Risk of accidental secret commit |
+| User / system env vars | Windows Environment UI / `setx` | Persistent across sessions | Harder to toggle quickly |
+| External run script | `./run-orchestrator.sh --kb` | Deterministic, explicit | VS Code UI not managing lifecycle |
+| Hybrid | Secrets in user env; flags in `mcp.json` | Minimizes exposure | Slightly more setup |
+
+#### What DOES work (inherit-from-shell flow)
+1. In a terminal (Git Bash / WSL / PowerShell) load variables:
+   * Bash / Git Bash:
+     ```bash
+     set -a; source dev.env; set +a
+     ```
+   * PowerShell:
+     ```powershell
+     Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $env:$($matches[1]) = $matches[2] } }
+     ```
+2. (Optional) Echo a variable to confirm (e.g., `echo $AzureOpenAI__DeploymentName` / `$env:AzureOpenAI__DeploymentName`).
+3. From that SAME terminal launch VS Code: `code .`
+4. Start the orchestrator (and KB) from the MCP panel.
+5. Call `get_orchestrator_status` or `ask_domain_question`; diagnostics should show expected flags (e.g. `endpointConfigured=true`).
+6. If not, fully close all VS Code windows and repeat (a lingering window reused the old environment).
+
+#### Optional `.vscode/mcp.json` Snippet (non-secrets only)
+```jsonc
+"orchestrator-agent": {
+  "command": "dotnet",
+  "args": [
+    "run",
+    "--project",
+    "${workspaceFolder}/src/orchestrator-agent/orchestrator-agent.csproj"
+  ],
+  "env": { "Orchestrator__UseFakeLlm": "true" }
+}
+```
+Avoid putting `AzureOpenAI__ApiKey` in a committed file.
+
+#### Verification Checklist
+* `endpointConfigured`, `deploymentConfigured`, `apiKeyConfigured` reflect presence
+* `fakeLlmMode=true` if fake flag set
+* KB path disclaimers disappear once resolved
+
+#### Quick Troubleshooting
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Missing Azure OpenAI config (UI) | VS Code started before sourcing env | Close VS Code, source env, relaunch |
+| `fakeLlmMode` false | Typo / missing env entry | Correct; reload window |
+| KB executable not found | Relative path mismatch | Use absolute `KbMcpServer__ExecutablePath` |
+| Works manually, fails via UI | Environment mismatch | Compare diagnostics outputs |
+
+> Rule: VS Code only knows the environment it was born with.
 
 ## Using with GitHub Copilot (MCP Client)
 1. Ensure Copilot supports MCP configuration (Insiders / feature flag).
