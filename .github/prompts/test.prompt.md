@@ -3,16 +3,16 @@ mode: 'agent'
 description: 'Run the test suite'
 ---
 
-FIRST:
+FIRST: (Unit Tests))
 
-- Run the unit tests with xUnit
+- Run all the unit tests testswith at the CLI
 - Ensure all test pass successful
 - If tests fail, review the error messages and fix the issues in the codebase
 - If tests pass, proceed to the next step
 
-THEN:
+THEN:  (Integration Tests)
 
-- Run the integration tests
+- Run all the integration tests at the CLI
 - Ensure all test pass successful
 - If tests fail, review the error messages and fix the issues in the codebase
 - If tests pass, proceed to the next step
