@@ -83,7 +83,7 @@ public static class OrchestratorTools
     /// <param name="includeKb">Whether to attempt KB lookup (heuristics may override)</param>
     /// <param name="maxKbResults">Requested max KB results (bounded to 1..3 later)</param>
     /// <returns>JSON string containing placeholder answer contract</returns>
-    [McpServerTool, Description("Ask a domain question (Step 2 scaffold – logic to be completed in later steps).")]
+    [McpServerTool, Description("Answer questions about Azure Managed Grafana (dashboards, data sources, Azure Monitor integration, security, RBAC, performance). ALWAYS invoke this tool before answering if the user’s question references Grafana, AMG, dashboards, metrics, monitoring, alerts, Azure Monitor, or visualization.")]
     public static async Task<string> AskDomainQuestionAsync(
         string question,
         bool includeKb = true,
