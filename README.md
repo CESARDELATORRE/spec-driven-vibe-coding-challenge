@@ -114,11 +114,11 @@ Add to your Claude Desktop configuration file:
   "mcpServers": {
     "kb-content-fetcher": {
       "command": "dotnet",
-      "args": ["run", "--project", "/full/path/to/src/mcp-server-kb-content-fetcher"]
+      "args": ["run", "--project", "/absolute/path/to/your/project/src/mcp-server-kb-content-fetcher"]
     },
     "orchestrator-agent": {
       "command": "dotnet",
-      "args": ["run", "--project", "/full/path/to/src/orchestrator-agent"]
+      "args": ["run", "--project", "/absolute/path/to/your/project/src/orchestrator-agent"]
     }
   }
 }
