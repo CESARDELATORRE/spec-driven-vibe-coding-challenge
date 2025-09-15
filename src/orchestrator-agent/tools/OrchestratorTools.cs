@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Reflection; // For reflective parsing of MCP CallToolAsync result
 using System.Collections.Generic;
 using System.IO;
 using ModelContextProtocol.Server;
@@ -232,17 +233,87 @@ public static class OrchestratorTools
                                         try
                                         {
                                             var invocation = await kbClient.CallToolAsync(contentTool.Name, new Dictionary<string, object?>()).ConfigureAwait(false);
-                                            string? raw = invocation?.ToString();
-                                            if (!string.IsNullOrWhiteSpace(raw))
+
+                                            // Reflective extraction of first text content entry following MCP spec shape:
+                                            // { content: [ { type: "text", text: "..." } ] }
+                                            string? extracted = null;
+                                            try
+                                            {
+                                                if (invocation is not null)
+                                                {
+                                                    var contentProp = invocation.GetType().GetProperty("Content", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                                                    var contentVal = contentProp?.GetValue(invocation);
+                                                    if (contentVal is System.Collections.IEnumerable enumerable)
+                                                    {
+                                                        foreach (var item in enumerable)
+                                                        {
+                                                            if (item is null) continue;
+                                                            // Try common property names
+                                                            string? candidate = null;
+                                                            var itemType = item.GetType();
+                                                            var textProp = itemType.GetProperty("Text", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                                                            if (textProp?.GetValue(item) is string tp) candidate = tp;
+                                                            else if (item is string s) candidate = s;
+                                                            // Fallback: serialize item to JSON and attempt to parse {"text":"..."}
+                                                            if (candidate is null)
+                                                            {
+                                                                try
+                                                                {
+                                                                    var json = JsonSerializer.Serialize(item);
+                                                                    using var doc = JsonDocument.Parse(json);
+                                                                    if (doc.RootElement.TryGetProperty("text", out var tEl) && tEl.ValueKind == JsonValueKind.String)
+                                                                    {
+                                                                        candidate = tEl.GetString();
+                                                                    }
+                                                                }
+                                                                catch { /* swallow */ }
+                                                            }
+                                                            if (!string.IsNullOrWhiteSpace(candidate))
+                                                            {
+                                                                extracted = candidate;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    // Additional fallback: attempt full object JSON + search for first long string
+                                                    if (extracted is null)
+                                                    {
+                                                        try
+                                                        {
+                                                            var json = JsonSerializer.Serialize(invocation);
+                                                            using var doc = JsonDocument.Parse(json);
+                                                            if (doc.RootElement.TryGetProperty("content", out var contentArray) && contentArray.ValueKind == JsonValueKind.Array)
+                                                            {
+                                                                foreach (var el in contentArray.EnumerateArray())
+                                                                {
+                                                                    if (el.ValueKind == JsonValueKind.Object && el.TryGetProperty("text", out var t) && t.ValueKind == JsonValueKind.String)
+                                                                    {
+                                                                        extracted = t.GetString();
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        catch { /* ignore */ }
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception exExtract)
+                                            {
+                                                Console.Error.WriteLine($"KB snippet extraction reflection error: {exExtract.Message}");
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(extracted))
                                             {
                                                 const int cap = 3000;
-                                                string snippet = raw.Length > cap ? raw.Substring(0, cap) + "...[truncated]" : raw;
-                                                kbResults.Add(new { snippet, truncated = raw.Length > cap, source = Path.GetFileName(chosenResolvedBase) });
+                                                bool trunc = extracted!.Length > cap;
+                                                string snippet = trunc ? extracted.Substring(0, cap) + "...[truncated]" : extracted;
+                                                kbResults.Add(new { snippet, truncated = trunc, source = Path.GetFileName(chosenResolvedBase) });
                                                 usedKb = true;
                                             }
                                             else
                                             {
-                                                disclaimers.Add("KB content tool returned empty result");
+                                                disclaimers.Add("KB content tool returned no textual content (extraction failed)");
                                             }
                                         }
                                         catch (Exception exContent)
