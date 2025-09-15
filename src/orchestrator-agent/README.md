@@ -84,6 +84,23 @@ dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
 ```
 The server speaks MCP over stdio. Keep stdout clean; logs go to stderr.
 
+### Using a dev.env file (Recommended for Local)
+Instead of exporting each variable every session, copy the root `dev.env.example` to `dev.env` (already git-ignored) and populate real values:
+```bash
+cp dev.env.example dev.env
+# edit dev.env to insert your real API key
+set -a; source dev.env; set +a   # loads all lines KEY=VALUE
+```
+Check loaded values:
+```bash
+env | grep AzureOpenAI__Endpoint || echo "Endpoint not loaded"
+```
+PowerShell import (one-off, not persisted):
+```powershell
+Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
+```
+Never commit the real `dev.env` file—only the provided `dev.env.example` template.
+
 ## Using with GitHub Copilot (MCP Client)
 1. Ensure Copilot supports MCP configuration (Insiders / feature flag).
 2. Add an entry to your Copilot MCP configuration (example pseudo JSON):

@@ -122,3 +122,7 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/src/orchestrator-agent/README.md`
 **Purpose**: Usage and integration guide for the Orchestrator MCP Server.
 **Details**: Documents tools (`get_orchestrator_status`, `ask_domain_question`), configuration via environment variables & appsettings, GitHub Copilot MCP client setup snippet, example prompts, troubleshooting, and security notes. Added post Step 11 for discoverability and onboarding.
+
+### `/dev.env.example`
+**Purpose**: Template of environment variables for local development.
+**Details**: Non-secret example values for Azure OpenAI and orchestrator flags; users copy to `dev.env` (ignored) to load variables easily. Includes fake LLM toggle and KB server executable path.
