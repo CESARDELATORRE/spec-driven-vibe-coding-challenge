@@ -327,6 +327,63 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 
 ## Key Implementation Details
 
+### Dependency Inventory & Version Rationale (Added Post Step 11)
+The following summarizes the concrete NuGet package versions in use after completing Steps 1–11, plus rationale and future considerations.
+
+#### Runtime (`src/orchestrator-agent/orchestrator-agent.csproj`)
+| Package | Version | Purpose | Notes / Rationale |
+|---------|---------|---------|-------------------|
+| Microsoft.Extensions.Hosting | 9.0.9 | Generic host & DI plumbing | Stable .NET 9 servicing release |
+| Microsoft.Extensions.Configuration | 9.0.9 | Base configuration APIs | Aligned with host version |
+| Microsoft.Extensions.Configuration.EnvironmentVariables | 9.0.9 | Env var provider | Primary secret/config source |
+| Microsoft.Extensions.Configuration.UserSecrets | 9.0.9 | Dev-only secrets (optional) | Not required in containers/CI |
+| ModelContextProtocol | 0.3.0-preview.4 | MCP server + client primitives | Latest preview available during implementation; monitor for breaking changes |
+| Microsoft.SemanticKernel | 1.54.0 | Core SK abstractions | Version chosen for stability during dev; keep in sync with Agents & connectors |
+| Microsoft.SemanticKernel.Agents.Core | 1.54.0 | ChatCompletionAgent + agent orchestration | Needed for direct agent usage |
+| Microsoft.SemanticKernel.Connectors.OpenAI | 1.54.0 | OpenAI-compatible (non-Azure) connector | Included for parity/future flexibility (not actively used yet) |
+| Microsoft.SemanticKernel.Connectors.AzureOpenAI | 1.54.0 | Azure OpenAI connector | Enables AddAzureOpenAIChatCompletion extension |
+| Microsoft.Extensions.AI.OpenAI | 9.5.0-preview.1.25265.7 | New abstractions for model ops | Present for forward path; not yet wired into tool logic (future refactor candidate) |
+
+#### Test Projects
+| Project | Package | Version | Purpose | Notes |
+|---------|---------|---------|---------|-------|
+| All test projects | xunit | 2.9.2 | Test framework (attr + assertions) | Runner separation maintained |
+| Unit + Integration | Microsoft.NET.Test.Sdk | 17.12.0 | Enables test discovery/execution | Updated to resolve earlier Newtonsoft.Json assembly load issues |
+| Smoke Tests | Microsoft.NET.Test.Sdk | 17.11.1 | Same as above | Slightly older; can be aligned to 17.12.0 in a housekeeping pass |
+| All test projects | xunit.runner.visualstudio | 2.8.2 | VS adapter | Distinct from core xUnit package version (ok) |
+| All test projects | FluentAssertions | 6.12.0 | Fluent assertion style | Stable version |
+| Unit + Integration | coverlet.collector | 6.0.2 | Code coverage data | Not yet enforced in CI but ready |
+
+#### Removed / Avoided Dependencies
+| Package | Action | Reason |
+|---------|--------|--------|
+| Azure.AI.OpenAI | Removed (during Step 9 stabilization) | Assembly mismatch & unnecessary once SK connectors + Microsoft.Extensions.AI adopted; simplified dependency graph |
+
+#### Version Strategy
+1. Pinned explicit versions for deterministic CI and easier diffing of future upgrades.
+2. Aligned SK core + agents + connectors to a single version (1.54.0) to avoid subtle interface drift.
+3. Accepted preview packages (ModelContextProtocol, Microsoft.Extensions.AI.OpenAI) because prototype scope prioritizes feature velocity; documented upgrade risk.
+4. Left Microsoft.Extensions.AI.OpenAI not yet integrated—keeps current logic simpler while preserving an escape hatch for future abstraction consolidation (e.g., swapping model providers without touching tool code).
+
+#### Upgrade Considerations (Future Work)
+| Area | Trigger | Suggested Action |
+|------|---------|------------------|
+| MCP SDK | New preview / GA | Re-test stdio transport + tool discovery; watch for protocol schema shifts |
+| Semantic Kernel | Minor/patch bump | Run all tests; verify ChatCompletionAgent API stability |
+| Microsoft.Extensions.AI.* | GA release | Refactor tool code to use IChatClient abstraction; add positive-path LLM integration test with env vars |
+| Test Sdk (smoke project) | Housekeeping | Align to 17.12.0 to remove version skew |
+| Coverage tooling | CI adoption | Add coverage threshold gate once orchestrator logic stabilizes |
+
+#### Known Gaps (Documented, Intentional for Prototype)
+| Gap | Impact | Mitigation Path |
+|-----|--------|-----------------|
+| No positive-path (LLM success) integration test | Only degraded mode exercised automatically | Add test fixture that injects fake / mock chat client via Microsoft.Extensions.AI abstraction once refactored |
+| Microsoft.Extensions.AI.OpenAI unused | Dead weight until refactor | Track in backlog; remove if abstraction adoption deferred long-term |
+| Mixed Test SDK versions | Minor inconsistency | Single-line version bump in smoke tests project |
+| Lack of retry/transient handling for KB process start | Potential flakiness on slow FS | Add simple exponential backoff loop if instability observed |
+
+This section was added after completing the primary implementation steps to capture the actual state of dependencies for transparency, auditability, and to guide future refactors.
+
 ### Secure Configuration Pattern (Steps 1, 4, 5)
 ```csharp
 // Layering: appsettings.json (added in Program.cs), then env vars; user secrets only if Development
