@@ -1290,3 +1290,17 @@ If codes goes a different path, specs and architecture docs should also be updat
 Now, I run the prompt 6 for creating the KB MCP server feature's implementation plan.
 
 GHCP chat responds with a summary of the task to be done:
+
+
+
+
+
+**ISSUE for creating the main repo's README.md to be created by GHCP CODING AGENT in an autonomous PR**
+
+https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/issues/31
+
+![alt text](images-journey/issue-create-main-readme-by-ghcp-coding-agent-pr-01.png)
+
+![alt text](images-journey/ghcp-coding-agent-assgined-to-issue.png)
+
+

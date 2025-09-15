@@ -2,6 +2,10 @@
 
 - Repo name for GH MCP server: CESARDELATORRE/spec-driven-vibe-coding-challenge
 
+- (*) Try it with Claude.
+- (*) Add a summary of the SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
+- (*) Add a visual about SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
+
 - List of topics to cover:
         [X] Vibe coding
         [X] Operate as 'native PM/developer' / E2E PM craft work
