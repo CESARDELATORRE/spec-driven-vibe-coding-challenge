@@ -131,10 +131,10 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Template of environment variables for local development.
 **Details**: Non-secret example values for Azure OpenAI and orchestrator flags; users copy to `dev.env` (ignored) to load variables easily. Includes fake LLM toggle and KB server executable path.
 
-### `/.vscode/tasks.json`
-**Purpose**: VS Code build task definition for orchestrator agent.
-**Details**: Provides labeled task `build orchestrator-agent` used by launch configuration preLaunchTask to ensure latest build.
+### (Removed) `/.vscode/tasks.json`
+**Status**: Removed.
+**Reason**: Project standardized on direct terminal execution with `dev.env` rather than VS Code preLaunch tasks.
 
-### `/.vscode/launch.local.example.json`
-**Purpose**: Example VS Code launch configuration leveraging `envFile` to load `dev.env` automatically.
-**Details**: Users copy to `.vscode/launch.local.json` (git-ignored) to run and debug the orchestrator agent without manually exporting environment variables.
+### (Removed) `/.vscode/launch.local.example.json`
+**Status**: Removed.
+**Reason**: Debug launch indirection replaced by explicit terminal instructions using `dev.env` for portability across editors and CI.

@@ -84,22 +84,55 @@ dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
 ```
 The server speaks MCP over stdio. Keep stdout clean; logs go to stderr.
 
-### Using a dev.env file (Recommended for Local)
-Instead of exporting each variable every session, copy the root `dev.env.example` to `dev.env` (already git-ignored) and populate real values:
+### Using a dev.env file (Recommended Local Pattern)
+Maintain all non-secret configuration + secrets (API key) in a single git-ignored `dev.env` file for fast reloads across shells.
+
+1. Create file (first time only):
+  ```bash
+  cp dev.env.example dev.env
+  # edit dev.env with real values (do NOT quote unless value contains spaces)
+  ```
+2. Load into your current shell session:
+  * Bash / Git Bash / WSL:
+    ```bash
+    set -a
+    source dev.env
+    set +a
+    ```
+  * Zsh (mac/Linux): same as above.
+  * PowerShell:
+    ```powershell
+    Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
+    ```
+  * Windows CMD (creates a throwaway batch wrapper):
+    ```cmd
+    for /f "usebackq tokens=1,2 delims==" %a in (dev.env) do set %a=%b
+    ```
+3. Verify key variables loaded:
+  ```bash
+  echo $AzureOpenAI__Endpoint
+  echo $AzureOpenAI__DeploymentName
+  test -n "$AzureOpenAI__ApiKey" && echo "API key present" || echo "API key missing"
+  ```
+4. Run the server (same terminal so vars stay in scope):
+  ```bash
+  dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
+  ```
+
+Notes:
+* Lines beginning with `#` in `dev.env` are ignored; keep comments for clarity.
+* Avoid surrounding values with quotes unless necessary; the loader above does not trim them.
+* Never commit `dev.env`; only the `dev.env.example` template lives in git.
+
+#### Running Both MCP Servers Manually
+In separate terminals (after loading `dev.env` in each if needed):
 ```bash
-cp dev.env.example dev.env
-# edit dev.env to insert your real API key
-set -a; source dev.env; set +a   # loads all lines KEY=VALUE
+dotnet run --project src/mcp-server-kb-content-fetcher/mcp-server-kb-content-fetcher.csproj
 ```
-Check loaded values:
 ```bash
-env | grep AzureOpenAI__Endpoint || echo "Endpoint not loaded"
+dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
 ```
-PowerShell import (one-off, not persisted):
-```powershell
-Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
-```
-Never commit the real `dev.env` file—only the provided `dev.env.example` template.
+When using an MCP client (e.g., GitHub Copilot) configured to launch them automatically, you typically only need to ensure the environment variables are set beforehand; this README no longer recommends a VS Code launch configuration approach.
 
 ## Using with GitHub Copilot (MCP Client)
 1. Ensure Copilot supports MCP configuration (Insiders / feature flag).
