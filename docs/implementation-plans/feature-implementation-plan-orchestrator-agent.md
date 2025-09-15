@@ -286,12 +286,13 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   - **Dependencies**: All previous steps completed, Azure OpenAI secrets configured
   - **Status**: Validated. Application launches with `appsettings.json` copied to output (csproj updated with CopyToOutput). No runtime errors without Azure OpenAI env vars (graceful disclaimers remain for LLM path).
 
-### - [ ] Step 9: Unit Tests
+### - [x] Step 9: Unit Tests
   - **Task**: Create unit tests for MCP tools with mock configuration
   - **Files**:
     - `tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj`: Test project
     - `tests/orchestrator-agent.unit-tests/tools/OrchestratorToolsTests.cs`: Tool behavior tests with mock secrets
   - **Dependencies**: xUnit, test fixtures for mock configuration, secure test patterns
+  - **Status**: Implemented. Added unit tests covering validation errors (empty, punctuation-only, too short), correlationId format, greeting heuristic, and maxKbResults clamping diagnostics.
   - **Pseudocode**:
     ```csharp
     // Test configuration validation without real secrets
@@ -304,15 +305,17 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     }
     ```
 
-### - [ ] Step 10: Integration Tests
+### - [x] Step 10: Integration Tests
   - **Task**: Test MCP server coordination with real KB server using test secrets
   - **Files**:
     - `tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj`: Integration test project
-    - `tests/orchestrator-agent.integration-tests/McpServerIntegrationTests.cs`: End-to-end tool invocation tests
-  - **Dependencies**: In-process test host, MCP test harness, real KB MCP server, test Azure OpenAI configuration
-  - **User Intervention**: Provide test env vars (can use dummy values when mocking Azure OpenAI layer).
+    - `tests/orchestrator-agent.integration-tests/StdioMcpClient.cs`: Minimal stdio harness (orchestrator)
+    - `tests/orchestrator-agent.integration-tests/OrchestratorServerIntegrationTests.cs`: End-to-end tool invocation tests
+  - **Dependencies**: Orchestrator project, xUnit, custom stdio client harness
+  - **Status**: Implemented. Tests cover initialize + tools/list discovery and ask_domain_question degraded path (no Azure OpenAI config) with disclaimers & scaffold status.
+  - **User Intervention**: Optional — set AzureOpenAI__* env vars to exercise LLM success path later.
 
-- [ ] Step 11: Run All Tests
+### - [ ] Step 11: Run All Tests
   - **Task**: Execute complete test suite to validate implementation with security requirements
   - **Files**: No new files - validation step
   - **Commands**:
