@@ -53,14 +53,14 @@ All runtime configuration is driven by environment variables (portable) + `appse
 ### Optional
 | Purpose | Env Var | Notes |
 |---------|---------|-------|
-| KB Server Executable Path | `KbMcpServer__ExecutablePath` | Overrides value in `appsettings.json` |
+ | KB Server Executable Path | `KbMcpServer__ExecutablePath` | Overrides value in `appsettings.json`; may point to base name (auto-detects .exe/.dll) or explicit file |
 | .NET Environment | `DOTNET_ENVIRONMENT` | `Development` enables optional User Secrets lookup |
 
 ### appsettings.json (checked-in, non-secret)
 ```json
 {
   "KbMcpServer": {
-    "ExecutablePath": "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher"
+  "ExecutablePath": "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher"
   },
   "GreetingPatterns": ["hi", "hello", "hey", "greetings"],
   "Logging": { "LogLevel": { "Default": "Information" } }
@@ -142,6 +142,14 @@ A helper script at the repository root automates loading `dev.env` and launching
 ./run-orchestrator.sh --kb       # also start KB server in background (logs to kb.*.log)
 ```
 If `dev.env` is missing, the script exits with instructions. Works in Git Bash / WSL / Linux / macOS. (On Windows PowerShell, invoke via `bash ./run-orchestrator.sh`).
+
+### Executable vs .dll Launching
+Both servers now generate a native apphost executable (e.g., `mcp-server-kb-content-fetcher.exe`) as well as the `.dll`.
+The orchestrator launch logic prefers:
+1. Exact configured path
+2. `<base>.exe`
+3. `<base>.dll` (launched via `dotnet <dll>`)
+This means you can keep using the extensionless base path in configuration while having flexibility across platforms.
 
 ## Using with GitHub Copilot (MCP Client)
 1. Ensure Copilot supports MCP configuration (Insiders / feature flag).
@@ -232,7 +240,7 @@ Disable by unsetting or setting `Orchestrator__UseFakeLlm` to any value other th
 | Symptom | Likely Cause | Action |
 |---------|--------------|--------|
 | Answer contains "Azure OpenAI configuration missing" | Env vars not set | Export `AzureOpenAI__*` values |
-| Disclaimers include "KB executable not found" | Path mismatch | Override `KbMcpServer__ExecutablePath` env var |
+| Disclaimers include "KB executable not found" | Path mismatch / not built | Ensure project built; set `KbMcpServer__ExecutablePath` (base path only or explicit .dll/.exe) |
 | Tool list missing `ask_domain_question` | Build failed / stale binary | Rebuild project; ensure Copilot restarted |
 | Long startup delay on first question | KB server cold start | Pre-run KB MCP server independently to warm it |
 

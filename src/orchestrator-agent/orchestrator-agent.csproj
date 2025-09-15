@@ -4,7 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <UseAppHost>false</UseAppHost>
+  <!-- Re-enabled apphost to produce executable; orchestrator still supports launching via dll -->
+  <UseAppHost>true</UseAppHost>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
