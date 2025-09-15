@@ -39,10 +39,6 @@ public static class OrchestratorTools
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
             .AddEnvironmentVariables();
-        if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
-        {
-            configBuilder.AddUserSecrets<Program>(optional: true);
-        }
         var config = configBuilder.Build();
 
         string? endpoint = config["AzureOpenAI:Endpoint"];
@@ -193,11 +189,6 @@ public static class OrchestratorTools
             .SetBasePath(AppContext.BaseDirectory) // ensures we can find appsettings.json in output directory
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
             .AddEnvironmentVariables();
-        if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
-        {
-            // Optional; safe no-op outside dev.
-            configBuilder.AddUserSecrets<Program>(optional: true);
-        }
         var config = configBuilder.Build();
 
         // Extract (not yet strictly enforced until Step 5)

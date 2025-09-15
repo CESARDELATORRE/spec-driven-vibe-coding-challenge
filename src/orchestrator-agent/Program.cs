@@ -9,18 +9,11 @@ using ModelContextProtocol.Server;
 
 var builder = Host.CreateEmptyApplicationBuilder(settings: null);
 
-// Configuration layering:
-// 1. (Future) appsettings.json (added in Step 7) -> keep optional for now so build succeeds without file
-// 2. Environment variables (primary portable contract)
-// 3. User Secrets ONLY in Development for local convenience
+// Minimal configuration layering: appsettings.json + environment variables.
+// (UserSecrets removed to keep prototype lean.)
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Configuration.AddUserSecrets<Program>(optional: true);
-}
 
 // Logging: route ALL log levels to stderr to avoid corrupting MCP STDIO protocol on stdout.
 builder.Logging.ClearProviders();
