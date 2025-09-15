@@ -27,7 +27,7 @@ internal sealed class StdioMcpClient : IAsyncDisposable
         _stdout = stdout;
     }
 
-    public static async Task<StdioMcpClient> StartAsync(string serverProjectCsprojPath, CancellationToken ct = default)
+    public static async Task<StdioMcpClient> StartAsync(string serverProjectCsprojPath, CancellationToken ct = default, IDictionary<string,string>? extraEnvironment = null)
     {
         if (!File.Exists(serverProjectCsprojPath))
         {
@@ -55,6 +55,14 @@ internal sealed class StdioMcpClient : IAsyncDisposable
             CreateNoWindow = true,
             WorkingDirectory = Path.GetDirectoryName(dllPath)!
         };
+
+        if (extraEnvironment != null)
+        {
+            foreach (var kvp in extraEnvironment)
+            {
+                psi.Environment[kvp.Key] = kvp.Value;
+            }
+        }
 
         var proc = new Process { StartInfo = psi };
         if (!proc.Start()) throw new InvalidOperationException("Failed to start orchestrator MCP server");

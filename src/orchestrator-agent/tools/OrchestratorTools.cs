@@ -192,9 +192,10 @@ public static class OrchestratorTools
 
         // Chat / LLM not yet invoked (Step 4). Provide placeholder answer.
         // Step 4: Attempt answer synthesis using Azure OpenAI via Semantic Kernel.
-        string answer;
-        int tokensEstimate;
-        bool chatAgentReady = false;
+    string answer;
+    int tokensEstimate;
+    bool chatAgentReady = false;
+    bool fakeLlmMode = string.Equals(config["Orchestrator:UseFakeLlm"], "true", StringComparison.OrdinalIgnoreCase);
         try
         {
             if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(deploymentName) || string.IsNullOrWhiteSpace(apiKey))
@@ -206,33 +207,47 @@ public static class OrchestratorTools
             }
             else
             {
-                var kernelBuilder = Kernel.CreateBuilder();
-                kernelBuilder.AddAzureOpenAIChatCompletion(endpoint: endpoint!, deploymentName: deploymentName!, apiKey: apiKey!);
-                Kernel kernel = kernelBuilder.Build();
-                chatAgentReady = true;
-
-                // Build prompt with optional KB snippets
-                var kbSection = string.Empty;
-                if (usedKb && kbResults.Count > 0)
+                if (fakeLlmMode)
                 {
-                    var joined = string.Join("\n---\n", kbResults.Select(r => (r as dynamic)?.snippet ?? r.ToString()));
-                    kbSection = $"Knowledge Base Snippets:\n{joined}\n\n";
+                    // Simulated successful LLM path for integration testing without external calls.
+                    chatAgentReady = true;
+                    if (!usedKb)
+                    {
+                        disclaimers.Add("Answer generated without knowledge base grounding");
+                    }
+                    disclaimers.Add("Simulated LLM answer (fake mode)");
+                    answer = $"FAKE_LLM_ANSWER: {question}";
                 }
                 else
                 {
-                    disclaimers.Add("Answer generated without knowledge base grounding");
+                    var kernelBuilder = Kernel.CreateBuilder();
+                    kernelBuilder.AddAzureOpenAIChatCompletion(endpoint: endpoint!, deploymentName: deploymentName!, apiKey: apiKey!);
+                    Kernel kernel = kernelBuilder.Build();
+                    chatAgentReady = true;
+
+                    // Build prompt with optional KB snippets
+                    var kbSection = string.Empty;
+                    if (usedKb && kbResults.Count > 0)
+                    {
+                        var joined = string.Join("\n---\n", kbResults.Select(r => (r as dynamic)?.snippet ?? r.ToString()));
+                        kbSection = $"Knowledge Base Snippets:\n{joined}\n\n";
+                    }
+                    else
+                    {
+                        disclaimers.Add("Answer generated without knowledge base grounding");
+                    }
+
+                    string systemInstructions = "You are a concise domain Q&A assistant. Use provided KB snippets if present. Keep answer under 200 words. If no KB snippets, clearly state answer may lack domain grounding.";
+                    string fullPrompt = $"{systemInstructions}\n\n{kbSection}User Question: {question}\n\nAnswer:";
+
+                    var execSettings = new OpenAIPromptExecutionSettings
+                    {
+                        Temperature = 0.2,
+                    };
+
+                    var promptResult = await kernel.InvokePromptAsync(fullPrompt, new(execSettings)).ConfigureAwait(false);
+                    answer = promptResult.ToString();
                 }
-
-                string systemInstructions = "You are a concise domain Q&A assistant. Use provided KB snippets if present. Keep answer under 200 words. If no KB snippets, clearly state answer may lack domain grounding.";
-                string fullPrompt = $"{systemInstructions}\n\n{kbSection}User Question: {question}\n\nAnswer:";
-
-                var execSettings = new OpenAIPromptExecutionSettings
-                {
-                    Temperature = 0.2,
-                };
-
-                var promptResult = await kernel.InvokePromptAsync(fullPrompt, new(execSettings)).ConfigureAwait(false);
-                answer = promptResult.ToString();
             }
         }
         catch (Exception ex)
@@ -264,7 +279,8 @@ public static class OrchestratorTools
                 chatAgentReady,
                 requestedMaxKbResults = requestedMaxKb,
                 effectiveMaxKbResults = maxKbResults,
-                kbResultsClamped
+                kbResultsClamped,
+                fakeLlmMode
             },
             status = "scaffold"
         };
