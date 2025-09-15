@@ -6,7 +6,7 @@
 
 This project develops a **domain-specific AI agent for Azure Managed Grafana (AMG)** that demonstrates how to move from hypothesis to prototype in an evidence-driven manner. The solution creates a specialized conversational agent that provides precise, domain-specific insights compared to generic chatbots, addressing the gap between generic AI assistance and deep domain knowledge. The system is designed with a modular, reusable architecture that can be adapted for other technical product domains, providing a scalable foundation for organizations seeking to enhance their customer engagement through specialized AI agents.
 
-The architecture implements a modular AI agent system built around **Model Context Protocol (MCP)**, **Semantic Kernel**, and **Azure AI Foundry**. Starting with a lightweight prototype using STDIO transport and file-based knowledge storage, the system prioritizes rapid development and validation over scalability. The solution consists of three core components: a **Knowledge Base MCP Server** for domain-specific information access, an **Orchestration Agent** for conversation coordination using Semantic Kernel, and integration with MCP-compatible clients like GitHub Copilot and Claude Desktop for natural language interaction.
+The architecture implements a modular AI agent system built around **Model Context Protocol (MCP)** and **Semantic Kernel**. Starting with a lightweight prototype using STDIO transport and file-based knowledge storage, the system prioritizes rapid development and validation over scalability. The solution consists of three core components: a **Knowledge Base MCP Server** for domain-specific information access, an **Orchestration Agent** for conversation coordination using Semantic Kernel, and integration with MCP-compatible clients like GitHub Copilot and Claude Desktop for natural language interaction.
 
 ## 🏗️ Repository Structure
 
@@ -41,13 +41,13 @@ The architecture implements a modular AI agent system built around **Model Conte
 - **.NET Runtime**: .NET 9 (fallback: .NET 8)
 - **Operating System**: Windows, macOS, or Linux
 - **MCP-Compatible Client**: VS Code with GitHub Copilot or Claude Desktop
-- **Azure AI Foundry**: API credentials (for LLM capabilities)
+- **Azure OpenAI**: API credentials (for LLM capabilities)
 
 ### 📦 Installation & Build
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge.git
+git clone https://github.com/<your-github-username>/spec-driven-vibe-coding-challenge.git
 cd spec-driven-vibe-coding-challenge
 
 # 2. Build the solution
@@ -64,10 +64,16 @@ ls -la src/*/bin/Debug/net*/
 # 1. Copy environment template
 cp dev.env.example dev.env
 
-# 2. Edit dev.env with your Azure AI Foundry credentials
+# 2. Edit dev.env with your Azure OpenAI credentials
 # AzureOpenAI__Endpoint=https://your-resource.openai.azure.com/
 # AzureOpenAI__DeploymentName=gpt-4o-mini
 # AzureOpenAI__ApiKey=YOUR_ACTUAL_API_KEY
+# 
+# Set to true to use deterministic fake LLM path (no real model call)
+# Orchestrator__UseFakeLlm=false
+#
+# Relative path to KB MCP server executable (override as needed)  
+# KbMcpServer__ExecutablePath=./src/mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher
 
 # 3. Load environment variables (bash/git bash)
 set -a; source dev.env; set +a
@@ -100,7 +106,7 @@ The repository includes a pre-configured [`.vscode/mcp.json`](.vscode/mcp.json) 
 3. 💬 Open GitHub Copilot Chat panel
 4. 🧪 Test with queries (see examples below)
 
-> **💡 Note**: Ensure your `dev.env` is configured with Azure AI Foundry credentials before testing the orchestrator.
+> **💡 Note**: Ensure your `dev.env` is configured with Azure OpenAI credentials before testing the orchestrator.
 
 ### 🏠 Claude Desktop Integration
 
@@ -144,57 +150,48 @@ Try these natural language queries with the orchestrator agent:
 "What are the benefits of using AMG over self-hosted Grafana?"
 ```
 
-### 🔍 Direct KB Server Testing
-
-For testing the Knowledge Base MCP Server directly:
-
-```bash
-# 1. Start the KB server
-dotnet run --project src/mcp-server-kb-content-fetcher
-
-# 2. Use explicit MCP tool calls in supported clients:
-@workspace /mcp search_knowledge "Azure Monitor integration"
-@workspace /mcp get_kb_info
-@workspace /mcp get_kb_content
-```
-
-### 🧪 Using Helper Scripts
-
-```bash
-# Quick start with environment loading
-./run-orchestrator.sh                    # Load env + build + run orchestrator
-./run-orchestrator.sh --no-build        # Skip build if already built
-./run-orchestrator.sh --kb              # Also start KB server in background
-```
-
 ## 🧪 Testing
 
-### Unit Tests
-```bash
-# Run all unit tests
-dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/
-dotnet test tests/orchestrator-agent.unit-tests/
+### UI Testing with GitHub Copilot
 
-# Run with coverage
-dotnet test --collect:"XPlat Code Coverage"
+Once your MCP servers are configured in VS Code, test the system using natural language queries in the GitHub Copilot Chat panel:
+
+```bash
+# Test orchestrator agent queries:
+"What are the pricing options for Azure Managed Grafana?"
+"How do I integrate Azure Monitor with Grafana?"
+"Give me an overview of Azure Managed Grafana"
+
+# Test direct KB server access:
+@workspace /mcp search_knowledge "Azure Monitor integration"
+@workspace /mcp get_kb_info
 ```
 
-### Integration Tests
-```bash
-# Test MCP protocol compliance
-dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/
-dotnet test tests/orchestrator-agent.integration-tests/
+### UI Testing with Claude Desktop
 
-# Smoke tests
-dotnet test tests/orchestrator-agent.smoke-tests/
+After configuring Claude Desktop with the MCP servers, test with similar queries in the Claude chat interface:
+
+```bash
+# Natural language queries (will route through orchestrator):
+"Tell me about Azure Managed Grafana key features"
+"What are the monitoring capabilities of AMG?"
+
+# Direct MCP tool calls (if supported):
+search_knowledge "pricing"
+get_kb_content
 ```
 
-### Manual Testing
-```bash
-# Test individual components
-dotnet run --project src/mcp-server-kb-content-fetcher
-dotnet run --project src/orchestrator-agent
-```
+### Troubleshooting Tests
+
+If queries don't work as expected:
+
+1. **Check MCP server status** in VS Code Output panel → MCP Logs
+2. **Verify environment variables** are loaded: `echo $AzureOpenAI__ApiKey`
+3. **Test individual components** manually:
+   ```bash
+   dotnet run --project src/mcp-server-kb-content-fetcher
+   dotnet run --project src/orchestrator-agent
+   ```
 
 ## 🏗️ Architecture Details
 
@@ -204,7 +201,7 @@ dotnet run --project src/orchestrator-agent
 |-----------|---------|------------------|
 | **KB MCP Server** | Domain knowledge access via MCP protocol | .NET 9, MCP SDK, File-based storage |
 | **Orchestration Agent** | Conversation coordination and multi-step planning | .NET 9, Semantic Kernel, MCP SDK |
-| **Chat Agent** | LLM interaction and response processing | Azure AI Foundry, Semantic Kernel |
+| **Chat Agent** | LLM interaction and response processing | Semantic Kernel, Azure OpenAI |
 | **MCP Clients** | User interface (VS Code, Claude Desktop) | GitHub Copilot, Claude Desktop |
 
 ### Communication Flow
