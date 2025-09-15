@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Reflection; // For reflective parsing of MCP CallToolAsync result
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ModelContextProtocol.Server;
 using Microsoft.Extensions.Configuration;
 using ModelContextProtocol.Client; // Step 3 KB client integration
@@ -19,16 +20,122 @@ public static class OrchestratorTools
     /// <summary>
     /// Health/status tool returning basic readiness flags.
     /// </summary>
-    [McpServerTool, Description("Gets orchestrator status information.")]
+    [McpServerTool, Description("Gets orchestrator status / health information.")]
     public static string GetOrchestratorStatus()
     {
         var payload = new
         {
-            status = "ok",
-            kbConnected = false, // Will be updated in later steps
-            chatAgentReady = true
+            status = "Alive"
         };
         return JsonSerializer.Serialize(payload);
+    }
+
+    [McpServerTool, Description("Gets orchestrator diagnostics information (sanitized; secrets masked).")]
+    public static string GetOrchestratorDiagnosticsInformation()
+    {
+        // Build configuration similar to AskDomainQuestion to check flags
+        var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+        var configBuilder = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+            .AddEnvironmentVariables();
+        if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
+        {
+            configBuilder.AddUserSecrets<Program>(optional: true);
+        }
+        var config = configBuilder.Build();
+
+        string? endpoint = config["AzureOpenAI:Endpoint"];
+        string? deployment = config["AzureOpenAI:DeploymentName"];
+        string? apiKey = config["AzureOpenAI:ApiKey"]; // WILL NOT be returned raw (masked)
+        bool fakeLlmMode = string.Equals(config["Orchestrator:UseFakeLlm"], "true", StringComparison.OrdinalIgnoreCase);
+        string? kbPathConfig = config["KbMcpServer:ExecutablePath"];
+
+        // Attempt lightweight KB executable resolution (no launch) to set kbConnectedCandidate flag
+        bool kbExecutableConfigured = !string.IsNullOrWhiteSpace(kbPathConfig);
+        bool kbExecutableResolved = false;
+        string? kbResolvedPath = null;
+        if (kbExecutableConfigured)
+        {
+            try
+            {
+                var baseDir = AppContext.BaseDirectory;
+                if (Path.IsPathFullyQualified(kbPathConfig!))
+                {
+                    // Direct
+                    var direct = kbPathConfig!;
+                    if (File.Exists(direct) || File.Exists(direct + ".exe") || File.Exists(direct + ".dll"))
+                    {
+                        kbExecutableResolved = true;
+                        kbResolvedPath = File.Exists(direct) ? direct : (File.Exists(direct + ".exe") ? direct + ".exe" : direct + ".dll");
+                    }
+                }
+                else
+                {
+                    var primary = Path.GetFullPath(Path.Combine(baseDir, kbPathConfig!));
+                    IEnumerable<string> candidates = new[] { primary, primary + ".exe", primary + ".dll" };
+                    foreach (var c in candidates)
+                    {
+                        if (File.Exists(c)) { kbExecutableResolved = true; kbResolvedPath = c; break; }
+                    }
+                }
+            }
+            catch { /* swallow diagnostics path errors */ }
+        }
+
+        // Prepare sanitized environment variable dump (mask likely secrets)
+        var allEnv = Environment.GetEnvironmentVariables();
+        var envList = new List<object>();
+        foreach (System.Collections.DictionaryEntry entry in allEnv)
+        {
+            var name = entry.Key?.ToString() ?? string.Empty;
+            var value = entry.Value?.ToString() ?? string.Empty;
+            bool isSecret = IsSecretLike(name);
+            string displayed = isSecret ? Mask(value) : value;
+            envList.Add(new { name, value = displayed, isSecret });
+        }
+
+        var diagnostics = new
+        {
+            environment,
+            endpointConfigured = !string.IsNullOrWhiteSpace(endpoint),
+            deploymentConfigured = !string.IsNullOrWhiteSpace(deployment),
+            apiKeyConfigured = !string.IsNullOrWhiteSpace(apiKey),
+            fakeLlmMode,
+            kbExecutableConfigured,
+            kbExecutableResolved,
+            kbResolvedPath = kbResolvedPath is null ? null : Path.GetFileName(kbResolvedPath),
+            timestampUtc = DateTime.UtcNow.ToString("o"),
+            assemblyVersion = typeof(OrchestratorTools).Assembly.GetName().Version?.ToString()
+        };
+
+        var payload = new
+        {
+            status = "Alive",
+            diagnostics,
+            environmentVariables = envList.OrderBy(e => ((dynamic)e).name).ToArray(),
+            disclaimers = new[]
+            {
+                "Secrets are masked. This diagnostic output should not be exposed to untrusted clients.",
+                "To view raw secrets, inspect environment directly outside of MCP tool responses."
+            }
+        };
+
+        return JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+
+        // Local helpers
+        static bool IsSecretLike(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return false;
+            var upper = name.ToUpperInvariant();
+            return upper.Contains("KEY") || upper.Contains("SECRET") || upper.Contains("TOKEN") || upper.Contains("PASSWORD") || upper.Contains("PWD");
+        }
+        static string Mask(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            if (value.Length <= 6) return new string('*', value.Length);
+            return value.Substring(0, 3) + new string('*', value.Length - 6) + value.Substring(value.Length - 3);
+        }
     }
 
     /// <summary>
