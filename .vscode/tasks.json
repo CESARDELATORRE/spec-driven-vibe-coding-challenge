@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build orchestrator-agent",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/orchestrator-agent/orchestrator-agent.csproj"
+      ],
+      "problemMatcher": ["$msCompile"],
+      "group": "build"
+    }
+  ]
+}

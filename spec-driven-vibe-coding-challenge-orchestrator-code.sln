@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mcp-server-kb-content-fetch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orchestrator-agent.smoke-tests", "tests\orchestrator-agent.smoke-tests\orchestrator-agent.smoke-tests.csproj", "{7D5A4A52-6E2C-41A2-B3F7-2E4F8D3B1C11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orchestrator-agent.unit-tests", "tests\orchestrator-agent.unit-tests\orchestrator-agent.unit-tests.csproj", "{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{7D5A4A52-6E2C-41A2-B3F7-2E4F8D3B1C11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D5A4A52-6E2C-41A2-B3F7-2E4F8D3B1C11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D5A4A52-6E2C-41A2-B3F7-2E4F8D3B1C11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +56,7 @@ Global
 		{4D3BC05D-91FB-25FC-679E-DC44E93469D0} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{D439ED08-A7E4-257A-C300-9FBF81B0CFA4} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{7D5A4A52-6E2C-41A2-B3F7-2E4F8D3B1C11} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{2F8C52B1-5D91-44B5-9E6E-6F2F5C9C2A77} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1C26FEF7-F298-486B-9AF6-4B2EEF7B8ED9}
