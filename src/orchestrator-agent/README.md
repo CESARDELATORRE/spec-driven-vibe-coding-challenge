@@ -1,0 +1,162 @@
+# Orchestrator Agent MCP Server (Prototype)
+
+Single-turn orchestration MCP server that:
+- Optionally launches and queries the Knowledge Base MCP Server (KB) for grounding
+- Uses Azure OpenAI (when configured) through Semantic Kernel to synthesize an answer
+- Gracefully degrades if KB or LLM configuration is missing (returns disclaimers)
+
+> Prototype scope: No multi-turn memory; no persistence; minimal heuristics (greeting skip, validation, result clamping).
+
+## Tools Exposed
+| Tool Name | Description | Status Output Field(s) |
+|-----------|-------------|------------------------|
+| `get_orchestrator_status` | Basic health/status flags | `status`, `kbConnected` (future), `chatAgentReady` |
+| `ask_domain_question` | Validates question, optional KB lookup, attempts LLM answer, returns structured JSON | `answer`, `usedKb`, `kbResults`, `disclaimers`, `diagnostics`, `status` |
+
+Example partial JSON response (degraded path – no Azure OpenAI vars):
+```json
+{
+  "answer": "Azure OpenAI configuration missing; cannot generate answer.",
+  "usedKb": false,
+  "kbResults": [],
+  "disclaimers": [
+    "Missing Azure OpenAI configuration (Endpoint / Deployment / ApiKey)",
+    "Answer generated without knowledge base grounding"
+  ],
+  "tokensEstimate": 76,
+  "diagnostics": {
+    "environment": "Production",
+    "endpointConfigured": false,
+    "deploymentConfigured": false,
+    "apiKeyConfigured": false,
+    "attemptedKb": false,
+    "heuristicSkipKb": false,
+    "chatAgentReady": false,
+    "requestedMaxKbResults": 2,
+    "effectiveMaxKbResults": 2,
+    "kbResultsClamped": false
+  },
+  "status": "scaffold"
+}
+```
+
+## Configuration
+All runtime configuration is driven by environment variables (portable) + `appsettings.json` (non-secret defaults).
+
+### Required (for LLM positive path)
+| Purpose | Env Var | Notes |
+|---------|---------|-------|
+| Azure OpenAI Endpoint | `AzureOpenAI__Endpoint` | e.g. `https://your-resource.openai.azure.com/` |
+| Azure OpenAI Deployment Name | `AzureOpenAI__DeploymentName` | Name of deployed GPT model (e.g. `gpt-4o-mini`) |
+| Azure OpenAI API Key | `AzureOpenAI__ApiKey` | Omit only if later switching to AAD + managed identity |
+
+### Optional
+| Purpose | Env Var | Notes |
+|---------|---------|-------|
+| KB Server Executable Path | `KbMcpServer__ExecutablePath` | Overrides value in `appsettings.json` |
+| .NET Environment | `DOTNET_ENVIRONMENT` | `Development` enables optional User Secrets lookup |
+
+### appsettings.json (checked-in, non-secret)
+```json
+{
+  "KbMcpServer": {
+    "ExecutablePath": "../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher"
+  },
+  "GreetingPatterns": ["hi", "hello", "hey", "greetings"],
+  "Logging": { "LogLevel": { "Default": "Information" } }
+}
+```
+Override path or patterns via environment variables if needed.
+
+## Running Locally
+```bash
+# (Optional) Export Azure OpenAI vars for full LLM path
+export AzureOpenAI__Endpoint="https://your-resource.openai.azure.com/"
+export AzureOpenAI__DeploymentName="gpt-4o-mini"
+export AzureOpenAI__ApiKey="YOUR_KEY_VALUE"
+
+# (Optional) Override KB path if different build folder
+export KbMcpServer__ExecutablePath="../mcp-server-kb-content-fetcher/bin/Debug/net9.0/mcp-server-kb-content-fetcher"
+
+# Build & run
+dotnet build src/orchestrator-agent/orchestrator-agent.csproj
+dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
+```
+The server speaks MCP over stdio. Keep stdout clean; logs go to stderr.
+
+## Using with GitHub Copilot (MCP Client)
+1. Ensure Copilot supports MCP configuration (Insiders / feature flag).
+2. Add an entry to your Copilot MCP configuration (example pseudo JSON):
+```jsonc
+{
+  "mcpServers": {
+    "orchestrator-agent": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/src/orchestrator-agent/orchestrator-agent.csproj"
+      ]
+    },
+    "kb-mcp-server": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/src/mcp-server-kb-content-fetcher/mcp-server-kb-content-fetcher.csproj"
+      ]
+    }
+  }
+}
+```
+3. Restart Copilot so it launches both servers.
+4. Ask Copilot to invoke the tool implicitly via natural language (examples below) or explicitly if UI allows selecting tools.
+
+### Example Prompts to Copilot
+Natural language (will route to `ask_domain_question`):
+- "Using the orchestrator, answer: What is the purpose of the knowledge base server in this repo?"
+- "Ask the orchestrator: How does the greeting heuristic work?"
+- "Orchestrator: explain how Azure OpenAI config impacts answer generation."
+
+Explicit / structured (if client UI allows specifying the tool):
+- Tool: `ask_domain_question` with arguments `{ "question": "Describe the configuration layering strategy", "includeKb": true, "maxKbResults": 2 }`
+
+Status / health:
+- "Check orchestrator status"
+- "Call get_orchestrator_status"
+
+### Interpreting Responses
+- `status` = `scaffold` (prototype) or future `ok` once expanded.
+- `disclaimers` array explains any degradation (missing LLM config, no KB, heuristic skip).
+- `diagnostics` contains booleans describing which config pieces were detected.
+
+## Validation & Safeguards
+- Input validation rejects: empty, <5 chars, punctuation-only.
+- `maxKbResults` clamped to range 1..3 (diagnostics include clamp flag).
+- Greeting heuristic (configurable patterns) short-circuits KB usage to save startup cost.
+- Graceful fallback returns structured JSON even when KB or LLM not available.
+
+## Extending
+| Area | Suggested Next Step |
+|------|---------------------|
+| LLM Abstraction | Migrate to `Microsoft.Extensions.AI` interfaces (already referenced) |
+| Positive-path Test | Add integration test with env vars set (mock or real) |
+| KB Search | Invoke `search_knowledge` with query slices instead of static `get_kb_content` |
+| Retry Logic | Add limited retry for KB process start failures |
+| Monitoring | Emit lightweight metrics (counts of heuristic skips, degradations) to stderr JSON |
+
+## Troubleshooting
+| Symptom | Likely Cause | Action |
+|---------|--------------|--------|
+| Answer contains "Azure OpenAI configuration missing" | Env vars not set | Export `AzureOpenAI__*` values |
+| Disclaimers include "KB executable not found" | Path mismatch | Override `KbMcpServer__ExecutablePath` env var |
+| Tool list missing `ask_domain_question` | Build failed / stale binary | Rebuild project; ensure Copilot restarted |
+| Long startup delay on first question | KB server cold start | Pre-run KB MCP server independently to warm it |
+
+## Security Notes
+- Never commit secrets: only use environment variables or (local only) User Secrets.
+- Logs route to stderr; stdout reserved strictly for MCP protocol messages.
+- API key is never logged; only boolean `apiKeyConfigured` appears in diagnostics.
+
+## License
+Apache 2.0 (see root `LICENSE`).

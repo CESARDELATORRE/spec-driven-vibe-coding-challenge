@@ -118,3 +118,7 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/src/orchestrator-agent/appsettings.json`
 **Purpose**: Non-secret defaults for orchestrator agent (KB MCP server executable path, greeting patterns, logging levels).
 **Details**: Consumed at startup (required) and overrideable via environment variables (`KbMcpServer__ExecutablePath`, etc.); supports greeting heuristic configuration.
+
+### `/src/orchestrator-agent/README.md`
+**Purpose**: Usage and integration guide for the Orchestrator MCP Server.
+**Details**: Documents tools (`get_orchestrator_status`, `ask_domain_question`), configuration via environment variables & appsettings, GitHub Copilot MCP client setup snippet, example prompts, troubleshooting, and security notes. Added post Step 11 for discoverability and onboarding.
