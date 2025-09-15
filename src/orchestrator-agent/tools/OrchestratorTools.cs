@@ -87,6 +87,8 @@ public static class OrchestratorTools
             kbExecutableConfigured,
             kbExecutableResolved,
             kbResolvedPath = kbResolvedPath is null ? null : Path.GetFileName(kbResolvedPath),
+            orchestratorExecutablePath = Environment.ProcessPath,
+            orchestratorAssemblyLocation = typeof(OrchestratorTools).Assembly.Location,
             timestampUtc = DateTime.UtcNow.ToString("o"),
             environmentVariables = ordered
         };
