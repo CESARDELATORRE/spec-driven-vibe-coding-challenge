@@ -1295,7 +1295,38 @@ GHCP chat responds with a summary of the task to be done:
 
 
 
-**ISSUE for creating the main repo's README.md to be created by GHCP CODING AGENT in an autonomous PR**
+
+
+
+
+
+# Day 2 and 3
+
+## Goals for Day 2 and 3
+
+- Create features #2 and #3, end to end (per feature, feature's spec doc, implementation plan doc and coding/implementation).
+
+- Feature 2 (Orchestrator Agent) Spec doc and Implementation plan doc
+- Feature 2 (Orchestrator Agent) implementation/coding
+
+- Feature 3 (Chat Agent) Spec doc and Implementation plan doc
+- Feature 3 (Chat Agent) implementation/coding
+
+- One PR per each **feature doc**
+    - PR: Specs doc
+    - PR: Impl. Plan doc
+- One main PR for the initial implementation of each feature
+
+There could be additional PRs for next iterations on the three feature's assets (atomic unit), so they are kept consistent.
+
+
+
+
+
+============================================================================================================================
+TEMP - OUT OF CONTEXT
+
+**Example of ISSUE creation and assignement to GHCP COdign Agent, for creating the main repo's README.md to be created by GHCP CODING AGENT in an autonomous PR**
 
 https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/issues/31
 
@@ -1304,3 +1335,18 @@ https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/issues/31
 ![alt text](images-journey/ghcp-coding-agent-assgined-to-issue.png)
 
 
+============================================================================================================================
+
+
+============================================================================================================================
+
+At this point, due to time limitation and risks, needing to iterate faster, I simply copied screenshots 
+of important prompts in WORD docs here: 
+
+https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge/tree/main/docs/temp-word-docs
+
+(Need to move it as part of the journal docs folder or even migrate it to .MD when bandwidth allows.)
+
+![alt text](images-journey/word-docs-list.png)
+
+============================================================================================================================
