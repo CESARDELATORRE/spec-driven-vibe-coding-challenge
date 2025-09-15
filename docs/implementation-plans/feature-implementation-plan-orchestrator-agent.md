@@ -6,11 +6,13 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 
 ## Implementation Steps
 
-- [ ] Step 1: Project Setup and Structure
+### - [x] Step 1: Project Setup and Structure
   - **Task**: Create the orchestration agent project with proper folder structure and dependency references. Secrets will be supplied by environment variables (User Secrets optional for local dev only).
   - **Files**:
     - `src/orchestrator-agent/orchestrator-agent.csproj`: Main project file with MCP SDK + Semantic Kernel dependencies.
     - `src/orchestrator-agent/Program.cs`: Host builder with MCP server configuration using `Host.CreateEmptyApplicationBuilder`.
+    - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Initial MCP tools static class (status + placeholder AskDomainQuestion) - to be expanded in later steps.
+  - **Status**: Implemented. Project compiles structure pending further tool logic (Steps 2+).
   - **Dependencies**: .NET 9, MCP SDK, Semantic Kernel, Azure OpenAI connector.
     ```
     ModelContextProtocol
@@ -81,8 +83,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     </Project>
     ```
 
-- [ ] Step 2: MCP Tools Implementation
+### - [x] Step 2: MCP Tools Implementation
   - **Task**: Create MCP tools following the static class pattern, using ChatCompletionAgent directly with configuration loaded from environment variables (User Secrets only if dev environment).
+  - **Status**: Scaffold implemented. `AskDomainQuestionAsync` added with config loading, validation placeholders, structured JSON response, heuristic skip placeholder. Full KB + LLM logic deferred to Steps 3-4.
   - **Files**:
   - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Static class with `[McpServerToolType]` containing both tools.
   - **Dependencies**: MCP tool attributes, Semantic Kernel ChatCompletionAgent, configuration providers (env vars + optional user secrets), LINQ.
@@ -122,8 +125,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   }
   ```
 
-- [ ] Step 3: KB MCP Client Integration (Inline)
+### - [x] Step 3: KB MCP Client Integration (Inline)
   - **Task**: Implement KB MCP client connection directly in the MCP tool method using configurable server path
+  - **Status**: Implemented. `AskDomainQuestionAsync` now launches KB MCP server process (if configured), lists tools, invokes `get_kb_content` when available, captures/truncates content, and adds disclaimers on degradation. `search_knowledge` invocation deferred to later refinement.
   - **Files**: No separate files - integrated into OrchestratorTools.cs
   - **Dependencies**: MCP SDK client components, configuration
   - **Pseudocode**:
@@ -173,8 +177,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     }
     ```
 
-- [ ] Step 4: Direct ChatCompletionAgent Usage with Secure Configuration
+### - [x] Step 4: Direct ChatCompletionAgent Usage with Secure Configuration
   - **Task**: Use ChatCompletionAgent directly with Azure OpenAI settings loaded from environment variables.
+  - **Status**: Implemented. Semantic Kernel prompt invocation added; constructs prompt with optional KB snippets, system instructions, concise answer requirement (<200 words), graceful degradation when config missing or LLM fails.
   - **Files**: Integrated into `OrchestratorTools.cs`.
   - **Dependencies**: Semantic Kernel, Azure OpenAI connector.
   - **Pseudocode**:
@@ -205,10 +210,11 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   };
   ```
 
-- [ ] Step 5: Error Handling and Validation (Inline)
+### - [x] Step 5: Error Handling and Validation (Inline)
   - **Task**: Add input validation, environment variable presence checks, and graceful degradation.
   - **Files**: Integrated into `OrchestratorTools.cs`.
   - **Dependencies**: Configuration validation, logging.
+  - **Status**: Implemented. Added structured error responses (status=error, correlationId), minimum length & punctuation-only validation, maxKbResults clamping with diagnostics, greeting-based heuristic now configuration-aware, consistent disclaimer wording, and diagnostics enriched with requested/effective KB results + clamped flag.
   - **Pseudocode**:
   ```csharp
   // Never log actual secrets
@@ -233,11 +239,12 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   }
   ```
 
-- [ ] Step 6: Program.cs Setup
+### - [x] Step 6: Program.cs Setup
   - **Task**: Configure MCP server startup following the working pattern
   - **Files**:
     - `src/orchestrator-agent/Program.cs`: Update with MCP server configuration using `Host.CreateEmptyApplicationBuilder`
   - **Dependencies**: Host builder, MCP server extensions
+  - **Status**: Implemented. Added configuration layering (appsettings optional placeholder until Step 7), environment variables, dev user secrets, stderr-only logging, and MCP server registration.
   - **Pseudocode**:
     ```csharp
     // Use the working pattern from provided code - minimal setup
@@ -250,10 +257,11 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     await builder.Build().RunAsync();
     ```
 
-- [ ] Step 7: Configuration File
+### - [x] Step 7: Configuration File
   - **Task**: Provide non-secret configuration (KB path, patterns). Secrets remain only in env vars.
   - **Files**:
     - `src/orchestrator-agent/appsettings.json`: Non-sensitive defaults.
+  - **Status**: Implemented. Added default KB executable path (relative), greeting patterns array consumed by heuristic, and logging levels. Program.cs now treats appsettings.json as required.
   - **Pseudocode**:
     ```json
     {
@@ -266,7 +274,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     ```
   - **Override Strategy**: For dynamic paths in CI/containers, set `KbMcpServer__ExecutablePath` environment variable.
 
-- [ ] Step 8: Build and Run Application
+### - [x] Step 8: Build and Run Application
   - **Task**: Ensure application builds and runs successfully with proper secrets configuration
   - **Files**: No new files - validation step
   - **Commands**:
@@ -276,13 +284,15 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     ```
   - **User Intervention**: Ensure required environment variables are exported before running.
   - **Dependencies**: All previous steps completed, Azure OpenAI secrets configured
+  - **Status**: Validated. Application launches with `appsettings.json` copied to output (csproj updated with CopyToOutput). No runtime errors without Azure OpenAI env vars (graceful disclaimers remain for LLM path).
 
-- [ ] Step 9: Unit Tests
+### - [x] Step 9: Unit Tests
   - **Task**: Create unit tests for MCP tools with mock configuration
   - **Files**:
     - `tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj`: Test project
     - `tests/orchestrator-agent.unit-tests/tools/OrchestratorToolsTests.cs`: Tool behavior tests with mock secrets
   - **Dependencies**: xUnit, test fixtures for mock configuration, secure test patterns
+  - **Status**: Implemented. Added unit tests covering validation errors (empty, punctuation-only, too short), correlationId format, greeting heuristic, and maxKbResults clamping diagnostics.
   - **Pseudocode**:
     ```csharp
     // Test configuration validation without real secrets
@@ -295,25 +305,98 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
     }
     ```
 
-- [ ] Step 10: Integration Tests
+### - [x] Step 10: Integration Tests
   - **Task**: Test MCP server coordination with real KB server using test secrets
   - **Files**:
     - `tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj`: Integration test project
-    - `tests/orchestrator-agent.integration-tests/McpServerIntegrationTests.cs`: End-to-end tool invocation tests
-  - **Dependencies**: In-process test host, MCP test harness, real KB MCP server, test Azure OpenAI configuration
-  - **User Intervention**: Provide test env vars (can use dummy values when mocking Azure OpenAI layer).
+    - `tests/orchestrator-agent.integration-tests/StdioMcpClient.cs`: Minimal stdio harness (orchestrator)
+    - `tests/orchestrator-agent.integration-tests/OrchestratorServerIntegrationTests.cs`: End-to-end tool invocation tests
+  - **Dependencies**: Orchestrator project, xUnit, custom stdio client harness
+  - **Status**: Implemented. Tests cover initialize + tools/list discovery and ask_domain_question degraded path (no Azure OpenAI config) with disclaimers & scaffold status.
+  - **User Intervention**: Optional — set AzureOpenAI__* env vars to exercise LLM success path later.
 
-- [ ] Step 11: Run All Tests
+### - [x] Step 11: Run All Tests
   - **Task**: Execute complete test suite to validate implementation with security requirements
   - **Files**: No new files - validation step
-  - **Commands**:
-    ```bash
-    dotnet test tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj
-    dotnet test tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj
-    ```
-  - **Dependencies**: All test projects completed, test secrets configured
+  - **Commands Executed**:
+    - `dotnet test spec-driven-vibe-coding-challenge-orchestrator-code.sln` (full solution)
+    - Individual integration suites run separately during Step 10 confirmation.
+  - **Result**: PASS — 32 total tests (unit + smoke + integration across KB and orchestrator) succeeded with 0 failures.
+  - **Dependencies**: All test projects present and green; Azure OpenAI env vars intentionally absent for degraded-path validation (no secrets required).
+  - **Status**: Implemented.
+
+### - [x] Step 12: KB Path Resolution Hardening & Smoke Test Determinism
+  - **Task**: Improve robustness of KB executable discovery and stabilize smoke test expectations regardless of developer environment variables.
+  - **Changes**:
+    - Enhanced `AskDomainQuestionAsync` to probe multiple candidate base paths:
+      1. Direct (absolute) path if provided.
+      2. Relative to `AppContext.BaseDirectory`.
+      3. Relative to detected repository root (walking upward until a `.sln` or `.git` directory is found; up to 8 levels).
+    - For each base candidate, probe exact, `.exe`, and `.dll` variants; first success chosen.
+    - Added richer diagnostics when probing fails (count + sample of first paths).
+    - Added `source` metadata to KB snippet for traceability.
+    - Updated smoke test `AskDomainQuestionAsync_ReturnsScaffoldResponse_WhenNoConfig` to temporarily clear Azure OpenAI environment variables so `endpointConfigured=false` assertion remains stable even if dev shell has them set.
+  - **Rationale**: Resolve earlier path duplication / nested `bin` issues and eliminate flakiness caused by ambient developer environment leaking into deterministic smoke test.
+  - **Status**: Implemented; build succeeded and all tests pass after adjusting smoke test (previous failure due to endpoint var present). Future improvement might include a small helper for env scoping in tests if repeated.
 
 ## Key Implementation Details
+
+### Dependency Inventory & Version Rationale (Added Post Step 11)
+The following summarizes the concrete NuGet package versions in use after completing Steps 1–11, plus rationale and future considerations.
+
+#### Runtime (`src/orchestrator-agent/orchestrator-agent.csproj`)
+| Package | Version | Purpose | Notes / Rationale |
+|---------|---------|---------|-------------------|
+| Microsoft.Extensions.Hosting | 9.0.9 | Generic host & DI plumbing | Stable .NET 9 servicing release |
+| Microsoft.Extensions.Configuration | 9.0.9 | Base configuration APIs | Aligned with host version |
+| Microsoft.Extensions.Configuration.EnvironmentVariables | 9.0.9 | Env var provider | Primary secret/config source |
+| Microsoft.Extensions.Configuration.UserSecrets | 9.0.9 | Dev-only secrets (optional) | Not required in containers/CI |
+| ModelContextProtocol | 0.3.0-preview.4 | MCP server + client primitives | Latest preview available during implementation; monitor for breaking changes |
+| Microsoft.SemanticKernel | 1.54.0 | Core SK abstractions | Version chosen for stability during dev; keep in sync with Agents & connectors |
+| Microsoft.SemanticKernel.Agents.Core | 1.54.0 | ChatCompletionAgent + agent orchestration | Needed for direct agent usage |
+| Microsoft.SemanticKernel.Connectors.OpenAI | 1.54.0 | OpenAI-compatible (non-Azure) connector | Included for parity/future flexibility (not actively used yet) |
+| Microsoft.SemanticKernel.Connectors.AzureOpenAI | 1.54.0 | Azure OpenAI connector | Enables AddAzureOpenAIChatCompletion extension |
+| Microsoft.Extensions.AI.OpenAI | 9.5.0-preview.1.25265.7 | New abstractions for model ops | Present for forward path; not yet wired into tool logic (future refactor candidate) |
+
+#### Test Projects
+| Project | Package | Version | Purpose | Notes |
+|---------|---------|---------|---------|-------|
+| All test projects | xunit | 2.9.2 | Test framework (attr + assertions) | Runner separation maintained |
+| Unit + Integration | Microsoft.NET.Test.Sdk | 17.12.0 | Enables test discovery/execution | Updated to resolve earlier Newtonsoft.Json assembly load issues |
+| Smoke Tests | Microsoft.NET.Test.Sdk | 17.11.1 | Same as above | Slightly older; can be aligned to 17.12.0 in a housekeeping pass |
+| All test projects | xunit.runner.visualstudio | 2.8.2 | VS adapter | Distinct from core xUnit package version (ok) |
+| All test projects | FluentAssertions | 6.12.0 | Fluent assertion style | Stable version |
+| Unit + Integration | coverlet.collector | 6.0.2 | Code coverage data | Not yet enforced in CI but ready |
+
+#### Removed / Avoided Dependencies
+| Package | Action | Reason |
+|---------|--------|--------|
+| Azure.AI.OpenAI | Removed (during Step 9 stabilization) | Assembly mismatch & unnecessary once SK connectors + Microsoft.Extensions.AI adopted; simplified dependency graph |
+
+#### Version Strategy
+1. Pinned explicit versions for deterministic CI and easier diffing of future upgrades.
+2. Aligned SK core + agents + connectors to a single version (1.54.0) to avoid subtle interface drift.
+3. Accepted preview packages (ModelContextProtocol, Microsoft.Extensions.AI.OpenAI) because prototype scope prioritizes feature velocity; documented upgrade risk.
+4. Left Microsoft.Extensions.AI.OpenAI not yet integrated—keeps current logic simpler while preserving an escape hatch for future abstraction consolidation (e.g., swapping model providers without touching tool code).
+
+#### Upgrade Considerations (Future Work)
+| Area | Trigger | Suggested Action |
+|------|---------|------------------|
+| MCP SDK | New preview / GA | Re-test stdio transport + tool discovery; watch for protocol schema shifts |
+| Semantic Kernel | Minor/patch bump | Run all tests; verify ChatCompletionAgent API stability |
+| Microsoft.Extensions.AI.* | GA release | Refactor tool code to use IChatClient abstraction; add positive-path LLM integration test with env vars |
+| Test Sdk (smoke project) | Housekeeping | Align to 17.12.0 to remove version skew |
+| Coverage tooling | CI adoption | Add coverage threshold gate once orchestrator logic stabilizes |
+
+#### Known Gaps (Documented, Intentional for Prototype)
+| Gap | Impact | Mitigation Path |
+|-----|--------|-----------------|
+| No positive-path (LLM success) integration test | Only degraded mode exercised automatically | Add test fixture that injects fake / mock chat client via Microsoft.Extensions.AI abstraction once refactored |
+| Microsoft.Extensions.AI.OpenAI unused | Dead weight until refactor | Track in backlog; remove if abstraction adoption deferred long-term |
+| Mixed Test SDK versions | Minor inconsistency | Single-line version bump in smoke tests project |
+| Lack of retry/transient handling for KB process start | Potential flakiness on slow FS | Add simple exponential backoff loop if instability observed |
+
+This section was added after completing the primary implementation steps to capture the actual state of dependencies for transparency, auditability, and to guide future refactors.
 
 ### Secure Configuration Pattern (Steps 1, 4, 5)
 ```csharp

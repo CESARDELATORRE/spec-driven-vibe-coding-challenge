@@ -1,6 +1,5 @@
 ---
 mode: 'agent'
-tools: ['context7']
 description: 'Implement the coding of an implementation-plan, step by step'
 ---
 Your task is to implement each step of the provided plan, one at a time.

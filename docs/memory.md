@@ -110,3 +110,39 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/docs-journey-log/approaches-for-reasoning-journal-logging/`
 **Purpose**: Research outputs on different approaches for documenting the reasoning process
 **Details**: Contains analysis from M365 Copilot, ChatGPT, and Claude on best practices for logging development reasoning and decision-making processes
+
+### `/src/orchestrator-agent/`
+**Purpose**: Orchestration MCP server project coordinating ChatCompletionAgent and KB MCP server for single-turn Q&A (prototype).
+**Details**: Contains `Program.cs` for MCP host setup, `orchestrator-agent.csproj` with dependencies, and `tools/OrchestratorTools.cs` initial tool implementations (status + placeholder question tool to be expanded in later steps).
+
+### `/src/orchestrator-agent/DependencyAnchors.cs`
+**Purpose**: Deprecated dependency anchor placeholder.
+**Details**: Temporary internal static class kept to retain past reference; can be removed once no build references rely on its presence.
+
+### `/src/orchestrator-agent/appsettings.json`
+**Purpose**: Non-secret defaults for orchestrator agent (KB MCP server executable path, greeting patterns, logging levels).
+**Details**: Consumed at startup (required) and overrideable via environment variables (`KbMcpServer__ExecutablePath`, etc.); supports greeting heuristic configuration.
+
+### `/src/orchestrator-agent/README.md`
+**Purpose**: Usage and integration guide for the Orchestrator MCP Server.
+**Details**: Documents tools (`get_orchestrator_status`, `ask_domain_question`), configuration via environment variables & appsettings, GitHub Copilot MCP client setup snippet, example prompts, troubleshooting, and security notes. Added post Step 11 for discoverability and onboarding.
+
+### `/src/orchestrator-agent/FUTURE-MULTI-AGENT-WORKFLOW-APPROACH.md`
+**Purpose**: Forward-looking architecture & roadmap for evolving from single-step Q&A to a multi-agent orchestration layer.
+**Details**: Compares Thin vs SK-Embedded vs Hybrid orchestrator patterns, defines staged migration plan, data contract evolution (steps, provenance), security & failure strategy, decision drivers, and actionable near-term steps (interfaces + extraction of Chat Agent). Serves as a living guide for incremental, low-risk scaling.
+
+### `/dev.env.example`
+**Purpose**: Template of environment variables for local development.
+**Details**: Non-secret example values for Azure OpenAI and orchestrator flags; users copy to `dev.env` (ignored) to load variables easily. Includes fake LLM toggle and KB server executable path.
+
+### `/run-orchestrator.sh`
+**Purpose**: Convenience script to load `dev.env`, optionally build, and run the orchestrator (and optionally the KB server) in one command.
+**Details**: Supports `--no-build` and `--kb` flags; logs KB stdout/stderr to files when launched in background; exits if `dev.env` missing.
+
+### (Removed) `/.vscode/tasks.json`
+**Status**: Removed.
+**Reason**: Project standardized on direct terminal execution with `dev.env` rather than VS Code preLaunch tasks.
+
+### (Removed) `/.vscode/launch.local.example.json`
+**Status**: Removed.
+**Reason**: Debug launch indirection replaced by explicit terminal instructions using `dev.env` for portability across editors and CI.
