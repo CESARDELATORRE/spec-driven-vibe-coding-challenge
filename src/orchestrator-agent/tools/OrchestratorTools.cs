@@ -30,8 +30,8 @@ public static class OrchestratorTools
         return JsonSerializer.Serialize(payload);
     }
 
-    [McpServerTool, Description("Gets orchestrator diagnostics information (sanitized; secrets masked).")]
-    public static string GetOrchestratorDiagnosticsInformation()
+    [McpServerTool, Description("Gets orchestrator diagnostics information. Set includeRawEnv=true (and ORCHESTRATOR_ALLOW_RAW_DIAGNOSTICS=true) for unmasked env vars.")]
+    public static string GetOrchestratorDiagnosticsInformation(bool includeRawEnv = false)
     {
         // Build configuration similar to AskDomainQuestion to check flags
         var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
@@ -102,16 +102,26 @@ public static class OrchestratorTools
             catch { /* swallow diagnostics path errors */ }
         }
 
-        // Prepare sanitized environment variable dump (mask likely secrets)
+        // Environment variable dump. Optionally unmasked if explicitly requested AND allowed by gate env var.
+        bool gate = string.Equals(Environment.GetEnvironmentVariable("ORCHESTRATOR_ALLOW_RAW_DIAGNOSTICS"), "true", StringComparison.OrdinalIgnoreCase);
+        bool willReturnRaw = includeRawEnv && gate;
         var allEnv = Environment.GetEnvironmentVariables();
         var envList = new List<object>();
         foreach (System.Collections.DictionaryEntry entry in allEnv)
         {
             var name = entry.Key?.ToString() ?? string.Empty;
-            var value = entry.Value?.ToString() ?? string.Empty;
+            var valueActual = entry.Value?.ToString() ?? string.Empty;
             bool isSecret = IsSecretLike(name);
-            string displayed = isSecret ? Mask(value) : value;
-            envList.Add(new { name, value = displayed, isSecret });
+            string valueToReturn;
+            if (willReturnRaw)
+            {
+                valueToReturn = valueActual; // raw
+            }
+            else
+            {
+                valueToReturn = isSecret ? Mask(valueActual) : valueActual;
+            }
+            envList.Add(new { name, value = valueToReturn, isSecret, rawReturned = willReturnRaw });
         }
 
         var diagnostics = new
@@ -128,16 +138,35 @@ public static class OrchestratorTools
             assemblyVersion = typeof(OrchestratorTools).Assembly.GetName().Version?.ToString()
         };
 
+        var orderedEnv = envList
+            .Select(e => (dynamic)e)
+            .Select(d => new EnvRow((string)d.name, (string)d.value, (bool)d.isSecret, (bool)d.rawReturned))
+            .OrderBy<EnvRow, string>(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(x => new { name = x.Name, value = x.Value, isSecret = x.IsSecret, rawReturned = x.RawReturned })
+            .ToArray();
+
+        var disclaimers = new List<string>();
+        if (!willReturnRaw)
+        {
+            disclaimers.Add("Secrets are masked (set ORCHESTRATOR_ALLOW_RAW_DIAGNOSTICS=true & includeRawEnv=true to get raw values).");
+        }
+        else
+        {
+            disclaimers.Add("RAW environment variable values returned (highly sensitive). Do NOT share this output.");
+        }
+        if (includeRawEnv && !gate)
+        {
+            disclaimers.Add("includeRawEnv requested but gate not enabled; returned MASKED values.");
+        }
+
         var payload = new
         {
             status = "Alive",
             diagnostics,
-            environmentVariables = envList.OrderBy(e => ((dynamic)e).name).ToArray(),
-            disclaimers = new[]
-            {
-                "Secrets are masked. This diagnostic output should not be exposed to untrusted clients.",
-                "To view raw secrets, inspect environment directly outside of MCP tool responses."
-            }
+            includeRawEnvRequested = includeRawEnv,
+            rawEnvReturned = willReturnRaw,
+            environmentVariables = orderedEnv,
+            disclaimers = disclaimers.ToArray()
         };
 
         return JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
@@ -585,4 +614,47 @@ public static class OrchestratorTools
         }
         return true;
     }
+
+    /// <summary>
+    /// UNSAFE: Returns raw environment variables UNMASKED when ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP=true.
+    /// Denied by default to avoid accidental secret leakage.
+    /// </summary>
+    [McpServerTool, Description("UNSAFE: Raw environment variables (unmasked) when ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP=true")] 
+    public static string GetRawEnvironmentVariablesUnsafe()
+    {
+        var allow = Environment.GetEnvironmentVariable("ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP");
+        if (!string.Equals(allow, "true", StringComparison.OrdinalIgnoreCase))
+        {
+            var denied = new
+            {
+                status = "denied",
+                reason = "Set ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP=true to enable (ONLY in secure local env).",
+                flag = allow,
+                timestampUtc = DateTime.UtcNow.ToString("o")
+            };
+            return JsonSerializer.Serialize(denied, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        var vars = Environment.GetEnvironmentVariables();
+        var collected = new List<EnvVar>();
+        foreach (System.Collections.DictionaryEntry entry in vars)
+        {
+            collected.Add(new EnvVar(entry.Key?.ToString() ?? string.Empty, entry.Value?.ToString() ?? string.Empty));
+        }
+        var ordered = collected.OrderBy(v => v.Name, StringComparer.OrdinalIgnoreCase).ToArray();
+
+        var payload = new
+        {
+            status = "ok",
+            count = ordered.Length,
+            timestampUtc = DateTime.UtcNow.ToString("o"),
+            warning = "UNMASKED VALUES. Treat this output as HIGHLY SENSITIVE.",
+            environmentVariables = ordered.Select(v => new { name = v.Name, value = v.Value }).ToArray()
+        };
+        return JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+    }
 }
+
+file readonly record struct EnvRow(string Name, string Value, bool IsSecret, bool RawReturned);
+
+file readonly record struct EnvVar(string Name, string Value);
