@@ -208,21 +208,37 @@ Implication: A variable visible during manual `dotnet run` can appear missing in
 #### What DOES work (inherit-from-shell flow)
 1. In a terminal (Git Bash / WSL / PowerShell) load variables:
    * Bash / Git Bash:
+
      ```bash
      set -a; source dev.env; set +a
      ```
    * PowerShell:
+
      ```powershell
-    Get-Content dev.env | ForEach-Object {
-      if ($_ -match '^(#|\s*$)') { return }
-      if ($_ -match '^(.*?)=(.*)$') {
-        $name = $matches[1].Trim(); $value = $matches[2].Trim()
-        [Environment]::SetEnvironmentVariable($name, $value, 'Process')
-        $env:$name = $value
-      }
-    }
+     Get-Content dev.env | ForEach-Object {
+       if ($_ -match '^(#|\s*$)') { return }
+       if ($_ -match '^(.*?)=(.*)$') {
+         $n = $matches[1].Trim(); $v = $matches[2].Trim()
+         if ($n) { Set-Item -Path env:$n -Value $v }
+       }
+     }
      ```
-    > The previous documentation used `$env:$($matches[1])` which is not valid PowerShell syntax. Use the above pattern with explicit variable extraction.
+
+     Reusable function (optional) for your profile:
+     ```powershell
+     function Import-DevEnv([string]$Path = 'dev.env') {
+       if (-not (Test-Path $Path)) { Write-Warning "File not found: $Path"; return }
+       Get-Content $Path | ForEach-Object {
+         if ($_ -match '^(#|\s*$)') { return }
+         if ($_ -match '^(.*?)=(.*)$') {
+           $n = $matches[1].Trim(); $v = $matches[2].Trim(); if ($n) { Set-Item env:$n $v }
+         }
+       }
+     }
+     # Usage: Import-DevEnv  or  Import-DevEnv -Path other.env
+     ```
+
+     > Note: Direct `$env:$name` dynamic assignment is invalid PowerShell syntax; use `Set-Item env:<name>` instead.
 2. (Optional) Echo a variable to confirm (e.g., `echo $AzureOpenAI__DeploymentName` / `$env:AzureOpenAI__DeploymentName`).
 3. From that SAME terminal launch VS Code: `code .`
 4. Start the orchestrator (and KB) from the MCP panel.
