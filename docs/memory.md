@@ -115,6 +115,10 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Orchestration MCP server project coordinating ChatCompletionAgent and KB MCP server for single-turn Q&A (prototype).
 **Details**: Contains `Program.cs` for MCP host setup, `orchestrator-agent.csproj` with dependencies, and `tools/OrchestratorTools.cs` initial tool implementations (status + placeholder question tool to be expanded in later steps).
 
+### `/src/orchestrator-agent/DependencyAnchors.cs`
+**Purpose**: Deprecated dependency anchor placeholder.
+**Details**: Temporary internal static class kept to retain past reference; can be removed once no build references rely on its presence.
+
 ### `/src/orchestrator-agent/appsettings.json`
 **Purpose**: Non-secret defaults for orchestrator agent (KB MCP server executable path, greeting patterns, logging levels).
 **Details**: Consumed at startup (required) and overrideable via environment variables (`KbMcpServer__ExecutablePath`, etc.); supports greeting heuristic configuration.
