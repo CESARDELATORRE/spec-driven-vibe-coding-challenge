@@ -1,10 +1,20 @@
-# 🤖 Spec-Driven Vibe Coding Challenge: Domain-Specific AI Agent System
+# 🚀 From Vibes to Value: A Spec-Driven AI Development Journey
 
-![Architecture](docs/simplified-directions/v0.1-prototype-poc-architecture-diagram.png)
+## The Evolution of Vibe-Coding: From Chaos to Professional Zen
 
-## 🎯 Executive Summary
+Welcome to the **Spec-Driven Vibe Coding Challenge** – where we transform ambiguous ideas into production-ready AI systems through a revolutionary development approach. This project demonstrates the journey from "YOLO Vibes" (fast, creative, chaotic) through "Structured Vibes" (balanced and sustainable) to achieve **"Spec-Driven Vibes"** – the pinnacle of engineering excellence where creativity meets precision.
+
+In traditional development, we often jump straight into coding, letting the "vibes" guide us without clear direction. This leads to technical debt, misaligned features, and costly iterations. **Spec-Driven Vibing** flips this paradigm: we start with comprehensive specifications, leverage AI to draft from artifacts (transcripts, tickets, requirements), front-load review steps with tests and API schemas before any code exists, and maintain living documentation that evolves with the product. This approach enables us to build with the speed of creativity while maintaining the rigor of enterprise engineering.
+
+![Vibe Coding Journey](docs/simplified-directions/vibe-coding-journey.png)
+
+This repository showcases an example implementation of Spec-Driven Vibes, taking an ambiguous challenge – "build a better chatbot for Azure Managed Grafana" – and systematically transforming it into a modular, scalable AI agent system. Through detailed specifications, architectural planning, and iterative development, we demonstrate how to achieve **"Professional Zen"** – where rapid prototyping meets production readiness, enabling teams to scale reliably while maintaining velocity.
+
+## 🎯 Project's summary
 
 This project develops a **domain-specific AI agent for Azure Managed Grafana (AMG)** that demonstrates how to move from hypothesis to prototype in an evidence-driven manner. The solution creates a specialized conversational agent that provides precise, domain-specific insights compared to generic chatbots, addressing the gap between generic AI assistance and deep domain knowledge. The system is designed with a modular, reusable architecture that can be adapted for other technical product domains, providing a scalable foundation for organizations seeking to enhance their customer engagement through specialized AI agents.
+
+![Architecture](docs/simplified-directions/v0.1-prototype-poc-architecture-diagram.png)
 
 The architecture implements a modular AI agent system built around **Model Context Protocol (MCP)**, **Semantic Kernel**, and **Azure AI Foundry**. Starting with a lightweight prototype using STDIO transport and file-based knowledge storage, the system prioritizes rapid development and validation over scalability. The solution consists of three core components: a **Knowledge Base MCP Server** for domain-specific information access, an **Orchestration Agent** for conversation coordination using Semantic Kernel, and integration with MCP-compatible clients like GitHub Copilot and Claude Desktop for natural language interaction.
 
@@ -15,8 +25,9 @@ The architecture implements a modular AI agent system built around **Model Conte
   - [`03-idea-vision-scope.md`](docs/03-idea-vision-scope.md) - Project vision, scope, and requirements
   - [`04-architecture-technologies.md`](docs/04-architecture-technologies.md) - Architecture patterns and technology stack
   - [`simplified-directions/`](docs/simplified-directions/) - Quick technical directions and architecture diagrams
-  - [`implementation-plans/`](docs/implementation-plans/) - Detailed implementation plans for each component
   - [`specs/`](docs/specs/) - Feature specifications for all components
+  - [`implementation-plans/`](docs/implementation-plans/) - Detailed implementation/coding plans for each component
+
 
 ### 🔧 Source Code
 - [`src/mcp-server-kb-content-fetcher/`](src/mcp-server-kb-content-fetcher/) - Knowledge Base MCP Server
