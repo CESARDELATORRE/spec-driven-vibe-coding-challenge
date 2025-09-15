@@ -30,7 +30,7 @@ public static class OrchestratorTools
         return JsonSerializer.Serialize(payload);
     }
 
-    [McpServerTool, Description("Gets orchestrator diagnostics information (raw environment variables included).")]
+    [McpServerTool, Description("Gets orchestrator diagnostics information (only relevant env vars).")]
     public static string GetOrchestratorDiagnosticsInformation()
     {
         // Minimal config snapshot
@@ -63,16 +63,20 @@ public static class OrchestratorTools
             catch { }
         }
 
-        // Raw environment variables (no masking, per user request)
-        var env = Environment.GetEnvironmentVariables();
-        var envVars = new List<object>();
-        foreach (System.Collections.DictionaryEntry e in env)
+        // Only include environment variables relevant to MCP servers (as per dev.env.example)
+        string[] relevantNames = new[]
         {
-            envVars.Add(new { name = e.Key?.ToString() ?? string.Empty, value = e.Value?.ToString() ?? string.Empty });
-        }
-        var ordered = envVars
-            .Select(x => (dynamic)x)
-            .OrderBy(x => (string)x.name, StringComparer.OrdinalIgnoreCase)
+            "AzureOpenAI__Endpoint",
+            "AzureOpenAI__DeploymentName",
+            "AzureOpenAI__ApiKey",
+            "Orchestrator__UseFakeLlm",
+            "KbMcpServer__ExecutablePath"
+        };
+
+        var ordered = relevantNames
+            .Select(n => new { name = n, value = Environment.GetEnvironmentVariable(n) })
+            .Where(p => p.value is not null)
+            .OrderBy(p => p.name, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
         var payload = new
