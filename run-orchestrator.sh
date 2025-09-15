@@ -33,7 +33,7 @@ for arg in "$@"; do
     *) echo "Unknown argument: $arg" >&2; exit 2 ;;
   esac
   shift || true
-end
+done
 
 if ! $SKIP_BUILD; then
   echo "[run-orchestrator] Building orchestrator project..." >&2
