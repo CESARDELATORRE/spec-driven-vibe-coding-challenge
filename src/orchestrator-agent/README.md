@@ -134,6 +134,15 @@ dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
 ```
 When using an MCP client (e.g., GitHub Copilot) configured to launch them automatically, you typically only need to ensure the environment variables are set beforehand; this README no longer recommends a VS Code launch configuration approach.
 
+#### One-Step Startup Script
+A helper script at the repository root automates loading `dev.env` and launching the orchestrator (and optionally the KB server):
+```bash
+./run-orchestrator.sh            # load env + build + run orchestrator
+./run-orchestrator.sh --no-build # skip build if already built
+./run-orchestrator.sh --kb       # also start KB server in background (logs to kb.*.log)
+```
+If `dev.env` is missing, the script exits with instructions. Works in Git Bash / WSL / Linux / macOS. (On Windows PowerShell, invoke via `bash ./run-orchestrator.sh`).
+
 ## Using with GitHub Copilot (MCP Client)
 1. Ensure Copilot supports MCP configuration (Insiders / feature flag).
 2. Add an entry to your Copilot MCP configuration (example pseudo JSON):
