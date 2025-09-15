@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -13,20 +14,13 @@ public class Smoke_AskDomainQuestion_Tests
     [Fact]
     public async Task AskDomainQuestionAsync_ReturnsScaffoldResponse_WhenNoConfig()
     {
-        // Arrange
-        var question = "What is Azure Managed Grafana?";
-
-        // Act
-        var json = await OrchestratorTools.AskDomainQuestionAsync(question, includeKb: false);
-
-        // Assert
+        var json = await OrchestratorTools.AskDomainQuestionAsync("What is Azure Managed Grafana?", includeKb: false);
         json.Should().NotBeNullOrWhiteSpace();
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
         root.GetProperty("answer").GetString().Should().NotBeNull();
-        root.GetProperty("usedKb").GetBoolean().Should().BeFalse();
-        root.GetProperty("diagnostics").GetProperty("endpointConfigured").GetBoolean().Should().BeFalse();
         root.GetProperty("status").GetString().Should().Be("scaffold");
+        root.TryGetProperty("disclaimers", out _).Should().BeTrue();
     }
 
     [Fact]

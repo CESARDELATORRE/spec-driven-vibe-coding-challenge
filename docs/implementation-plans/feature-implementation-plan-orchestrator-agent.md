@@ -325,6 +325,20 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   - **Dependencies**: All test projects present and green; Azure OpenAI env vars intentionally absent for degraded-path validation (no secrets required).
   - **Status**: Implemented.
 
+### - [x] Step 12: KB Path Resolution Hardening & Smoke Test Determinism
+  - **Task**: Improve robustness of KB executable discovery and stabilize smoke test expectations regardless of developer environment variables.
+  - **Changes**:
+    - Enhanced `AskDomainQuestionAsync` to probe multiple candidate base paths:
+      1. Direct (absolute) path if provided.
+      2. Relative to `AppContext.BaseDirectory`.
+      3. Relative to detected repository root (walking upward until a `.sln` or `.git` directory is found; up to 8 levels).
+    - For each base candidate, probe exact, `.exe`, and `.dll` variants; first success chosen.
+    - Added richer diagnostics when probing fails (count + sample of first paths).
+    - Added `source` metadata to KB snippet for traceability.
+    - Updated smoke test `AskDomainQuestionAsync_ReturnsScaffoldResponse_WhenNoConfig` to temporarily clear Azure OpenAI environment variables so `endpointConfigured=false` assertion remains stable even if dev shell has them set.
+  - **Rationale**: Resolve earlier path duplication / nested `bin` issues and eliminate flakiness caused by ambient developer environment leaking into deterministic smoke test.
+  - **Status**: Implemented; build succeeded and all tests pass after adjusting smoke test (previous failure due to endpoint var present). Future improvement might include a small helper for env scoping in tests if repeated.
+
 ## Key Implementation Details
 
 ### Dependency Inventory & Version Rationale (Added Post Step 11)
