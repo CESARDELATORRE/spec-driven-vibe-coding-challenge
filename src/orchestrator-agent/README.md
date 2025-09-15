@@ -84,6 +84,19 @@ dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
 ```
 The server speaks MCP over stdio. Keep stdout clean; logs go to stderr.
 
+
+### To check the ENV VARS available
+
+In PowerShell:
+
+```bash
+$env:AzureOpenAI__DeploymentName
+
+$env:AzureOpenAI__Endpoint
+
+$env:AzureOpenAI__ApiKey
+```
+
 ### Using a dev.env file (Recommended Local Pattern)
 Maintain all non-secret configuration + secrets (API key) in a single git-ignored `dev.env` file for fast reloads across shells.
 
