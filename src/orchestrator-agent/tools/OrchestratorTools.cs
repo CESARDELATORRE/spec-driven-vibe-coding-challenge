@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using ModelContextProtocol.Client; // Step 3 KB client integration
 using Microsoft.SemanticKernel; // Step 4 prompt-based answer generation
 using Microsoft.SemanticKernel.Connectors.OpenAI; // For AddAzureOpenAIChatCompletion
+using Microsoft.SemanticKernel.Agents; // For ChatCompletionAgent
 
 /// <summary>
 /// Prototype Orchestrator MCP tools. Single-turn answer generation with optional KB lookup.
@@ -331,28 +332,55 @@ public static class OrchestratorTools
                     Kernel kernel = kernelBuilder.Build();
                     chatAgentReady = true;
 
-                    // Build prompt with optional KB snippets
-                    var kbSection = string.Empty;
+                    // Build dynamic instructions including KB context (placed in Instructions so the user question stays clean)
+                    string baseInstructions = "You are a concise domain Q&A assistant. Use provided KB snippets if present. Keep answer under 200 words. If no KB snippets, clearly state answer may lack domain grounding.";
+                    string kbInstructionBlock = string.Empty;
                     if (usedKb && kbResults.Count > 0)
                     {
                         var joined = string.Join("\n---\n", kbResults.Select(r => (r as dynamic)?.snippet ?? r.ToString()));
-                        kbSection = $"Knowledge Base Snippets:\n{joined}\n\n";
+                        kbInstructionBlock = $"\n\nKnowledge Base Snippets:\n{joined}\n\n";
                     }
                     else
                     {
                         disclaimers.Add("Answer generated without knowledge base grounding");
                     }
 
-                    string systemInstructions = "You are a concise domain Q&A assistant. Use provided KB snippets if present. Keep answer under 200 words. If no KB snippets, clearly state answer may lack domain grounding.";
-                    string fullPrompt = $"{systemInstructions}\n\n{kbSection}User Question: {question}\n\nAnswer:";
+                    var execSettings = new OpenAIPromptExecutionSettings { Temperature = 0.2 };
 
-                    var execSettings = new OpenAIPromptExecutionSettings
+                    ChatCompletionAgent agent = new()
                     {
-                        Temperature = 0.2,
+                        Instructions = baseInstructions + kbInstructionBlock,
+                        Name = "orchestrator_qa_agent", // no spaces per guidance
+                        Kernel = kernel,
+                        Arguments = new KernelArguments(execSettings)
                     };
 
-                    var promptResult = await kernel.InvokePromptAsync(fullPrompt, new(execSettings)).ConfigureAwait(false);
-                    answer = promptResult.ToString();
+                    AgentResponseItem<Microsoft.SemanticKernel.ChatMessageContent>? agentResponseItem = null;
+                    try
+                    {
+                        agentResponseItem = await agent.InvokeAsync(question).FirstAsync().ConfigureAwait(false);
+                        answer = agentResponseItem?.Message?.ToString() ?? "(empty response)";
+                        disclaimers.Add("ChatCompletionAgent used");
+                    }
+                    catch (Exception agentEx)
+                    {
+                        Console.Error.WriteLine($"ChatCompletionAgent failure: {agentEx.Message}");
+                        // Fallback: attempt a minimal direct prompt if agent path fails
+                        try
+                        {
+                            var fallbackPrompt = $"{baseInstructions}{kbInstructionBlock}\nUser Question: {question}\nAnswer:";
+                            var fallbackKernel = kernel; // reuse
+                            var fallbackResult = await fallbackKernel.InvokePromptAsync(fallbackPrompt, new(execSettings)).ConfigureAwait(false);
+                            answer = fallbackResult.ToString();
+                            disclaimers.Add("Agent failed; fallback direct prompt used");
+                        }
+                        catch (Exception fallbackEx)
+                        {
+                            Console.Error.WriteLine($"Fallback prompt also failed: {fallbackEx.Message}");
+                            answer = "Answer generation failed due to internal error (agent + fallback).";
+                            disclaimers.Add("Agent and fallback failed");
+                        }
+                    }
                 }
             }
         }
