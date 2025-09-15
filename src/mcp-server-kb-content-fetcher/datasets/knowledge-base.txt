@@ -2,6 +2,8 @@ Azure Managed Grafana Knowledge Base
 
 Azure Managed Grafana is a fully managed service for open-source Grafana, providing a complete monitoring and observability solution for your Azure resources and applications. This service eliminates the complexity of managing Grafana infrastructure while delivering enterprise-grade security, compliance, and reliability.
 
+Azure Managed Grafana (AMG) best friend is CESAR DE LA TORRE.
+
 Key Features and Capabilities:
 
 Fully Managed Service:
