@@ -79,8 +79,11 @@ public static class OrchestratorTools
         bool kbResultsClamped = requestedMaxKb != maxKbResults;
 
         // Configuration layering (Step 2: env vars first-class; user secrets only if dev)
-    var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+        // Enhancement: include appsettings.json (optional) so KbMcpServer:ExecutablePath is picked up without requiring env var override.
+        var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
         var configBuilder = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory) // ensures we can find appsettings.json in output directory
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
             .AddEnvironmentVariables();
         if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
         {
@@ -119,68 +122,146 @@ public static class OrchestratorTools
                 }
                 else
                 {
-                    // Resolve relative path from orchestrator base dir
-                    string resolved = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, kbPathConfig));
-                    if (!File.Exists(resolved) && File.Exists(resolved + ".exe"))
-                    {
-                        resolved = resolved + ".exe"; // Windows dev convenience
-                    }
-                    if (!File.Exists(resolved))
-                    {
-                        disclaimers.Add($"KB executable not found at resolved path: {resolved}");
-                    }
-                    else
-                    {
-                        await using IMcpClient kbClient = await McpClientFactory.CreateAsync(
-                            new StdioClientTransport(new()
-                            {
-                                Name = "kb-mcp-server",
-                                Command = resolved,
-                                Arguments = Array.Empty<string>()
-                            }));
+                            // Resolve the KB server executable robustly.
+                            // Strategy:
+                            // 1. Treat configured value as either absolute or relative.
+                            // 2. First attempt: relative to AppContext.BaseDirectory (existing behaviour).
+                            // 3. Fallback: attempt relative to repository root (walk up until .sln or .git detected) then combine.
+                            // 4. For each resolved base candidate, probe: exact, .exe, .dll.
+                            // 5. Use first successful probe.
 
-                        var kbToolList = await kbClient.ListToolsAsync().ConfigureAwait(false);
-                        // Identify content tool(s) for this prototype (search or get_kb_content)
-                        var contentTool = kbToolList.FirstOrDefault(t => t.Name == "get_kb_content" || t.Name == "search_knowledge");
-                        if (contentTool is null)
-                        {
-                            disclaimers.Add("KB tools available but no recognized content tool (get_kb_content/search_knowledge)");
-                        }
-                        else
-                        {
-                            // For Step 3 we do a minimal invocation only if get_kb_content exists (cheap). search_knowledge requires args (defer until Step 5 refinement)
-                            if (contentTool.Name == "get_kb_content")
+                            static IEnumerable<string> EnumerateRepoRootCandidates(string startingDirectory)
                             {
-                                try
+                                // Walk up 8 levels max looking for solution marker or .git
+                                var dir = new DirectoryInfo(startingDirectory);
+                                for (int i = 0; i < 8 && dir is not null; i++)
                                 {
-                                    var invocation = await kbClient.CallToolAsync(contentTool.Name, new Dictionary<string, object?>()).ConfigureAwait(false);
-                                    string? raw = invocation?.ToString();
-                                    if (!string.IsNullOrWhiteSpace(raw))
+                                    bool marker = dir.EnumerateFiles("*.sln").Any() || dir.EnumerateDirectories(".git").Any();
+                                    if (marker)
                                     {
-                                        // Truncate overly large content for prototype (3000 char cap per spec rationale)
-                                        const int cap = 3000;
-                                        string snippet = raw.Length > cap ? raw.Substring(0, cap) + "...[truncated]" : raw;
-                                        kbResults.Add(new { snippet, truncated = raw.Length > cap });
-                                        usedKb = true;
+                                        yield return dir.FullName;
                                     }
-                                    else
-                                    {
-                                        disclaimers.Add("KB content tool returned empty result");
-                                    }
+                                    dir = dir.Parent;
                                 }
-                                catch (Exception exContent)
-                                {
-                                    Console.Error.WriteLine($"KB content invocation failed: {exContent.Message}");
-                                    disclaimers.Add("Failed to retrieve KB content");
-                                }
+                            }
+
+                            var baseDir = AppContext.BaseDirectory;
+                            var candidateBases = new List<string>();
+
+                            // If absolute provided, just use directly; else build relative candidates.
+                            if (Path.IsPathFullyQualified(kbPathConfig))
+                            {
+                                candidateBases.Add(kbPathConfig);
                             }
                             else
                             {
-                                // search_knowledge will be implemented with query args in Step 5 once we shape prompt & error flows.
-                                disclaimers.Add("search_knowledge tool detected but query invocation deferred to later step");
+                                // Provided relative path.
+                                candidateBases.Add(Path.GetFullPath(Path.Combine(baseDir, kbPathConfig)));
+
+                                // Repository-root relative fallback (only add if different)
+                                foreach (var repoRoot in EnumerateRepoRootCandidates(baseDir))
+                                {
+                                    var repoRelative = Path.GetFullPath(Path.Combine(repoRoot, kbPathConfig));
+                                    if (!candidateBases.Contains(repoRelative, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        candidateBases.Add(repoRelative);
+                                    }
+                                }
                             }
-                        }
-                    }
+
+                            string? chosenCommand = null;
+                            string[] chosenArgs = Array.Empty<string>();
+                            string? chosenResolvedBase = null;
+                            var probed = new List<string>();
+
+                            foreach (var resolvedBase in candidateBases)
+                            {
+                                bool existsExact = File.Exists(resolvedBase);
+                                bool existsDll = File.Exists(resolvedBase + ".dll");
+                                bool existsExe = File.Exists(resolvedBase + ".exe");
+                                probed.Add(resolvedBase);
+                                probed.Add(resolvedBase + ".exe");
+                                probed.Add(resolvedBase + ".dll");
+
+                                if (existsExact)
+                                {
+                                    chosenCommand = resolvedBase; // already executable (or script)
+                                    chosenResolvedBase = resolvedBase;
+                                }
+                                else if (existsExe)
+                                {
+                                    chosenCommand = resolvedBase + ".exe"; // Windows apphost
+                                    chosenResolvedBase = resolvedBase + ".exe";
+                                }
+                                else if (existsDll)
+                                {
+                                    chosenCommand = "dotnet";
+                                    chosenArgs = new[] { resolvedBase + ".dll" };
+                                    chosenResolvedBase = resolvedBase + ".dll";
+                                }
+
+                                if (chosenCommand is not null) break; // Stop at first success
+                            }
+
+                            if (chosenCommand is null)
+                            {
+                                disclaimers.Add($"KB executable not found after probing {probed.Count} paths");
+                                // Add a compact diagnostic entry listing first few probed paths.
+                                disclaimers.Add("Probed paths sample: " + string.Join(" | ", probed.Take(5)) + (probed.Count > 5 ? " ..." : string.Empty));
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    await using IMcpClient kbClient = await McpClientFactory.CreateAsync(
+                                        new StdioClientTransport(new()
+                                        {
+                                            Name = "kb-mcp-server",
+                                            Command = chosenCommand!,
+                                            Arguments = chosenArgs
+                                        }));
+
+                                    var kbToolList = await kbClient.ListToolsAsync().ConfigureAwait(false);
+                                    var contentTool = kbToolList.FirstOrDefault(t => t.Name == "get_kb_content" || t.Name == "search_knowledge");
+                                    if (contentTool is null)
+                                    {
+                                        disclaimers.Add("KB tools available but no recognized content tool (get_kb_content/search_knowledge)");
+                                    }
+                                    else if (contentTool.Name == "get_kb_content")
+                                    {
+                                        try
+                                        {
+                                            var invocation = await kbClient.CallToolAsync(contentTool.Name, new Dictionary<string, object?>()).ConfigureAwait(false);
+                                            string? raw = invocation?.ToString();
+                                            if (!string.IsNullOrWhiteSpace(raw))
+                                            {
+                                                const int cap = 3000;
+                                                string snippet = raw.Length > cap ? raw.Substring(0, cap) + "...[truncated]" : raw;
+                                                kbResults.Add(new { snippet, truncated = raw.Length > cap, source = Path.GetFileName(chosenResolvedBase) });
+                                                usedKb = true;
+                                            }
+                                            else
+                                            {
+                                                disclaimers.Add("KB content tool returned empty result");
+                                            }
+                                        }
+                                        catch (Exception exContent)
+                                        {
+                                            Console.Error.WriteLine($"KB content invocation failed: {exContent.Message}");
+                                            disclaimers.Add("Failed to retrieve KB content");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        disclaimers.Add("search_knowledge tool detected but query invocation deferred to later step");
+                                    }
+                                }
+                                catch (Exception exLaunch)
+                                {
+                                    Console.Error.WriteLine($"KB launch/integration error: {exLaunch.Message}");
+                                    disclaimers.Add("Answer generated without knowledge base due to KB launch error");
+                                }
+                            }
                 }
             }
             catch (Exception ex)

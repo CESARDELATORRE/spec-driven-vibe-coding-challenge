@@ -98,7 +98,7 @@ $env:AzureOpenAI__ApiKey
 
 $env:KbMcpServer__ExecutablePath
 
-$env:
+$env:Orchestrator__UseFakeLlm
 
 ```
 
