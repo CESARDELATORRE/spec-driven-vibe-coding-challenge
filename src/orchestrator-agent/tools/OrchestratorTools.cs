@@ -30,24 +30,21 @@ public static class OrchestratorTools
         return JsonSerializer.Serialize(payload);
     }
 
-    [McpServerTool, Description("Gets orchestrator diagnostics information. Set includeRawEnv=true (and ORCHESTRATOR_ALLOW_RAW_DIAGNOSTICS=true) for unmasked env vars.")]
-    public static string GetOrchestratorDiagnosticsInformation(bool includeRawEnv = false)
+    [McpServerTool, Description("Gets orchestrator diagnostics information (raw environment variables included).")]
+    public static string GetOrchestratorDiagnosticsInformation()
     {
-        // Build configuration similar to AskDomainQuestion to check flags
+        // Minimal config snapshot
         var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
-        var configBuilder = new ConfigurationBuilder()
+        var config = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-            .AddEnvironmentVariables();
-        var config = configBuilder.Build();
+            .AddEnvironmentVariables()
+            .Build();
 
-        string? endpoint = config["AzureOpenAI:Endpoint"];
-        string? deployment = config["AzureOpenAI:DeploymentName"];
-        string? apiKey = config["AzureOpenAI:ApiKey"]; // WILL NOT be returned raw (masked)
         bool fakeLlmMode = string.Equals(config["Orchestrator:UseFakeLlm"], "true", StringComparison.OrdinalIgnoreCase);
         string? kbPathConfig = config["KbMcpServer:ExecutablePath"];
 
-        // Attempt lightweight KB executable resolution (no launch) to set kbConnectedCandidate flag
+        // Simple KB executable presence check (kept but no complex probing now)
         bool kbExecutableConfigured = !string.IsNullOrWhiteSpace(kbPathConfig);
         bool kbExecutableResolved = false;
         string? kbResolvedPath = null;
@@ -55,135 +52,41 @@ public static class OrchestratorTools
         {
             try
             {
-                var baseDir = AppContext.BaseDirectory;
-
-                static IEnumerable<string> EnumerateRepoRootCandidates(string startingDirectory)
+                if (!string.IsNullOrWhiteSpace(kbPathConfig))
                 {
-                    var dir = new DirectoryInfo(startingDirectory);
-                    for (int i = 0; i < 8 && dir is not null; i++)
-                    {
-                        bool marker = false;
-                        try
-                        {
-                            marker = dir.EnumerateFiles("*.sln").Any() || dir.EnumerateDirectories(".git").Any();
-                        }
-                        catch { /* ignore permission issues */ }
-                        if (marker) yield return dir.FullName;
-                        dir = dir.Parent;
-                    }
-                }
-
-                var candidateBases = new List<string>();
-                if (Path.IsPathFullyQualified(kbPathConfig!))
-                {
-                    candidateBases.Add(kbPathConfig!);
-                }
-                else
-                {
-                    candidateBases.Add(Path.GetFullPath(Path.Combine(baseDir, kbPathConfig!)));
-                    foreach (var repoRoot in EnumerateRepoRootCandidates(baseDir))
-                    {
-                        var repoRelative = Path.GetFullPath(Path.Combine(repoRoot, kbPathConfig!));
-                        if (!candidateBases.Contains(repoRelative, StringComparer.OrdinalIgnoreCase))
-                        {
-                            candidateBases.Add(repoRelative);
-                        }
-                    }
-                }
-
-                foreach (var resolvedBase in candidateBases)
-                {
-                    // Probe exact / exe / dll
-                    if (File.Exists(resolvedBase)) { kbExecutableResolved = true; kbResolvedPath = resolvedBase; break; }
-                    if (File.Exists(resolvedBase + ".exe")) { kbExecutableResolved = true; kbResolvedPath = resolvedBase + ".exe"; break; }
-                    if (File.Exists(resolvedBase + ".dll")) { kbExecutableResolved = true; kbResolvedPath = resolvedBase + ".dll"; break; }
+                    var candidate = Path.IsPathFullyQualified(kbPathConfig) ? kbPathConfig : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, kbPathConfig));
+                    if (File.Exists(candidate)) { kbExecutableResolved = true; kbResolvedPath = candidate; }
+                    else if (File.Exists(candidate + ".exe")) { kbExecutableResolved = true; kbResolvedPath = candidate + ".exe"; }
+                    else if (File.Exists(candidate + ".dll")) { kbExecutableResolved = true; kbResolvedPath = candidate + ".dll"; }
                 }
             }
-            catch { /* swallow diagnostics path errors */ }
+            catch { }
         }
 
-        // Environment variable dump. Optionally unmasked if explicitly requested AND allowed by gate env var.
-        bool gate = string.Equals(Environment.GetEnvironmentVariable("ORCHESTRATOR_ALLOW_RAW_DIAGNOSTICS"), "true", StringComparison.OrdinalIgnoreCase);
-        bool willReturnRaw = includeRawEnv && gate;
-        var allEnv = Environment.GetEnvironmentVariables();
-        var envList = new List<object>();
-        foreach (System.Collections.DictionaryEntry entry in allEnv)
+        // Raw environment variables (no masking, per user request)
+        var env = Environment.GetEnvironmentVariables();
+        var envVars = new List<object>();
+        foreach (System.Collections.DictionaryEntry e in env)
         {
-            var name = entry.Key?.ToString() ?? string.Empty;
-            var valueActual = entry.Value?.ToString() ?? string.Empty;
-            bool isSecret = IsSecretLike(name);
-            string valueToReturn;
-            if (willReturnRaw)
-            {
-                valueToReturn = valueActual; // raw
-            }
-            else
-            {
-                valueToReturn = isSecret ? Mask(valueActual) : valueActual;
-            }
-            envList.Add(new { name, value = valueToReturn, isSecret, rawReturned = willReturnRaw });
+            envVars.Add(new { name = e.Key?.ToString() ?? string.Empty, value = e.Value?.ToString() ?? string.Empty });
         }
+        var ordered = envVars
+            .Select(x => (dynamic)x)
+            .OrderBy(x => (string)x.name, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-        var diagnostics = new
+        var payload = new
         {
+            status = "Alive",
             environment,
-            endpointConfigured = !string.IsNullOrWhiteSpace(endpoint),
-            deploymentConfigured = !string.IsNullOrWhiteSpace(deployment),
-            apiKeyConfigured = !string.IsNullOrWhiteSpace(apiKey),
             fakeLlmMode,
             kbExecutableConfigured,
             kbExecutableResolved,
             kbResolvedPath = kbResolvedPath is null ? null : Path.GetFileName(kbResolvedPath),
             timestampUtc = DateTime.UtcNow.ToString("o"),
-            assemblyVersion = typeof(OrchestratorTools).Assembly.GetName().Version?.ToString()
+            environmentVariables = ordered
         };
-
-        var orderedEnv = envList
-            .Select(e => (dynamic)e)
-            .Select(d => new EnvRow((string)d.name, (string)d.value, (bool)d.isSecret, (bool)d.rawReturned))
-            .OrderBy<EnvRow, string>(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(x => new { name = x.Name, value = x.Value, isSecret = x.IsSecret, rawReturned = x.RawReturned })
-            .ToArray();
-
-        var disclaimers = new List<string>();
-        if (!willReturnRaw)
-        {
-            disclaimers.Add("Secrets are masked (set ORCHESTRATOR_ALLOW_RAW_DIAGNOSTICS=true & includeRawEnv=true to get raw values).");
-        }
-        else
-        {
-            disclaimers.Add("RAW environment variable values returned (highly sensitive). Do NOT share this output.");
-        }
-        if (includeRawEnv && !gate)
-        {
-            disclaimers.Add("includeRawEnv requested but gate not enabled; returned MASKED values.");
-        }
-
-        var payload = new
-        {
-            status = "Alive",
-            diagnostics,
-            includeRawEnvRequested = includeRawEnv,
-            rawEnvReturned = willReturnRaw,
-            environmentVariables = orderedEnv,
-            disclaimers = disclaimers.ToArray()
-        };
-
         return JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
-
-        // Local helpers
-        static bool IsSecretLike(string name)
-        {
-            if (string.IsNullOrEmpty(name)) return false;
-            var upper = name.ToUpperInvariant();
-            return upper.Contains("KEY") || upper.Contains("SECRET") || upper.Contains("TOKEN") || upper.Contains("PASSWORD") || upper.Contains("PWD");
-        }
-        static string Mask(string value)
-        {
-            if (string.IsNullOrEmpty(value)) return value;
-            if (value.Length <= 6) return new string('*', value.Length);
-            return value.Substring(0, 3) + new string('*', value.Length - 6) + value.Substring(value.Length - 3);
-        }
     }
 
     /// <summary>
@@ -614,47 +517,4 @@ public static class OrchestratorTools
         }
         return true;
     }
-
-    /// <summary>
-    /// UNSAFE: Returns raw environment variables UNMASKED when ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP=true.
-    /// Denied by default to avoid accidental secret leakage.
-    /// </summary>
-    [McpServerTool, Description("UNSAFE: Raw environment variables (unmasked) when ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP=true")] 
-    public static string GetRawEnvironmentVariablesUnsafe()
-    {
-        var allow = Environment.GetEnvironmentVariable("ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP");
-        if (!string.Equals(allow, "true", StringComparison.OrdinalIgnoreCase))
-        {
-            var denied = new
-            {
-                status = "denied",
-                reason = "Set ORCHESTRATOR_ALLOW_UNSAFE_ENV_DUMP=true to enable (ONLY in secure local env).",
-                flag = allow,
-                timestampUtc = DateTime.UtcNow.ToString("o")
-            };
-            return JsonSerializer.Serialize(denied, new JsonSerializerOptions { WriteIndented = true });
-        }
-
-        var vars = Environment.GetEnvironmentVariables();
-        var collected = new List<EnvVar>();
-        foreach (System.Collections.DictionaryEntry entry in vars)
-        {
-            collected.Add(new EnvVar(entry.Key?.ToString() ?? string.Empty, entry.Value?.ToString() ?? string.Empty));
-        }
-        var ordered = collected.OrderBy(v => v.Name, StringComparer.OrdinalIgnoreCase).ToArray();
-
-        var payload = new
-        {
-            status = "ok",
-            count = ordered.Length,
-            timestampUtc = DateTime.UtcNow.ToString("o"),
-            warning = "UNMASKED VALUES. Treat this output as HIGHLY SENSITIVE.",
-            environmentVariables = ordered.Select(v => new { name = v.Name, value = v.Value }).ToArray()
-        };
-        return JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
-    }
 }
-
-file readonly record struct EnvRow(string Name, string Value, bool IsSecret, bool RawReturned);
-
-file readonly record struct EnvVar(string Name, string Value);
