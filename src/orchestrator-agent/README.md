@@ -136,6 +136,30 @@ Status / health:
 - Greeting heuristic (configurable patterns) short-circuits KB usage to save startup cost.
 - Graceful fallback returns structured JSON even when KB or LLM not available.
 
+## Fake LLM Mode (Deterministic Testing Aid)
+Set `Orchestrator__UseFakeLlm=true` plus provide any (non-secret) placeholder Azure OpenAI env vars to force a simulated success path without calling a real model. The response will:
+* Start answer with `FAKE_LLM_ANSWER:`
+* Include disclaimer `Simulated LLM answer (fake mode)`
+* Set `diagnostics.fakeLlmMode=true` and `chatAgentReady=true`
+
+Example:
+```bash
+export AzureOpenAI__Endpoint="https://fake-endpoint.example.com/"
+export AzureOpenAI__DeploymentName="gpt-fake"
+export AzureOpenAI__ApiKey="FAKE_KEY_VALUE"
+export Orchestrator__UseFakeLlm=true
+dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
+```
+
+Use cases:
+| Scenario | Benefit |
+|----------|---------|
+| CI without real model credentials | Deterministic answer string & stable diagnostics |
+| Local debugging of downstream consumers | No external latency or quota usage |
+| Contract testing | Ensures JSON schema stability separate from model variability |
+
+Disable by unsetting or setting `Orchestrator__UseFakeLlm` to any value other than `true`.
+
 ## Extending
 | Area | Suggested Next Step |
 |------|---------------------|
