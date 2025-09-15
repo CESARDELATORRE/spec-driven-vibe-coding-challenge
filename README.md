@@ -117,8 +117,10 @@ The repository includes a pre-configured [`.vscode/mcp.json`](.vscode/mcp.json) 
 
 Add to your Claude Desktop configuration file:
 
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
 
 ```json
 {
@@ -133,6 +135,19 @@ Add to your Claude Desktop configuration file:
     }
   }
 }
+```
+
+**Example prompt for Claude:**
+
+```
+Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.
+```
+
+![Claude](/docs/_images/claude-ui-prompt-example.png)
+
+For **Claude Code** you need to put it here (claude_code_config.json):
+```
+Windows: %APPDATA%\Claude Code\claude_code_config.json
 ```
 
 ## 💬 Usage Examples

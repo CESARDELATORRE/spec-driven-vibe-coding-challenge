@@ -1,10 +1,9 @@
 
 
-- Repo name for GH MCP server: CESARDELATORRE/spec-driven-vibe-coding-challenge
+---> Repo name for GitHub MCP server prompts: CESARDELATORRE/spec-driven-vibe-coding-challenge
 
 - (*) Try it with Claude.
-- (*) Add a summary of the SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
-- (*) Add a visual about SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
+
 
 - List of topics to cover:
         [X] Vibe coding
@@ -88,3 +87,9 @@ Consider adding a unit test for GetKbContentTool.
 Add a test ensuring search tool still functions when KB unavailable (edge case).
 Remove double-serialization remnants on the server side (currently acceptable, but could streamline).
 Introduce dynamic query parameters for search tool when ready.
+
+
+DONE:
+
+- (DONE) Add a summary of the SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
+- (DONE) Add a visual about SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
