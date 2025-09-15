@@ -213,8 +213,16 @@ Implication: A variable visible during manual `dotnet run` can appear missing in
      ```
    * PowerShell:
      ```powershell
-     Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $env:$($matches[1]) = $matches[2] } }
+    Get-Content dev.env | ForEach-Object {
+      if ($_ -match '^(#|\s*$)') { return }
+      if ($_ -match '^(.*?)=(.*)$') {
+        $name = $matches[1].Trim(); $value = $matches[2].Trim()
+        [Environment]::SetEnvironmentVariable($name, $value, 'Process')
+        $env:$name = $value
+      }
+    }
      ```
+    > The previous documentation used `$env:$($matches[1])` which is not valid PowerShell syntax. Use the above pattern with explicit variable extraction.
 2. (Optional) Echo a variable to confirm (e.g., `echo $AzureOpenAI__DeploymentName` / `$env:AzureOpenAI__DeploymentName`).
 3. From that SAME terminal launch VS Code: `code .`
 4. Start the orchestrator (and KB) from the MCP panel.
