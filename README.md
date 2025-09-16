@@ -143,7 +143,12 @@ You can simply check it out. No need initially to change it.
       **Example prompt for GitHub CoPilot in VS Code:**
 
       ```
-      *"Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing."*
+      *Get the orchestrator Health status*
+
+      *Get the orchestrator Diagnostics Information and show ALL of it properly formatted here in the chat.*
+
+      *Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.*
+      
       ```
 
       ![GHCP Prompt](/docs/_images/ghcp-vscode-ui-prompt-example.png)
@@ -196,16 +201,12 @@ Try these natural language queries with the orchestrator agent:
 
 ```bash
 # Pricing and features
-"What are the pricing options for Azure Managed Grafana?"
-"Tell me about Azure Managed Grafana key features"
-
-# Technical integration
-"How do I integrate Azure Monitor with Grafana?"
-"What are the monitoring capabilities of AMG?"
+"Using the orchestrator, What are the pricing options for Azure Managed Grafana?"
+"Using the orchestrator, Tell me about Azure Managed Grafana key features"
 
 # General information
-"Give me an overview of Azure Managed Grafana"
-"What are the benefits of using AMG over self-hosted Grafana?"
+"Using the orchestrator, Give me an overview of Azure Managed Grafana"
+
 ```
 
 ### 🔍 Trying directly the KB MCP Server from your MCP client UIs
@@ -215,11 +216,11 @@ Since the KB MCP Server is also configured at the mcp.json in VS CODE, you can a
 Use explicit MCP tool calls in supported clients (GitHub CoPilot, Claude):
 
 "
-*Use the kb-content-fetcher MCP server to get all the raw knowledge base content*
 
 *Give me the health status of the kb-content-fetcher MCP server*
 
-*Give me the Basic Information of the kb-content-fetcher MCP server*
+*Use the kb-content-fetcher MCP server to get all the raw knowledge base content*
+
 "
 
 ## 🧪 Testing - Unit Tests and Integration Tests
