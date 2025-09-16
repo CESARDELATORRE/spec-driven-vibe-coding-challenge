@@ -17,6 +17,7 @@
 
 - (*) Why [McpServerTool] attributes only in ORCHESTRATOR but not in KB-MCP-Server?
 
+- (*) Change NAMESPOACES of TESTS: --> Test Namespace Conventions: Use PascalCase for test namespaces based on the project's name.
 
 - (*) Add more metadata to MCP Server and AGENTS so questions are better redirected by the LLM
 

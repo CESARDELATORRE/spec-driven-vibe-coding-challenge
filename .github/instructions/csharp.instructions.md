@@ -24,22 +24,28 @@ applyTo: "**"
 ### Repository Structure
 ```
 src/
-    mcp-server-kb-content-fetcher/          # Main project
-        datasets/                           # Data files
+    mcp-server-kb-content-fetcher/         # Data source project
+        datasets/                          # Data files
+        tools/                             # MCP tools implementation
         services/                          # Business logic services
         models/                            # Data models and DTOs
-        tools/                             # MCP tools implementation
         configuration/                     # Configuration classes
         extensions/                        # Extension methods
         <other folders in kebab-case>
-    orchestrator-agent/                    # Future projects
-    chat-agent/                           # Future projects
+    orchestrator-agent/                    # Main project
+        tools/                             # MCP tools implementation
+        services/                          # Business logic services
+        models/                            # Data models and DTOs
+
+    chat-agent/                            # Future project
 
 tests/
     mcp-server-kb-content-fetcher.unit-tests/       # Unit tests
     mcp-server-kb-content-fetcher.integration-tests/ # Integration tests
-    e2e-solution-tests/                             # End-to-end tests
-    fixtures/                                       # Shared test data
+    orchestrator-agent.unit-tests/                 # Unit tests
+    orchestrator-agent.integration-tests/           # Integration tests
+    chat-agent.unit-tests/                         # Future unit tests
+    chat-agent.integration-tests/                 # Future integration tests
 ```
 
 ## NAMING CONVENTIONS
@@ -77,14 +83,13 @@ tests/
 ### Test Organization
 ```
 tests/
-├── mcp-server-kb-content-fetcher.unit-tests/     # Fast, isolated unit tests
-├── mcp-server-kb-content-fetcher.integration-tests/ # Real protocol tests
-└── fixtures/                                      # Shared test data
+├── mcp-server-kb-content-fetcher.unit-tests/         # Fast, isolated unit tests
+├── mcp-server-kb-content-fetcher.integration-tests/  # Real protocol tests
+└── fixtures/                                         # Shared test data
 ```
 
 ### Test Namespace Conventions
-- **Unit Tests**: `UnitTests` namespace
-- **Integration Tests**: `IntegrationTests` namespace
+- Use PascalCase for test namespaces based on the project's name.
 
 ## DOCUMENTATION RULES
 
@@ -111,7 +116,7 @@ tests/
 ## IMPLEMENTATION PATTERNS
 
 ### Dependency Injection
-- Do NOT use DI always. USe it only when it makes sense and does not overcomplicate the code.
+- Do NOT use DI always. Use it only when it makes sense and does not overcomplicate the code.
 - Use constructor injection for required dependencies
 - Register services with appropriate lifetime (Singleton, Scoped, Transient)
 - Implement interface-based abstractions for testability
