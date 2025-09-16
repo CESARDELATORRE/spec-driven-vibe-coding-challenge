@@ -111,6 +111,10 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Research outputs on different approaches for documenting the reasoning process
 **Details**: Contains analysis from M365 Copilot, ChatGPT, and Claude on best practices for logging development reasoning and decision-making processes
 
+### `/docs-journey-log/temp-word-docs/`
+**Purpose**: Temporary working Word documents captured during live reasoning/journaling and prompt crafting sessions.
+**Details**: Holds ad-hoc draft journals, research prompt experiments, and transient planning notes migrated from former `/docs/temp-word-docs/` (directory relocated for better alignment with journey log artifacts). Treated as non-authoritative scratch sources; canonical distilled content is moved into Markdown specs/architecture docs when stabilized.
+
 ### `/src/orchestrator-agent/`
 **Purpose**: Orchestration MCP server project coordinating ChatCompletionAgent and KB MCP server for single-turn Q&A (prototype).
 **Details**: Contains `Program.cs` for MCP host setup, `orchestrator-agent.csproj` with dependencies, and `tools/OrchestratorTools.cs` initial tool implementations (status + placeholder question tool to be expanded in later steps).
