@@ -140,14 +140,14 @@ You can simply check it out. No need initially to change it.
   4. Start the MCP Servers from the mcp.json file or using "Ctrl+Shift+P"
   5. 🧪 Test with queries (see examples below)
 
-      **Example prompt for GitHub CoPilot in VS Code:**
+      **Example prompts in Natural Language, for GitHub CoPilot in VS Code:**
 
       ```
-      *Get the orchestrator Health status*
+      Get the orchestrator Health status
 
-      *Get the orchestrator Diagnostics Information and show ALL of it properly formatted here in the chat.*
+      Get the orchestrator Diagnostics Information and show ALL of it properly formatted here in the chat.
 
-      *Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.*
+      Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.
       
       ```
 
@@ -200,28 +200,29 @@ You can simply check it out. No need initially to change it.
 Try these natural language queries with the orchestrator agent:
 
 ```bash
+# General information
+"Using the orchestrator, Give me an overview of Azure Managed Grafana"
+
 # Pricing and features
 "Using the orchestrator, What are the pricing options for Azure Managed Grafana?"
 "Using the orchestrator, Tell me about Azure Managed Grafana key features"
 
-# General information
-"Using the orchestrator, Give me an overview of Azure Managed Grafana"
-
 ```
 
-### 🔍 Trying directly the KB MCP Server from your MCP client UIs
+### 🔍 Trying directly the Knowlege Base MCP Server from your MCP client UIs
 
 Since the KB MCP Server is also configured at the mcp.json in VS CODE, you can also try it directly.
 
 Use explicit MCP tool calls in supported clients (GitHub CoPilot, Claude):
 
-"
 
-*Give me the health status of the kb-content-fetcher MCP server*
+```
 
-*Use the kb-content-fetcher MCP server to get all the raw knowledge base content*
+Give me the health status of the kb-content-fetcher MCP server
 
-"
+Use the kb-content-fetcher MCP server to get all the raw knowledge base content
+
+```
 
 ## 🧪 Testing - Unit Tests and Integration Tests
 

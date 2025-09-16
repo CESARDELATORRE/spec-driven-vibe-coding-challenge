@@ -28,21 +28,39 @@ We should include a concise rationale of the hypothesis and prototype and how it
 
 
 - List of topics to cover:
+
         [X] Vibe coding (Better approach for a structured work)
+
         [X] Operate as 'native PM/developer' / E2E PM craft work
+
         [X] Clear storytelling on "Why this solution"
+
         [X] Define idea / vision & scope
+
         [X] From hypothesis to prototype
+
         [X] Problem to be solved framing/articulation
+
         [X] Discovery/Research --> Research docs using GHCP with Perplexity MCP server
+        
         [X] Scoping
+        
         [X] Iterate prototyping
+        
         [X] User segments
+        
         [X] Measurement planning
+        
         [X] Metrics for decission making 
+        
         [X] Success metrics
+        
         [X] Make and Test assumptions
+        
         [X] Iterate quickly based on evidence
+        
         [X] Tradeoffs - Make and explain
+        
         [X] Develop prototype (Spec-driven vibe approach)
+        
         [X] Create/save journal log with all prompts, co-reasoning and actions
