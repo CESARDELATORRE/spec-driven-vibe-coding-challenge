@@ -2,9 +2,6 @@
 
 ---> Repo name for GitHub MCP server prompts: CESARDELATORRE/spec-driven-vibe-coding-challenge
 
-- (*) Try it with Claude.
-
-
 - List of topics to cover:
         [X] Vibe coding
         [X] Operate as 'native PM/developer' / E2E PM craft work
@@ -34,6 +31,8 @@
 - ADD to JOURNAL LOG DAY 2:
     - Create initial feature specs docs (tbd)
         --> One PR per feature specs doc
+
+- (*) Why [McpServerTool] attributes only in ORCHESTRATOR but not in KB-MCP-Server?
 
 - (*) Add global.research.prompt.md before creating the Architecture file and coding so I create research info.
 
@@ -93,3 +92,4 @@ DONE:
 
 - (DONE) Add a summary of the SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
 - (DONE) Add a visual about SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
+- (DONE) Try it with Claude.
