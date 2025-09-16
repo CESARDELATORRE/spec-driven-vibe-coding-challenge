@@ -188,7 +188,7 @@ You can simply check it out. No need initially to change it.
   Windows: %APPDATA%\Claude Code\claude_code_config.json
   ```
 
-## 💬 Usage Examples
+## 💬 Additional Usage Examples
 
 ### 🎯 Chat Orchestrator Queries
 
@@ -215,7 +215,11 @@ Since the KB MCP Server is also configured at the mcp.json in VS CODE, you can a
 Use explicit MCP tool calls in supported clients (GitHub CoPilot, Claude):
 
 "
-*Use kb-content-fetcher MCP server to and get the info on Azure Managed Grafana*
+*Use the kb-content-fetcher MCP server to get all the raw knowledge base content*
+
+*Give me the health status of the kb-content-fetcher MCP server*
+
+*Give me the Basic Information of the kb-content-fetcher MCP server*
 "
 
 ## 🧪 Testing - Unit Tests and Integration Tests
