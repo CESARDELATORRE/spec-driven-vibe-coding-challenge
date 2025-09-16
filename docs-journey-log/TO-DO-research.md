@@ -2,26 +2,6 @@
 
 ---> Repo name for GitHub MCP server prompts: CESARDELATORRE/spec-driven-vibe-coding-challenge
 
-- List of topics to cover:
-        [X] Vibe coding
-        [X] Operate as 'native PM/developer' / E2E PM craft work
-        [X] Clear storytelling on "Why this solution"
-        [X] Define idea / vision & scope
-        [X] From hypothesis to prototype
-        [X] Problem to be solved framing/articulation
-        [X] Discovery/Research --> Research docs using GHCP with Perplexity MCP server
-        [X] Scoping
-        [X] Iterate prototyping
-        [X] User segments
-        [X] Measurement planning
-        [X] Metrics for decission making 
-        [X] Success metrics
-        [X] Make and Test assumptions
-        [X] Iterate quickly based on evidence
-        [X] Tradeoffs - Make and explain
-        [X] Develop prototype (Spec-driven vibe approach)
-        [X] Create/save journal log with all prompts, co-reasoning and actions
-
 
 
 
@@ -32,31 +12,17 @@
     - Create initial feature specs docs (tbd)
         --> One PR per feature specs doc
 
-- (*) Why [McpServerTool] attributes only in ORCHESTRATOR but not in KB-MCP-Server?
+- HOW TO create and test assumptions or hypothesis?
+        Usually with CUSTOMERS, but could we validate/invalidate with LLMs? That's an interesting but a bit risky option...
 
-- (*) Add global.research.prompt.md before creating the Architecture file and coding so I create research info.
+- (*) Why [McpServerTool] attributes only in ORCHESTRATOR but not in KB-MCP-Server?
 
 
 - (*) Add more metadata to MCP Server and AGENTS so questions are better redirected by the LLM
 
-For POC ARCHITECTURE:
-- Raise any important high-level technical considerations, like platforms, languages, frameworks, and overall architecture details.
+- (*) Do versions as GH VERSIONS? --> iterations
 
-- (*) Add technology.research.prompt.md before creating the Architecture file and coding.
-FEATURE:
-- (*) feature.prompt.md for the specs creation for each FEATURE
-- (*) plan.prompt.md for the implementation plan per each FEATURE
 
-- (*) Add "measurement planning" ASAP, even before C# coding... at least the plan, initially.
-
-- (*) What **metrics** to use for **decision making**.
------------> CESAR: Specs docs should be validated when building the features and code, as a metric and measurement.
-
-- HOW TO create and test assumptions or hypothesis?
-
-- Do iterations as GH VERSIONS? --> iterations
-
-- Add Coding-Rules.md file before generating code.
 
 - Update the "ARCHITECTURE DOC FILE NAME when created into the copilot-instructions.md:
 <key must-follow items>
@@ -67,8 +33,6 @@ FEATURE:
 </key>
 
 - ## Build & Test instructions at the AGENTS.MD file for Agents to take into account.
-
-
 
 - Include the .vscode/tasks.json file when creating TESTS.
 
@@ -90,6 +54,56 @@ Introduce dynamic query parameters for search tool when ready.
 
 DONE:
 
+- (DONE) - Add Coding-Rules.md file before generating code.
+        ---> DONE with csharp.instructions.md
 - (DONE) Add a summary of the SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
 - (DONE) Add a visual about SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
 - (DONE) Try it with Claude.
+- (DONE) Add "measurement planning".
+- (DONE) What **metrics** to use for **decision making**.
+-----------> CESAR: Specs docs should be validated when building the features and code, as a metric and measurement.
+- (DONE) Add research.prompt.md before creating the Architecture file and coding so I create research info. (DONE for technical and idea)
+- (DONE) Add technology.research.prompt.md before creating the Architecture file and coding.
+FEATURE:
+        - (*) feature.prompt.md for the specs creation for each FEATURE
+        - (*) plan.prompt.md for the implementation plan per each FEATURE
+
+
+
+
+- List of topics to cover:
+        [X] Vibe coding
+        
+        [X] Operate as 'native PM/developer' / E2E PM craft work
+        
+        [X] Clear storytelling on "Why this solution"
+        
+        [X] Define idea / vision & scope
+        
+        [X] From hypothesis to prototype
+        
+        [X] Problem to be solved framing/articulation
+        
+        [X] Discovery/Research --> Research docs using GHCP with Perplexity MCP server
+        
+        [X] Scoping
+        
+        [X] Iterate prototyping
+        
+        [X] User segments
+        
+        [X] Measurement planning
+        
+        [X] Metrics for decission making 
+        
+        [X] Success metrics
+        
+        [X] Make and Test assumptions
+       
+        [X] Iterate quickly based on evidence
+        
+        [X] Tradeoffs - Make and explain
+        
+        [X] Develop prototype (Spec-driven vibe approach)
+        
+        [X] Create/save journal log with all prompts, co-reasoning and actions
