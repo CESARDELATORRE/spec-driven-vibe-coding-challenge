@@ -64,13 +64,24 @@ The system consists of four primary components that work together to deliver con
 - Use **Chat Agent** as the consistent label going forward. If legacy references exist (e.g., “Intelligent Chat Agent”), treat them as aliases with a planned cleanup pass.
 - Orchestration Agent is the *only* component permitted to call multiple agents/tools in one logical user turn (single coordination locus).
 
-### Prototype/POC Architecture
-
-![Prototype/POC Architecture Diagram](simplified-directions/prototype-poc-architecture-diagram.png)
+### Prototype/POC v0.1 Architecture
 
 The initial prototype architecture emphasizes simplicity and rapid development iteration through STDIO-based MCP communication and in-process component integration. The Chat UI connects directly to the Orchestration Agent through MCP STDIO, enabling immediate testing and validation through compatible interfaces like GitHub Copilot or Claude Desktop. The Orchestration Agent coordinates with both the Chat Agent and KB MCP Server using STDIO transport, maintaining simple process-based communication that eliminates network complexity during development phases.
 
 This architecture enables rapid prototyping by minimizing infrastructure requirements while providing complete functionality for validation and demonstration purposes. The STDIO transport ensures reliable communication with minimal configuration overhead, allowing development teams to focus on agent logic and conversation quality rather than deployment complexity.
+
+![Prototype/POC Architecture Diagram](_images/v0.1-prototype-poc-architecture-diagram.png)
+
+As very much simplified architectures, here are potential evolutions of the system from a deployment and communication protocol perspective.
+
+### Prototype/POC v2.0 Architecture
+
+![Prototype/POC Architecture Diagram](_images/dockerized-architecture-diagram.png)
+
+### Cloud-Native Architecture
+
+![Prototype/POC Architecture Diagram](_images/cloud-native-architecture-diagram.png)
+
 
 ## Technologies, Stack & Tools
 

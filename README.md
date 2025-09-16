@@ -14,7 +14,7 @@ This repository showcases an example implementation of Spec-Driven Vibes, taking
 
 This project develops a **domain-specific AI agent for Azure Managed Grafana (AMG)** that demonstrates how to move from hypothesis to prototype in an evidence-driven manner. The solution creates a specialized conversational agent that provides precise, domain-specific insights compared to generic chatbots, addressing the gap between generic AI assistance and deep domain knowledge. The system is designed with a modular, reusable architecture that can be adapted for other technical product domains, providing a scalable foundation for organizations seeking to enhance their customer engagement through specialized AI agents.
 
-![Architecture](docs/simplified-directions/v0.1-prototype-poc-architecture-diagram.png)
+![Prototype/POC Architecture Diagram](docs/_images/v0.1-prototype-poc-architecture-diagram.png)
 
 The architecture implements a modular AI agent system built around **Model Context Protocol (MCP)**, **Semantic Kernel**, and **Azure AI Foundry**. Starting with a lightweight prototype using STDIO transport and file-based knowledge storage, the system prioritizes rapid development and validation over scalability. The solution consists of three core components: a **Knowledge Base MCP Server** for domain-specific information access, an **Orchestration Agent** for conversation coordination using Semantic Kernel, and integration with MCP-compatible clients like GitHub Copilot and Claude Desktop for natural language interaction.
 
@@ -78,6 +78,18 @@ You can simply check it out. No need initially to change it.
 ```jsonc
 {
   "servers": {
+    "orchestrator-agent": {
+      "command": "dotnet",
+      "args": ["run", "--project", "./src/orchestrator-agent"]
+    }
+  }
+}
+```
+If you want to also (for testing purposes) directly access the Knowledge-Base MCP Sever from GitHub CoPilot, just to see the raw data of the KB, you can also do it by adding the KB MCP Server configuration to the [`.vscode/mcp.json`](.vscode/mcp.json) file, like in the following JSON config.
+
+```jsonc
+{
+  "servers": {
     "kb-content-fetcher": {
       "command": "dotnet",
       "args": ["run", "--project", "./src/mcp-server-kb-content-fetcher"]
@@ -89,6 +101,7 @@ You can simply check it out. No need initially to change it.
   }
 }
 ```
+
 
 ### 🔑 Environment Configuration
 
@@ -166,10 +179,6 @@ You can simply check it out. No need initially to change it.
   ```json
   {
     "mcpServers": {
-      "kb-content-fetcher": {
-        "command": "dotnet",
-        "args": ["run", "--project", "/absolute/path/to/your/project/src/mcp-server-kb-content-fetcher"]
-      },
       "orchestrator-agent": {
         "command": "dotnet",
         "args": ["run", "--project", "/absolute/path/to/your/project/src/orchestrator-agent"]
