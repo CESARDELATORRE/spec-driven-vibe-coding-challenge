@@ -188,14 +188,8 @@ dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
 ```
 When using an MCP client (e.g., GitHub Copilot) configured to launch them automatically, you typically only need to ensure the environment variables are set beforehand; this README no longer recommends a VS Code launch configuration approach.
 
-#### One-Step Startup Script
-A helper script at the repository root automates loading `dev.env` and launching the orchestrator (and optionally the KB server):
-```bash
-./run-orchestrator.sh            # load env + build + run orchestrator
-./run-orchestrator.sh --no-build # skip build if already built
-./run-orchestrator.sh --kb       # also start KB server in background (logs to kb.*.log)
-```
-If `dev.env` is missing, the script exits with instructions. Works in Git Bash / WSL / Linux / macOS. (On Windows PowerShell, invoke via `bash ./run-orchestrator.sh`).
+#### (Removed) One-Step Startup Script
+The previous helper script has been removed to simplify maintenance. Use direct `dotnet run` commands or MCP client auto-launch.
 
 ### Executable vs .dll Launching
 Both servers now generate a native apphost executable (e.g., `mcp-server-kb-content-fetcher.exe`) as well as the `.dll`.
@@ -216,7 +210,6 @@ Implication: A variable visible during manual `dotnet run` can appear missing in
 | Start VS Code from prepared shell | Source `dev.env` then run `code .` | Mirrors manual runs; no file edits | Must remember each time |
 | `.vscode/mcp.json` env block (non-secrets) | Add keys under `servers.orchestrator-agent.env` | Reproducible per workspace | Risk of accidental secret commit |
 | User / system env vars | Windows Environment UI / `setx` | Persistent across sessions | Harder to toggle quickly |
-| External run script | `./run-orchestrator.sh --kb` | Deterministic, explicit | VS Code UI not managing lifecycle |
 | Hybrid | Secrets in user env; flags in `mcp.json` | Minimizes exposure | Slightly more setup |
 
 #### What DOES work (inherit-from-shell flow)

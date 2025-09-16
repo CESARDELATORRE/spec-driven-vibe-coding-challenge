@@ -135,9 +135,9 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Template of environment variables for local development.
 **Details**: Non-secret example values for Azure OpenAI and orchestrator flags; users copy to `dev.env` (ignored) to load variables easily. Includes fake LLM toggle and KB server executable path.
 
-### `/run-orchestrator.sh`
-**Purpose**: Convenience script to load `dev.env`, optionally build, and run the orchestrator (and optionally the KB server) in one command.
-**Details**: Supports `--no-build` and `--kb` flags; logs KB stdout/stderr to files when launched in background; exits if `dev.env` missing.
+### (Removed) `/run-orchestrator.sh`
+**Status**: Removed.
+**Reason**: Simplified workflow now relies on direct `dotnet run` and MCP client auto-launch; script created duplicate execution path and added maintenance overhead.
 
 ### (Removed) `/.vscode/tasks.json`
 **Status**: Removed.

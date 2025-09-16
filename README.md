@@ -43,7 +43,6 @@ The architecture implements a modular AI agent system built around **Model Conte
 ### ⚙️ Configuration
 - [`.vscode/mcp.json`](.vscode/mcp.json) - VS Code MCP server configuration
 - [`dev.env.example`](dev.env.example) - Environment variables template
-- [`run-orchestrator.sh`](run-orchestrator.sh) - Helper script for local development
 
 ## 🚀 Quick Start Guide
 
@@ -69,26 +68,12 @@ dotnet build
 ls -la src/*/bin/Debug/net*/
 ```
 
-### 🔑 Environment Configuration
+### 🔧 MCP Servers Setup
 
-```bash
-# 1. Copy environment template
-cp dev.env.example dev.env
+#### 🆚 VS Code GitHub Copilot Integration
 
-# 2. Edit dev.env with your Azure AI Foundry credentials
-# AzureOpenAI__Endpoint=https://your-resource.openai.azure.com/
-# AzureOpenAI__DeploymentName=gpt-4o-mini
-# AzureOpenAI__ApiKey=YOUR_ACTUAL_API_KEY
-
-# 3. Load environment variables (bash/git bash)
-set -a; source dev.env; set +a
-```
-
-## 🔧 MCP Server Setup
-
-### 🆚 VS Code GitHub Copilot Integration
-
-The repository includes a pre-configured [`.vscode/mcp.json`](.vscode/mcp.json) file for seamless integration:
+The repository includes a pre-configured [`.vscode/mcp.json`](.vscode/mcp.json) file for seamless integration.
+You can simply check it out. No need initially to change it.
 
 ```jsonc
 {
@@ -105,73 +90,103 @@ The repository includes a pre-configured [`.vscode/mcp.json`](.vscode/mcp.json) 
 }
 ```
 
-**Setup Steps:**
+### 🔑 Environment Configuration
+
 1. ✅ Most configuration is already in the repository. But you need to configure a few ENVIRONMENT VARIABLES.
 
-You can set the ENV VARS directly in the OS or at the terminal level, as long as you do it before opening VS Code with "code .".
+    - A. You can set the ENV VARS directly in your OS (i.e. Windows System ENV VARS), or at the terminal level.
 
-For setting ENV VARS at the terminal leveL:
-Open terminal and go to the root folder of the repo.
+    - B. You can set the ENV VARS at a terminal level, only, as long as you always do it before opening VS Code with "code .".
 
-> **💡 IMPORTANT NOTE**: Ensure your `dev.env` is configured with Azure AI Foundry credentials and before testing the orchestrator.
+    For setting ENV VARS at the terminal leveL:
+    Open terminal and go to the root folder of the repo.
 
-Set env vars with PowerShell by running this command:
-    ```powershell
-    Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
+    > **💡 IMPORTANT NOTE**: Ensure your `dev.env` is configured with Azure AI Foundry credentials and before testing the orchestrator.
+
+    ```bash
+    # 1. Copy environment template to your own dev.env file (excluded at .gitignore so you won't push secrets to GitHub)
+    cp dev.env.example dev.env
+
+    # 2. Edit dev.env with your Azure AI Foundry credentials
+    # AzureOpenAI__Endpoint=https://your-resource.openai.azure.com/
+    # AzureOpenAI__DeploymentName=gpt-4o-mini
+    # AzureOpenAI__ApiKey=YOUR_ACTUAL_API_KEY
     ```
 
-2. 🔄 VS Code with "code ." at the termina.
-3. 💬 Open GitHub Copilot Chat panel
-4. Start the MCP Servers from the mcp.json file or using "Ctrl+Shift+P"
-5. 🧪 Test with queries (see examples below)
+    Set env vars with PowerShell by running this command:
 
+      ```powershell
+        Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
+      ```
 
-**Example prompt for GitHub CoPilot in VS Code:**
+      Check any of the ENV VARS in the terminal
 
-```
-Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.
-```
+      In PowerShell:
 
-![GHCP Prompt](/docs/_images/ghcp-vscode-ui-prompt-example.png)
+      ```bash
+      $env:AzureOpenAI__DeploymentName
+
+      $env:AzureOpenAI__Endpoint
+
+      $env:AzureOpenAI__ApiKey
+
+      $env:KbMcpServer__ExecutablePath
+
+      $env:Orchestrator__UseFakeLlm
+      ```
+
+  2. 🔄 Open VS Code with "code ." at the terminal.
+  3. 💬 Open GitHub Copilot Chat panel
+  4. Start the MCP Servers from the mcp.json file or using "Ctrl+Shift+P"
+  5. 🧪 Test with queries (see examples below)
+
+      **Example prompt for GitHub CoPilot in VS Code:**
+
+      ```
+      *"Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing."*
+      ```
+
+      ![GHCP Prompt](/docs/_images/ghcp-vscode-ui-prompt-example.png)
 
 
 
 ### 🏠 Claude Desktop Integration
 
-Add to your Claude Desktop configuration file:
+  Add to your Claude Desktop configuration file:
 
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+  **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+  **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
-
-```json
-{
-  "mcpServers": {
-    "kb-content-fetcher": {
-      "command": "dotnet",
-      "args": ["run", "--project", "/absolute/path/to/your/project/src/mcp-server-kb-content-fetcher"]
-    },
-    "orchestrator-agent": {
-      "command": "dotnet",
-      "args": ["run", "--project", "/absolute/path/to/your/project/src/orchestrator-agent"]
+  ```json
+  {
+    "mcpServers": {
+      "kb-content-fetcher": {
+        "command": "dotnet",
+        "args": ["run", "--project", "/absolute/path/to/your/project/src/mcp-server-kb-content-fetcher"]
+      },
+      "orchestrator-agent": {
+        "command": "dotnet",
+        "args": ["run", "--project", "/absolute/path/to/your/project/src/orchestrator-agent"]
+      }
     }
   }
-}
-```
+  ```
 
-**Example prompt for Claude:**
+  **Example prompt for Claude:**
 
-```
-Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.
-```
+  ```
+  Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.
+  ```
 
-![Claude](/docs/_images/claude-ui-prompt-example.png)
+  ![Claude](/docs/_images/claude-ui-prompt-example.png)
 
-For **Claude Code** you need to put it here (claude_code_config.json):
-```
-Windows: %APPDATA%\Claude Code\claude_code_config.json
-```
+  
+  NOTE: Claude Code uses a different configuration.
+  For **Claude Code** you need to put it here (claude_code_config.json):
+  ```
+  Windows: %APPDATA%\Claude Code\claude_code_config.json
+  ```
 
 ## 💬 Usage Examples
 
@@ -193,32 +208,23 @@ Try these natural language queries with the orchestrator agent:
 "What are the benefits of using AMG over self-hosted Grafana?"
 ```
 
-### 🔍 Direct KB Server Testing
+### 🔍 Trying directly the KB MCP Server from your MCP client UIs
 
-For testing the Knowledge Base MCP Server directly:
+Since the KB MCP Server is also configured at the mcp.json in VS CODE, you can also try it directly.
 
-```bash
-# 1. Start the KB server
-dotnet run --project src/mcp-server-kb-content-fetcher
+Use explicit MCP tool calls in supported clients (GitHub CoPilot, Claude):
 
-# 2. Use explicit MCP tool calls in supported clients:
-@workspace /mcp search_knowledge "Azure Monitor integration"
-@workspace /mcp get_kb_info
-@workspace /mcp get_kb_content
-```
+"
+*Use kb-content-fetcher MCP server to and get the info on Azure Managed Grafana*
+"
 
-### 🧪 Using Helper Scripts
+## 🧪 Testing - Unit Tests and Integration Tests
 
-```bash
-# Quick start with environment loading
-./run-orchestrator.sh                    # Load env + build + run orchestrator
-./run-orchestrator.sh --no-build        # Skip build if already built
-./run-orchestrator.sh --kb              # Also start KB server in background
-```
+### Option A: Run all Tests
 
-## 🧪 Testing
+From GitHub CoPilot, drag and drop the **test.prompt.md** file and it will automatically execute all the tests.
 
-### Unit Tests
+### Option B: Unit Tests
 ```bash
 # Run all unit tests
 dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/
@@ -228,7 +234,7 @@ dotnet test tests/orchestrator-agent.unit-tests/
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-### Integration Tests
+### Option C: Integration Tests
 ```bash
 # Test MCP protocol compliance
 dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/
@@ -238,12 +244,7 @@ dotnet test tests/orchestrator-agent.integration-tests/
 dotnet test tests/orchestrator-agent.smoke-tests/
 ```
 
-### Manual Testing
-```bash
-# Test individual components
-dotnet run --project src/mcp-server-kb-content-fetcher
-dotnet run --project src/orchestrator-agent
-```
+You can also run the tests from VS Code and the TEST EXPLORER.
 
 ## 🏗️ Architecture Details
 
@@ -253,7 +254,7 @@ dotnet run --project src/orchestrator-agent
 |-----------|---------|------------------|
 | **KB MCP Server** | Domain knowledge access via MCP protocol | .NET 9, MCP SDK, File-based storage |
 | **Orchestration Agent** | Conversation coordination and multi-step planning | .NET 9, Semantic Kernel, MCP SDK |
-| **Chat Agent** | LLM interaction and response processing | Azure AI Foundry, Semantic Kernel |
+| **Chat Agent** | Currently using the ChatCompletionAgent class within the Orchestratorm, for LLM interaction and response processing | Semantic Kernel, LLM model in Azure Foundry |
 | **MCP Clients** | User interface (VS Code, Claude Desktop) | GitHub Copilot, Claude Desktop |
 
 ### Communication Flow
