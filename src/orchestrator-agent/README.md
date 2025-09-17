@@ -5,7 +5,7 @@ Single-turn orchestration MCP server that:
 - Uses Azure OpenAI (when configured) through Semantic Kernel to synthesize an answer
 - Gracefully degrades if KB or LLM configuration is missing (returns disclaimers)
 
-> Prototype scope: No multi-turn memory; no persistence; minimal heuristics (greeting skip, validation, result clamping).
+🏗️ **Architecture**: This component serves as the central coordination layer - see [Architecture & Technologies](../../docs/04-architecture-technologies.md) for complete system design.
 
 ## 🎯 Overview
 

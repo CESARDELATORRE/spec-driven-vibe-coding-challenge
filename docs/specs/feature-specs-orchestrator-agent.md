@@ -5,6 +5,8 @@ The Orchestration Agent provides a simple MCP server that coordinates:
 - A Chat Agent (LLM prompt + response construction)
 - The KB MCP Server (domain knowledge retrieval)
 
+🏗️ **Architecture Reference**: This component serves as the central coordination layer in our [Architecture & Technologies](../04-architecture-technologies.md) design.
+
 Prototype scope: single-turn question → (optional KB lookup) → LLM answer.  
 Future scope: multi-agent workflows, multiple tools, planning, streaming.
 

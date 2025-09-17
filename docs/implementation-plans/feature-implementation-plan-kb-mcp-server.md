@@ -3,6 +3,8 @@
 ## Overview
 This implementation plan outlines the steps to build a Knowledge Base MCP Server that provides Azure Managed Grafana (AMG) content to AI agents via the Model Context Protocol using STDIO transport. The implementation uses domain-agnostic code structure to enable reusability across different knowledge domains while targeting AMG as the specific content domain for this prototype.
 
+🏗️ **Architecture Reference**: This component implements the Knowledge Base layer as defined in [Architecture & Technologies](../04-architecture-technologies.md).
+
 ## Architecture Approach
 - .NET/C# console application using Host.CreateApplicationBuilder pattern
 - MCP SDK for .NET with fluent configuration (AddMcpServer().WithStdioServerTransport().WithToolsFromAssembly())

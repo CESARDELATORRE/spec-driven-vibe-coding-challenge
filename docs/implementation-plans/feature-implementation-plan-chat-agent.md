@@ -3,6 +3,8 @@
 ## Overview
 This document provides a step-by-step implementation plan for the Chat Agent feature based on the functional specification.
 
+🏗️ **Architecture Context**: The Chat Agent is a core component in our [Architecture & Technologies](../04-architecture-technologies.md) design, currently implemented in-process within the Orchestrator for prototype simplicity.
+
 **Prototype Simplification**: For the initial prototype/POC, consider implementing the Chat Agent in-process within the Orchestrator Agent using Semantic Kernel's ChatCompletionAgent. This approach:
 - Eliminates the need for a separate MCP server project
 - Avoids inter-process communication complexity

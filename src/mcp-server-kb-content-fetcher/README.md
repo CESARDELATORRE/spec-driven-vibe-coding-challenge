@@ -3,6 +3,8 @@
 ## 🎯 Overview
 MCP server that provides knowledge base access through standardized MCP tools. Part of the Architecture Variant 1 (Local Desktop) implementation, this server acts as a bridge between AI agents and domain-specific knowledge stored in text files.
 
+🏗️ **Architecture**: This component implements the Knowledge Base layer - see [Architecture & Technologies](../../docs/04-architecture-technologies.md) for complete system design and evolution path.
+
 ## 📄 Knowledge Base Content
 **Current Status**: The prototype uses placeholder content about Azure Managed Grafana (AMG) for demonstration purposes. The text-based knowledge store approach aligns with the prototype scope, focusing on rapid development and demonstration capabilities.
 

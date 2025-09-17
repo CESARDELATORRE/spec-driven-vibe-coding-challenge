@@ -4,6 +4,8 @@
 
 The KB MCP Server provides AI agents with access to Azure Managed Grafana knowledge through a standardized Model Context Protocol (MCP) interface. This server acts as a bridge between Chat Agents and domain-specific knowledge stored in local text files, enabling precise, context-aware responses about AMG features and capabilities.
 
+🏗️ **Architecture Reference**: This component implements the Knowledge Base layer as detailed in [Architecture & Technologies](../04-architecture-technologies.md).
+
 ## User Journey
 
 1. **AI Agent Request**: Chat Agent receives user question about Azure Managed Grafana

@@ -16,6 +16,8 @@ This project develops a **domain-specific AI agent for Azure Managed Grafana (AM
 
 ![Prototype/POC Architecture Diagram](docs/_images/v0.1-prototype-poc-architecture-diagram.png)
 
+🏗️ **Detailed Architecture**: For comprehensive architecture documentation, technology stack details, and evolution roadmap, see [Architecture & Technologies](docs/04-architecture-technologies.md).
+
 The architecture implements a modular AI agent system built around **Model Context Protocol (MCP)**, **Semantic Kernel**, and **Azure AI Foundry**. Starting with a lightweight prototype using STDIO transport and file-based knowledge storage, the system prioritizes rapid development and validation over scalability. The solution consists of three core components: a **Knowledge Base MCP Server** for domain-specific information access, an **Orchestration Agent** for conversation coordination using Semantic Kernel, and integration with MCP-compatible clients like GitHub Copilot and Claude Desktop for natural language interaction.
 
 ## 🏗️ Repository Structure
@@ -262,6 +264,8 @@ dotnet test tests/orchestrator-agent.smoke-tests/
 You can also run the tests from VS Code and the TEST EXPLORER.
 
 ## 🏗️ Architecture Details
+
+🏗️ **Complete Architecture Documentation**: See [Architecture & Technologies](docs/04-architecture-technologies.md) for detailed architectural patterns, technology decisions, and evolution roadmap.
 
 ### Core Components
 

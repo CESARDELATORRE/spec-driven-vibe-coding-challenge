@@ -4,6 +4,8 @@
 
 The Chat Agent is a core component that provides conversational AI capabilities for the Azure Managed Grafana (AMG) domain-specific agent system. It processes user queries and generates intelligent responses by leveraging Azure AI Foundry LLM services and coordinating with knowledge base sources through the orchestration layer.
 
+🏗️ **Architecture Reference**: The Chat Agent design and integration patterns are detailed in [Architecture & Technologies](../04-architecture-technologies.md).
+
 ## User Journey
 
 ### Primary User Flow (Prototype/POC)

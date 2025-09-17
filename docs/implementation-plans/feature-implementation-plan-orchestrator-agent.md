@@ -3,6 +3,7 @@
 ## Overview
 This plan implements a simple MCP server that coordinates between Semantic Kernel's ChatCompletionAgent and KB MCP Server for single-turn question-answering. Following the provided code approach, the orchestration agent will use MCP client to connect to the KB server and integrate it directly with Semantic Kernel's ChatCompletionAgent for maximum simplicity.
 
+🏗️ **Architecture Reference**: See [Architecture & Technologies](../04-architecture-technologies.md) for complete system design and technology stack details.
 
 ## Implementation Steps
 
