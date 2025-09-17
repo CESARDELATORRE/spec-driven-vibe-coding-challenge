@@ -1,4 +1,4 @@
-# Orchestrator Agent MCP Server (Prototype)
+# 🎭 Orchestrator Agent MCP Server (Prototype)
 
 Single-turn orchestration MCP server that:
 - Optionally launches and queries the Knowledge Base MCP Server (KB) for grounding
@@ -7,7 +7,13 @@ Single-turn orchestration MCP server that:
 
 > Prototype scope: No multi-turn memory; no persistence; minimal heuristics (greeting skip, validation, result clamping).
 
-## Tools Exposed
+## 🎯 Overview
+
+The Orchestrator MCP Server is the main entry point for domain-specific questions. It coordinates between:
+- 📚 **KB MCP Server**: Searches the knowledge base for relevant information
+- 🤖 **Chat Agent** (in-process): Generates intelligent responses using Azure OpenAI
+
+## 🛠️ MCP Tools
 | Tool Name | Description | Status Output Field(s) |
 |-----------|-------------|------------------------|
 | `get_orchestrator_status` | Basic health/status flags | `status`, `kbConnected` (future), `chatAgentReady` |
@@ -40,7 +46,7 @@ Example partial JSON response (degraded path – no Azure OpenAI vars):
 }
 ```
 
-## Configuration
+## ⚙️ Configuration
 All runtime configuration is driven by environment variables (portable) + `appsettings.json` (non-secret defaults).
 
 ### Required (for LLM positive path)
@@ -68,7 +74,45 @@ All runtime configuration is driven by environment variables (portable) + `appse
 ```
 Override path or patterns via environment variables if needed.
 
-## Running Locally
+## 🚀 Setup
+
+### 1. 🔧 Environment Variables
+All runtime configuration is driven by environment variables (portable) + `appsettings.json` (non-secret defaults).
+
+#### Required (for LLM positive path)
+| Purpose | Env Var | Notes |
+|---------|---------|-------|
+| Azure OpenAI Endpoint | `AzureOpenAI__Endpoint` | e.g. `https://your-resource.openai.azure.com/` |
+| Azure OpenAI Deployment Name | `AzureOpenAI__DeploymentName` | Name of deployed GPT model (e.g. `gpt-4o-mini`) |
+| Azure OpenAI API Key | `AzureOpenAI__ApiKey` | Omit only if later switching to AAD + managed identity |
+
+#### Optional
+| Purpose | Env Var | Notes |
+|---------|---------|-------|
+ | KB Server Executable Path | `KbMcpServer__ExecutablePath` | Overrides value in `appsettings.json`; may point to base name (auto-detects .exe/.dll) or explicit file |
+| .NET Environment | `DOTNET_ENVIRONMENT` | `Development` enables optional User Secrets lookup |
+
+### 2. 🤖 GitHub Copilot Integration
+1. Ensure Copilot supports MCP configuration (Insiders / feature flag).
+2. Add an entry to your Copilot MCP configuration (example pseudo JSON):
+```jsonc
+{
+  "mcpServers": {
+    "orchestrator-agent": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/src/orchestrator-agent/orchestrator-agent.csproj"
+      ]
+    }
+  }
+}
+```
+3. Restart Copilot so it launches both servers.
+4. Ask Copilot to invoke the tool implicitly via natural language (examples below) or explicitly if UI allows selecting tools.
+
+## 💡 Example Usage
 ```bash
 # (Optional) Export Azure OpenAI vars for full LLM path
 export AzureOpenAI__Endpoint="https://your-resource.openai.azure.com/"
@@ -178,18 +222,7 @@ Notes:
 * Avoid surrounding values with quotes unless necessary; the loader above does not trim them.
 * Never commit `dev.env`; only the `dev.env.example` template lives in git.
 
-#### Running Both MCP Servers Manually
-In separate terminals (after loading `dev.env` in each if needed):
-```bash
-dotnet run --project src/mcp-server-kb-content-fetcher/mcp-server-kb-content-fetcher.csproj
-```
-```bash
-dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
-```
-When using an MCP client (e.g., GitHub Copilot) configured to launch them automatically, you typically only need to ensure the environment variables are set beforehand; this README no longer recommends a VS Code launch configuration approach.
 
-#### (Removed) One-Step Startup Script
-The previous helper script has been removed to simplify maintenance. Use direct `dotnet run` commands or MCP client auto-launch.
 
 ### Executable vs .dll Launching
 Both servers now generate a native apphost executable (e.g., `mcp-server-kb-content-fetcher.exe`) as well as the `.dll`.
@@ -211,46 +244,6 @@ Implication: A variable visible during manual `dotnet run` can appear missing in
 | `.vscode/mcp.json` env block (non-secrets) | Add keys under `servers.orchestrator-agent.env` | Reproducible per workspace | Risk of accidental secret commit |
 | User / system env vars | Windows Environment UI / `setx` | Persistent across sessions | Harder to toggle quickly |
 | Hybrid | Secrets in user env; flags in `mcp.json` | Minimizes exposure | Slightly more setup |
-
-#### What DOES work (inherit-from-shell flow)
-1. In a terminal (Git Bash / WSL / PowerShell) load variables:
-   * Bash / Git Bash:
-
-     ```bash
-     set -a; source dev.env; set +a
-     ```
-   * PowerShell:
-
-     ```powershell
-     Get-Content dev.env | ForEach-Object {
-       if ($_ -match '^(#|\s*$)') { return }
-       if ($_ -match '^(.*?)=(.*)$') {
-         $n = $matches[1].Trim(); $v = $matches[2].Trim()
-         if ($n) { Set-Item -Path env:$n -Value $v }
-       }
-     }
-     ```
-
-     Reusable function (optional) for your profile:
-     ```powershell
-     function Import-DevEnv([string]$Path = 'dev.env') {
-       if (-not (Test-Path $Path)) { Write-Warning "File not found: $Path"; return }
-       Get-Content $Path | ForEach-Object {
-         if ($_ -match '^(#|\s*$)') { return }
-         if ($_ -match '^(.*?)=(.*)$') {
-           $n = $matches[1].Trim(); $v = $matches[2].Trim(); if ($n) { Set-Item env:$n $v }
-         }
-       }
-     }
-     # Usage: Import-DevEnv  or  Import-DevEnv -Path other.env
-     ```
-
-     > Note: Direct `$env:$name` dynamic assignment is invalid PowerShell syntax; use `Set-Item env:<name>` instead.
-2. (Optional) Echo a variable to confirm (e.g., `echo $AzureOpenAI__DeploymentName` / `$env:AzureOpenAI__DeploymentName`).
-3. From that SAME terminal launch VS Code: `code .`
-4. Start the orchestrator (and KB) from the MCP panel.
-5. Call `get_orchestrator_status` or `ask_domain_question`; diagnostics should show expected flags (e.g. `endpointConfigured=true`).
-6. If not, fully close all VS Code windows and repeat (a lingering window reused the old environment).
 
 #### Optional `.vscode/mcp.json` Snippet (non-secrets only)
 ```jsonc
@@ -333,30 +326,14 @@ Status / health:
 - Greeting heuristic (configurable patterns) short-circuits KB usage to save startup cost.
 - Graceful fallback returns structured JSON even when KB or LLM not available.
 
-## Fake LLM Mode (Deterministic Testing Aid)
-Set `Orchestrator__UseFakeLlm=true` plus provide any (non-secret) placeholder Azure OpenAI env vars to force a simulated success path without calling a real model. The response will:
-* Start answer with `FAKE_LLM_ANSWER:`
-* Include disclaimer `Simulated LLM answer (fake mode)`
-* Set `diagnostics.fakeLlmMode=true` and `chatAgentReady=true`
+## 🔒 Security Notes
+- Never commit secrets: only use environment variables or (local only) User Secrets.
+- Logs route to stderr; stdout reserved strictly for MCP protocol messages.
+- API key is never logged; only boolean `apiKeyConfigured` appears in diagnostics.
 
-Example:
-```bash
-export AzureOpenAI__Endpoint="https://fake-endpoint.example.com/"
-export AzureOpenAI__DeploymentName="gpt-fake"
-export AzureOpenAI__ApiKey="FAKE_KEY_VALUE"
-export Orchestrator__UseFakeLlm=true
-dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
-```
+---
 
-Use cases:
-| Scenario | Benefit |
-|----------|---------|
-| CI without real model credentials | Deterministic answer string & stable diagnostics |
-| Local debugging of downstream consumers | No external latency or quota usage |
-| Contract testing | Ensures JSON schema stability separate from model variability |
-
-Disable by unsetting or setting `Orchestrator__UseFakeLlm` to any value other than `true`.
-
+**📅 Last Updated**: September 2025
 ## Extending
 | Area | Suggested Next Step |
 |------|---------------------|
@@ -379,5 +356,4 @@ Disable by unsetting or setting `Orchestrator__UseFakeLlm` to any value other th
 - Logs route to stderr; stdout reserved strictly for MCP protocol messages.
 - API key is never logged; only boolean `apiKeyConfigured` appears in diagnostics.
 
-## License
-Apache 2.0 (see root `LICENSE`).
+

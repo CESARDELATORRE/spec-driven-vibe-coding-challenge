@@ -467,3 +467,17 @@ Developers may still use `dotnet user-secrets set AzureOpenAI:ApiKey <value>` et
 - Use configuration-based KB server path for flexibility across environments
 - Support relative paths resolved from application base directory
 - Graceful degradation when KB server not found or misconfigured
+
+---
+
+## Success Criteria
+- Orchestrator successfully coordinates between Chat Agent and KB MCP Server
+- Both MCP tools (`ask_domain_question`, `get_orchestrator_status`) work correctly
+- Environment-based configuration loads properly
+- Integration tests pass
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: September 2025  
+**Status**: Implemented

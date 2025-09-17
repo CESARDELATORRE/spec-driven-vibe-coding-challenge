@@ -354,3 +354,22 @@ This prototype demonstrates the core concepts. Future evolution paths include:
 ---
 
 **🚀 Ready to get started?** Follow the [Quick Start Guide](#-quick-start-guide) above, or dive into the [detailed documentation](docs/) for more comprehensive guidance.
+
+---
+
+# Spec-Driven Vibe Coding Challenge
+
+## Overview
+This repository contains a prototype implementation of a domain-specific AI agent system using the Model Context Protocol (MCP). The prototype demonstrates an Azure Managed Grafana (AMG) expert agent that can answer technical questions by combining knowledge base lookup with LLM-powered conversational abilities.
+
+## 📊 Current Status (September 2025)
+- ✅ Architecture Variant 1 (Local Desktop) implemented
+- ✅ KB MCP Server with text-based knowledge store
+- ✅ Orchestrator Agent with in-process Chat Agent
+- ✅ Basic test coverage (unit and integration tests)
+- ⏳ Production AMG content (using placeholder data)
+- ⏳ Architecture Variants 2-4 (future iterations)
+
+---
+
+**📅 Last Updated**: September 2025

@@ -14,22 +14,28 @@ Future scope: multi-agent workflows, multiple tools, planning, streaming.
 3. Agent (a) decides if KB search is needed (simple heuristic) and calls KB MCP Server, then (b) calls Chat Agent with combined context.
 4. Orchestration Agent returns synthesized answer to client.
 
-## 3. MCP Tools (Prototype)
-1. ask_domain_question  
-   - Purpose: Main entry point. Accepts a user question, performs optional KB search, calls Chat Agent, returns final answer + sources.
-   - Inputs:
-     - question (string, required)
-     - includeKb (bool, optional, default: true)
-     - maxKbResults (int, optional, default: 2, max: 3)
-   - Output: JSON object:
-     - answer: string
-     - usedKb: bool
-     - kbResults: array (each: { snippet, truncated })
-     - tokensEstimate: int (best‑effort)
-     - disclaimers: array
-2. get_orchestrator_status  
-   - Purpose: Lightweight health/info (for debugging).
-   - Output: { status: "ok", kbConnected: bool, chatAgentReady: bool }
+## 3. MCP Tools
+
+The Orchestrator Agent exposes the following MCP tools:
+
+### 1. `ask_domain_question`
+**Purpose**: Primary tool for processing user questions about the domain
+**Input Parameters**:
+- `question` (string, required): The user's natural language question
+**Output**: 
+- Structured response containing the answer, confidence level, and sources
+**Implementation**: Orchestrates between the in-process Chat Agent (using Semantic Kernel's ChatCompletionAgent) and the KB MCP Server to provide comprehensive answers
+
+### 2. `get_orchestrator_status`
+**Purpose**: Health check and status monitoring tool
+**Input Parameters**: None
+**Output**: 
+- Status information including:
+  - Orchestrator health status
+  - KB MCP Server connection status
+  - Chat Agent availability (in-process status)
+  - Version information
+**Implementation**: Provides real-time status of the orchestrator and its dependencies
 
 ## 4. Functional Requirements
 
@@ -131,4 +137,8 @@ Acceptance:
 - Chat Agent: LLM interaction component.
 - KB MCP Server: External MCP server providing domain snippets.
 
-(End of spec)
+---
+
+**Document Version**: 1.0  
+**Last Updated**: September 2025  
+**Next Review**: After prototype completion

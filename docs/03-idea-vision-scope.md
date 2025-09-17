@@ -43,6 +43,14 @@ Instantly generate precise, domain-specific insights about Azure Managed Grafana
 - **Architectural flexibility**: Modular design enabling rapid adaptation to new domains
 - **Rapid deployment**: The "easy to switch to other domains" approach enables quick time-to-market for new domain agents
 
+### Prototype Implementation Note
+The current prototype implementation (September 2025) includes:
+- ✅ KB MCP Server with text file knowledge base
+- ✅ Orchestrator Agent with in-process Chat Agent
+- ✅ Basic AMG knowledge content for demonstrations
+- ⏳ Production-ready AMG content (using placeholder content)
+- ⏳ Multi-variant architecture (only Variant 1 implemented)
+
 ## Functional Requirements
 
 ### Core Capabilities
@@ -64,7 +72,13 @@ Instantly generate precise, domain-specific insights about Azure Managed Grafana
 ## Vision and Scope
 
 ### Long-term Vision
-**Horizon 1 (Prototype/POC)**: Demonstrate working AMG-specific agent with basic conversational capabilities and simple knowledge base integration.
+**Architecture Evolution Path**: The system is designed to evolve through four distinct variants:
+- **Variant 1 (Current)**: Local desktop with STDIO transport
+- **Variant 2**: Containerized with HTTP+SSE transport
+- **Variant 3**: Cloud-native with managed services
+- **Variant 4**: Enterprise-grade with full Azure integration
+
+**Horizon 1 (Prototype/POC)**: Demonstrate working AMG-specific agent with basic conversational capabilities and simple knowledge base integration using Architecture Variant 1.
 
 **Horizon 2 (MVP to Production)**: 
 - Expand to multiple Azure service domains
@@ -125,12 +139,27 @@ Instantly generate precise, domain-specific insights about Azure Managed Grafana
 - **Technology Evolution**: Rapid changes in AI/LLM landscape may impact solution relevance
 - **Resource Requirements**: Production implementation may require significantly more resources than anticipated
 
+## Production Readiness Matrix
+
+| Aspect | Prototype Status | Production Requirements |
+|--------|-----------------|------------------------|
+| **Architecture** | ✅ Modular design proven | Scale-out capability needed |
+| **Performance** | ⚠️ Single-user adequate | Load balancing required |
+| **Security** | ❌ Basic secret handling | Azure Key Vault integration |
+| **Monitoring** | ❌ Console logging only | APM + distributed tracing |
+| **Content** | ⚠️ Placeholder data | Official documentation |
+| **Testing** | ⚠️ Basic coverage | Full regression suite |
+| **Operations** | ❌ Manual deployment | CI/CD pipeline |
+
+**Prototype proves the concept but requires significant hardening for production use.**
+
 ## Contact Information
 - **Project Lead**: Cesar De la Torre
 - **Technical Lead**: Cesar De la Torre
 - **Product Owner**: Cesar De la Torre
 
-## Document Control
-- **Version**: 1.0
-- **Date**: September 12, 2025
-- **Last Updated**: September 12, 2025
+---
+
+**Document Version**: 1.0  
+**Last Updated**: September 2025  
+**Status**: Vision defined, prototype implemented

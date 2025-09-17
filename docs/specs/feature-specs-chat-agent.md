@@ -24,9 +24,22 @@ Agent: "Azure Managed Grafana offers several key benefits for monitoring:
        Would you like me to explain any of these benefits in more detail?"
 ```
 
-## Functional Requirements (Prototype/POC Scope)
+## Functional Requirements
 
-### FR-1: Natural Language Query Processing
+### Prototype/POC Scope
+
+**Implementation Note**: For the initial prototype/POC, the Chat Agent may be implemented in-process within the Orchestrator Agent using Semantic Kernel's ChatCompletionAgent to simplify the architecture and reduce complexity. This approach avoids the need for a separate MCP server and inter-process communication during the prototype phase.
+
+#### FR-1: Basic Conversational Interface
+**Description**: Accept natural language queries from the Orchestrator Agent and return structured responses.
+
+**Acceptance Criteria**:
+- Accept text input from the Orchestrator Agent
+- Generate contextually appropriate responses using LLM
+- Return structured responses with answer and confidence level
+- Support single-turn query-response interactions
+
+#### FR-2: Natural Language Query Processing
 **Description**: Process user queries written in natural language and understand AMG-related context and intent.
 
 **Acceptance Criteria**:
@@ -35,7 +48,7 @@ Agent: "Azure Managed Grafana offers several key benefits for monitoring:
 - Handle basic question variations (e.g., "What is AMG?", "Tell me about Azure Managed Grafana")
 - Return appropriate error message for completely unrelated queries
 
-### FR-2: Knowledge Base Integration
+#### FR-3: Knowledge Base Integration
 **Description**: Coordinate with KB MCP Server through orchestration layer to retrieve relevant information for user queries.
 
 **Acceptance Criteria**:
@@ -44,7 +57,7 @@ Agent: "Azure Managed Grafana offers several key benefits for monitoring:
 - Handle cases where no relevant information is found in knowledge base
 - Maintain context of retrieved information throughout response generation
 
-### FR-3: LLM Response Generation
+#### FR-4: LLM Response Generation
 **Description**: Generate accurate, helpful responses using Azure AI Foundry LLM capabilities based on user queries and knowledge base information.
 
 **Acceptance Criteria**:
@@ -54,7 +67,7 @@ Agent: "Azure Managed Grafana offers several key benefits for monitoring:
 - Include appropriate disclaimers when information is limited or uncertain
 - Maintain professional, helpful tone consistent with Azure documentation
 
-### FR-4: Basic Error Handling
+#### FR-5: Basic Error Handling
 **Description**: Provide graceful error handling when unable to process queries or generate appropriate responses.
 
 **Acceptance Criteria**:
@@ -165,5 +178,5 @@ The following capabilities are intentionally excluded from the prototype/POC sco
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: December 2024  
+**Last Updated**: September 2025  
 **Next Review**: After prototype completion

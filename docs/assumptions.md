@@ -29,4 +29,27 @@ We assume that:
 - Professional, helpful tone consistent with Azure documentation is appropriate for all user types
 - Target response length of 50-200 words meets user expectations for conciseness and helpfulness
 
+## Success Criteria Assumptions
+
+For this exercise, we assume success is measured by:
+
+1. **Technical Validation**: Demonstrating the architecture works with MCP protocol
+2. **Functional Validation**: Showing domain-specific responses are possible
+3. **Architectural Validation**: Proving the modular design enables future evolution
+
+We do NOT assume success requires:
+- Real user testing or feedback
+- Production-ready performance
+- Complete AMG documentation coverage
+- Integration with actual Azure services
+
+## Summary
+
+These assumptions establish the boundaries of the prototype development while acknowledging the artificial constraints of the coding exercise. They allow us to focus on demonstrating technical architecture and AI capabilities rather than getting caught in validation loops that would naturally occur in a real customer engagement.
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: September 2025
+
 

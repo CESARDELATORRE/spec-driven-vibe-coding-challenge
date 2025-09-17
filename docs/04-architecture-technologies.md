@@ -145,7 +145,36 @@ To ensure consistency across environments while allowing rapid evolution with th
 
 **Principle**: Ship a working conversational loop first; harden testing in later variants.
 
-## Architecture Variants
+## Architecture Variants & Evolution Path
+
+### Overview
+We recommend a phased approach with four architectural variants, progressing from local prototype to cloud-native production. This allows rapid initial validation while maintaining a clear path to enterprise deployment.
+
+**Implementation Status (September 2025)**: Only Variant 1 (Local Desktop Prototype) has been implemented. Variants 2-4 are planned for future iterations based on prototype validation results.
+
+## Implementation Status (September 2025)
+
+### ✅ Implemented in Prototype
+- Architecture Variant 1 (Local Desktop)
+- MCP STDIO transport
+- Semantic Kernel integration
+- In-process Chat Agent
+- File-based knowledge base
+- Basic unit and integration tests
+
+### ⏳ Planned but Not Implemented
+- Architecture Variants 2-4
+- HTTP+SSE transport
+- Separate Chat Agent service
+- Database knowledge storage
+- Production monitoring
+- Security hardening
+
+### 🚫 Out of Scope for Exercise
+- Real Azure integration
+- Customer validation
+- Performance optimization
+- Multi-tenant support
 
 ### Variant 1: Initial Prototype/POC
 
@@ -232,8 +261,18 @@ The following capabilities are *intentionally deferred* until after the Prototyp
 
 **Principle**: Defer sophistication until signal justifies cost. Each capability includes clear activation triggers.
 
+## Implementation Status
+
+**Current Status (September 2025)**: Only Variant 1 (Local Desktop Prototype) has been implemented. Variants 2-4 are planned for future iterations.
+
 ## Conclusion
 
 This architecture provides a systematic progression from simple STDIO-based prototypes to enterprise-grade Kubernetes deployments. The .NET/C#, MCP, and Semantic Kernel technology stack offers robust AI agent capabilities while leveraging proven Microsoft technologies for enterprise compatibility.
 
 The modular design ensures prototype investments translate to production capabilities while providing flexibility for changing requirements. Organizations can start with minimal infrastructure and evolve toward enterprise-scale deployments along clear migration paths.
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: September 2025  
+**Next Review**: After prototype validation

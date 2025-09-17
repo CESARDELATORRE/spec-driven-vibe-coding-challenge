@@ -9,7 +9,8 @@
     <memory>
     If you need a reference for what each file does, check out #file:../docs/memory.md.
 
-    When you create a new file, update #file:../docs/memory.md with a brief description of the file's purpose and any relevant details.
+    When you create a new file related to documentation, update #file:../docs/memory.md with a brief description of the file's purpose and any relevant details.
+    Do NOT update the #file:../docs/memory.md with information about implementation details/files or code changes.
     </memory>
 
     <context7>

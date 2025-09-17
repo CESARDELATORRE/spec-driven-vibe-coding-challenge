@@ -54,6 +54,14 @@ The agent should be able to answer any question about AMG and could be integrate
 
 - Design for reusability across comparable KB domains, while maintaining simplicity in the development.
 
+### Domain Selection Note
+While this document uses generic terminology, the prototype implementation has selected Azure Managed Grafana (AMG) as the demonstration domain. This choice provides:
+- A concrete, technical domain for meaningful demonstrations
+- Sufficient complexity to showcase AI agent capabilities
+- Real-world applicability for Azure customers
+
+The architecture remains domain-agnostic and can be adapted to other domains by replacing the knowledge base content.
+
 
 ### Prototype/POC scope and tradeoffs
 
@@ -113,3 +121,8 @@ The agent should be able to answer any question about AMG and could be integrate
 **Simple to Understand**: Clear separation of concerns, minimal complexity, well-documented codebase.
 
 **Documentation:** Document architecture decisions and tradeoffs.
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: September 2025

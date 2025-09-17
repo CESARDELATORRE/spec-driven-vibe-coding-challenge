@@ -1,6 +1,6 @@
 ## Repo Map
 - docs (Documents on idea/vision-scope, functionality and architecture)
-- setup (How to setup this repo woring in VS Code and MCP servers)
+- setup (How to setup this repo working in VS Code and MCP servers)
 
 ## Build 
 
@@ -24,10 +24,7 @@ dotnet test spec-driven-vibe-coding-challenge-orchestrator-code.sln
 dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/mcp-server-kb-content-fetcher.unit-tests.csproj
 dotnet test tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj
 
-# 2. Smoke tests (basic end-to-end sanity)
-dotnet test tests/orchestrator-agent.smoke-tests/orchestrator-agent.smoke-tests.csproj
-
-# 3. Integration tests (slower, external interactions / protocol)
+# 2. Integration tests (slower, external interactions / protocol)
 dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/mcp-server-kb-content-fetcher.integration-tests.csproj
 dotnet test tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj
 ```

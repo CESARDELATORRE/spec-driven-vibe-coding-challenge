@@ -32,12 +32,12 @@ src/
         configuration/                     # Configuration classes
         extensions/                        # Extension methods
         <other folders in kebab-case>
-    orchestrator-agent/                    # Main project
+    orchestrator-agent/                    # Main project (includes in-process Chat Agent)
         tools/                             # MCP tools implementation
         services/                          # Business logic services
         models/                            # Data models and DTOs
 
-    chat-agent/                            # Future project
+    chat-agent/                            # Future project (when moving to containerized architecture)
 
 tests/
     mcp-server-kb-content-fetcher.unit-tests/       # Unit tests

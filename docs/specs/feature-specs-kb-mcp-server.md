@@ -153,6 +153,8 @@ The KB MCP Server provides AI agents with access to Azure Managed Grafana knowle
 - UTF-8 encoding recommended for broad compatibility
 - Content should be focused on Azure Managed Grafana topics for prototype
 
+**Implementation Note**: The prototype uses placeholder AMG content for demonstration purposes. Production deployment would require comprehensive, validated AMG documentation content.
+
 ### Search Behavior
 - Case-insensitive matching across entire file content
 - Partial keyword matching (substring search)
@@ -182,3 +184,23 @@ The requirement to load knowledge base content at startup is a deliberate protot
 - Intelligent caching with TTL
 
 These alternatives add implementation complexity that contradicts the prototype's rapid development and simple demonstration goals.
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: September 2025  
+**Next Review**: After prototype completion
+
+## Testing Reality
+
+### Implemented Tests
+- **Unit Tests**: Core business logic (FileKnowledgeBaseService)
+- **Integration Tests**: MCP protocol handshake and tool invocation
+
+### Not Implemented (Future Work)
+- **Performance Tests**: Large knowledge base handling
+- **Stress Tests**: Concurrent request handling
+- **End-to-End Tests**: Full conversation flows
+- **Domain Validation**: Answer quality assessment
+
+The current tests validate **technical correctness** not **domain expertise quality**.
