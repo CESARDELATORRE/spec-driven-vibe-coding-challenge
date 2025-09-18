@@ -22,6 +22,7 @@
     </context7>
 
     <commit>
+    Don't do any commits by yourself when running the .github/prompts/implement-code.prompt.md prompt.
     ONLY when updating .md files and docs, WHEN .md file changes are COMPLETE:
     - Stage your changes with git add .
     - Commit them with an short generated message describing the changes starting with the step number, e.g. STEP #1 - <short description of changes>
