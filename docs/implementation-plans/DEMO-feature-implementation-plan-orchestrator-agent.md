@@ -10,9 +10,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 ### - [ ] Step 1: Project Setup and Structure
   - **Task**: Create the orchestration agent project with proper folder structure and dependency references. Secrets will be supplied by environment variables (User Secrets optional for local dev only).
   - **Files**:
-    - `src/orchestrator-agent/orchestrator-agent.csproj`: Main project file with MCP SDK + Semantic Kernel dependencies.
-    - `src/orchestrator-agent/Program.cs`: Host builder with MCP server configuration using `Host.CreateEmptyApplicationBuilder`.
-    - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Initial MCP tools static class (status + placeholder AskDomainQuestion) - to be expanded in later steps.
+    - `src/DEMO-orchestrator-agent/DEMO-orchestrator-agent.csproj`: Main project file with MCP SDK + Semantic Kernel dependencies.
+    - `src/DEMO-orchestrator-agent/Program.cs`: Host builder with MCP server configuration using `Host.CreateEmptyApplicationBuilder`.
+    - `src/DEMO-orchestrator-agent/tools/OrchestratorTools.cs`: Initial MCP tools static class (status + placeholder AskDomainQuestion) - to be expanded in later steps.
   - **Status**: Implemented. Project compiles structure pending further tool logic (Steps 2+).
   - **Dependencies**: .NET 9, MCP SDK, Semantic Kernel, Azure OpenAI connector.
     ```
@@ -63,7 +63,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
             "name": "Run Orchestrator Agent",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/src/orchestrator-agent/bin/Debug/net9.0/orchestrator-agent.dll",
+            "program": "${workspaceFolder}/src/DEMO-orchestrator-agent/bin/Debug/net9.0/DEMO-orchestrator-agent.dll",
             "env": {
               "AzureOpenAI__Endpoint": "https://your-resource-name.openai.azure.com/",
               "AzureOpenAI__DeploymentName": "gpt-4o-mini",
@@ -88,7 +88,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   - **Task**: Create MCP tools following the static class pattern, using ChatCompletionAgent directly with configuration loaded from environment variables (User Secrets only if dev environment).
   - **Status**: Scaffold implemented. `AskDomainQuestionAsync` added with config loading, validation placeholders, structured JSON response, heuristic skip placeholder. Full KB + LLM logic deferred to Steps 3-4.
   - **Files**:
-  - `src/orchestrator-agent/tools/OrchestratorTools.cs`: Static class with `[McpServerToolType]` containing both tools.
+  - `src/DEMO-orchestrator-agent/tools/OrchestratorTools.cs`: Static class with `[McpServerToolType]` containing both tools.
   - **Dependencies**: MCP tool attributes, Semantic Kernel ChatCompletionAgent, configuration providers (env vars + optional user secrets), LINQ.
   - **Pseudocode**:
   ```csharp
@@ -243,7 +243,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 ### - [ ] Step 6: Program.cs Setup
   - **Task**: Configure MCP server startup following the working pattern
   - **Files**:
-    - `src/orchestrator-agent/Program.cs`: Update with MCP server configuration using `Host.CreateEmptyApplicationBuilder`
+    - `src/DEMO-orchestrator-agent/Program.cs`: Update with MCP server configuration using `Host.CreateEmptyApplicationBuilder`
   - **Dependencies**: Host builder, MCP server extensions
   - **Status**: Implemented. Added configuration layering (appsettings optional placeholder until Step 7), environment variables, dev user secrets, stderr-only logging, and MCP server registration.
   - **Pseudocode**:
@@ -261,7 +261,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 ### - [ ] Step 7: Configuration File
   - **Task**: Provide non-secret configuration (KB path, patterns). Secrets remain only in env vars.
   - **Files**:
-    - `src/orchestrator-agent/appsettings.json`: Non-sensitive defaults.
+    - `src/DEMO-orchestrator-agent/appsettings.json`: Non-sensitive defaults.
   - **Status**: Implemented. Added default KB executable path (relative), greeting patterns array consumed by heuristic, and logging levels. Program.cs now treats appsettings.json as required.
   - **Pseudocode**:
     ```json
@@ -280,8 +280,8 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
   - **Files**: No new files - validation step
   - **Commands**:
     ```bash
-    dotnet build src/orchestrator-agent/orchestrator-agent.csproj
-    dotnet run --project src/orchestrator-agent/orchestrator-agent.csproj
+    dotnet build src/DEMO-orchestrator-agent/DEMO-orchestrator-agent.csproj
+    dotnet run --project src/DEMO-orchestrator-agent/DEMO-orchestrator-agent.csproj
     ```
   - **User Intervention**: Ensure required environment variables are exported before running.
   - **Dependencies**: All previous steps completed, Azure OpenAI secrets configured
@@ -290,8 +290,8 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 ### - [ ] Step 9: Unit Tests
   - **Task**: Create unit tests for MCP tools with mock configuration
   - **Files**:
-    - `tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj`: Test project
-    - `tests/orchestrator-agent.unit-tests/tools/OrchestratorToolsTests.cs`: Tool behavior tests with mock secrets
+    - `tests/DEMO-orchestrator-agent.unit-tests/DEMO-orchestrator-agent.unit-tests.csproj`: Test project
+    - `tests/DEMO-orchestrator-agent.unit-tests/tools/OrchestratorToolsTests.cs`: Tool behavior tests with mock secrets
   - **Dependencies**: xUnit, test fixtures for mock configuration, secure test patterns
   - **Status**: Implemented. Added unit tests covering validation errors (empty, punctuation-only, too short), correlationId format, greeting heuristic, and maxKbResults clamping diagnostics.
   - **Pseudocode**:
@@ -309,9 +309,9 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 ### - [ ] Step 10: Integration Tests
   - **Task**: Test MCP server coordination with real KB server using test secrets
   - **Files**:
-    - `tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj`: Integration test project
-    - `tests/orchestrator-agent.integration-tests/StdioMcpClient.cs`: Minimal stdio harness (orchestrator)
-    - `tests/orchestrator-agent.integration-tests/OrchestratorServerIntegrationTests.cs`: End-to-end tool invocation tests
+    - `tests/DEMO-orchestrator-agent.integration-tests/DEMO-orchestrator-agent.integration-tests.csproj`: Integration test project
+    - `tests/DEMO-orchestrator-agent.integration-tests/StdioMcpClient.cs`: Minimal stdio harness (orchestrator)
+    - `tests/DEMO-orchestrator-agent.integration-tests/OrchestratorServerIntegrationTests.cs`: End-to-end tool invocation tests
   - **Dependencies**: Orchestrator project, xUnit, custom stdio client harness
   - **Status**: Implemented. Tests cover initialize + tools/list discovery and ask_domain_question degraded path (no Azure OpenAI config) with disclaimers & scaffold status.
   - **User Intervention**: Optional — set AzureOpenAI__* env vars to exercise LLM success path later.
@@ -345,7 +345,7 @@ This plan implements a simple MCP server that coordinates between Semantic Kerne
 ### Dependency Inventory & Version Rationale (Added Post Step 11)
 The following summarizes the concrete NuGet package versions in use after completing Steps 1–11, plus rationale and future considerations.
 
-#### Runtime (`src/orchestrator-agent/orchestrator-agent.csproj`)
+#### Runtime (`src/DEMO-orchestrator-agent/DEMO-orchestrator-agent.csproj`)
 | Package | Version | Purpose | Notes / Rationale |
 |---------|---------|---------|-------------------|
 | Microsoft.Extensions.Hosting | 9.0.9 | Generic host & DI plumbing | Stable .NET 9 servicing release |
