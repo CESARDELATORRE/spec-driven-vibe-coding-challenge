@@ -4,6 +4,10 @@ This document provides a brief description of each file's purpose and relevant d
 
 ## 📚 Global Project Documentation
 
+### `/.specify/memory/constitution.md`
+**Purpose**: Project Constitution (minimal non-negotiable principles & governance)
+**Details**: Defines precedence order, core principles (spec-first, simplicity, test focus, traceability, security, naming consistency, lightweight observability), workflow gates, and amendment process. Overrides other guidance when conflicts arise unless amended.
+
 ### `/docs/01-original-challenge-definition.md`
 **Purpose**: Original challenge definition and requirements document
 **Details**: Contains the original problem statement, objectives, and requirements for the spec-driven vibe coding challenge
@@ -19,6 +23,10 @@ This document provides a brief description of each file's purpose and relevant d
 ### `/docs/04-architecture-technologies.md`  
 **Purpose**: Technical architecture and technology stack recommendations with evolution path
 **Details**: Defines four architecture variants from prototype to production, technology selections (.NET, MCP, Semantic Kernel), and testing strategies
+
+### `/analisys-constitution-ghcp-instructions-agents.md`
+**Purpose**: Comparative analysis of Constitution, Copilot instructions, and AGENTS.md
+**Details**: Defines roles, precedence chain, usage workflow, conflict resolution patterns, and maintenance triggers for governance artifacts
 
 ### `/docs/tradeoffs.md`
 **Purpose**: Documents all technical and functional tradeoffs made during project development
