@@ -79,11 +79,16 @@ You can simply check it out. No need initially to change it.
 
 ```jsonc
 {
+  // Local Orchestration-Agent MCP Server
   "servers": {
-    "orchestrator-agent": {
-      "command": "dotnet",
-      "args": ["run", "--project", "./src/orchestrator-agent"]
-    }
+      "orchestrator-agent": {
+          "command": "dotnet",
+          "args": [
+              "run",
+              "--project",
+              "./src/orchestrator-agent"
+              ]
+      }
   }
 }
 ```
@@ -92,14 +97,23 @@ If you want to also (for testing purposes) directly access the Knowledge-Base MC
 ```jsonc
 {
   "servers": {
-    "kb-content-fetcher": {
-      "command": "dotnet",
-      "args": ["run", "--project", "./src/mcp-server-kb-content-fetcher"]
-    },
-    "orchestrator-agent": {
-      "command": "dotnet",
-      "args": ["run", "--project", "./src/orchestrator-agent"]
-    }
+      // Local custom KB MCP server
+      "kb-content-fetcher": {
+          "command": "dotnet",
+          "args": ["run",
+            "--project",
+          "./src/mcp-server-kb-content-fetcher"
+          ]
+      },
+      // Local Orchestration-Agent MCP Server
+      "orchestrator-agent": {
+          "command": "dotnet",
+          "args": [
+              "run",
+              "--project",
+              "./src/orchestrator-agent"
+              ]
+      },
   }
 }
 ```
