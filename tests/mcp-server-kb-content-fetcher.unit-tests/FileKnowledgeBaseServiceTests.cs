@@ -1,5 +1,6 @@
 ﻿using McpServerKbContentFetcher.Configuration;
 using McpServerKbContentFetcher.Services;
+using McpServerKbContentFetcher.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -8,28 +9,18 @@ namespace UnitTests.Services;
 
 public class FileKnowledgeBaseServiceTests
 {
+    private readonly IKnowledgeBaseContentCache _mockCache;
     private readonly ILogger<FileKnowledgeBaseService> _logger;
-    private readonly IOptions<ServerOptions> _options;
     private readonly string _testDataPath;
 
     public FileKnowledgeBaseServiceTests()
     {
+        _mockCache = Substitute.For<IKnowledgeBaseContentCache>();
         _logger = Substitute.For<ILogger<FileKnowledgeBaseService>>();
         
         // Use test data file that should be copied to output directory
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         _testDataPath = Path.Combine(baseDir, "test-data", "test-knowledge-base.txt");
-        
-        var serverOptions = new ServerOptions
-        {
-            KnowledgeBase = new KnowledgeBaseOptions
-            {
-                FilePath = _testDataPath
-            }
-        };
-        
-        _options = Substitute.For<IOptions<ServerOptions>>();
-        _options.Value.Returns(serverOptions);
     }
 
     [Fact]
@@ -47,49 +38,52 @@ public class FileKnowledgeBaseServiceTests
     }
 
     [Fact]
-    public async Task InitializeAsync_WithValidFile_ReturnsTrue()
+    public async Task InitializeAsync_WithValidCache_ReturnsTrue()
     {
         // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
+        _mockCache.InitializeAsync().Returns(Task.FromResult(true));
+        var service = new FileKnowledgeBaseService(_mockCache, _logger);
 
         // Act
         var result = await service.InitializeAsync();
 
         // Assert
         Assert.True(result);
+        await _mockCache.Received(1).InitializeAsync();
     }
 
     [Fact]
-    public async Task InitializeAsync_WithInvalidFile_ReturnsFalse()
+    public async Task InitializeAsync_WithFailedCache_ReturnsFalse()
     {
         // Arrange
-        var serverOptions = new ServerOptions
-        {
-            KnowledgeBase = new KnowledgeBaseOptions
-            {
-                FilePath = "non-existent-file.txt"
-            }
-        };
-        
-        var invalidOptions = Substitute.For<IOptions<ServerOptions>>();
-        invalidOptions.Value.Returns(serverOptions);
-        
-        var service = new FileKnowledgeBaseService(_logger, invalidOptions);
+        _mockCache.InitializeAsync().Returns(Task.FromResult(false));
+        var service = new FileKnowledgeBaseService(_mockCache, _logger);
 
         // Act
         var result = await service.InitializeAsync();
 
         // Assert
         Assert.False(result);
+        await _mockCache.Received(1).InitializeAsync();
     }
 
-
     [Fact]
-    public async Task GetInfoAsync_WithInitializedService_ReturnsValidInfo()
+    public async Task GetInfoAsync_WithValidCache_ReturnsInfo()
     {
         // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        await service.InitializeAsync();
+        var expectedInfo = new KnowledgeBaseInfo
+        {
+            IsAvailable = true,
+            ContentLength = 1000,
+            FileSizeBytes = 1000,
+            Description = "Azure Managed Grafana knowledge base",
+            LastModified = DateTime.UtcNow
+        };
+        
+        var expectedContent = new KnowledgeBaseContent("Test content", expectedInfo);
+        
+        _mockCache.GetContentAsync().Returns(Task.FromResult(expectedContent));
+        var service = new FileKnowledgeBaseService(_mockCache, _logger);
 
         // Act
         var info = await service.GetInfoAsync();
@@ -97,17 +91,18 @@ public class FileKnowledgeBaseServiceTests
         // Assert
         Assert.NotNull(info);
         Assert.True(info.IsAvailable);
-        Assert.True(info.ContentLength > 0);
-        Assert.True(info.FileSizeBytes > 0);
+        Assert.Equal(1000, info.ContentLength);
+        Assert.Equal(1000, info.FileSizeBytes);
         Assert.Equal("Azure Managed Grafana knowledge base", info.Description);
+        await _mockCache.Received(1).GetContentAsync();
     }
 
     [Fact]
-    public async Task GetInfoAsync_WithUninitializedService_ReturnsUnavailableInfo()
+    public async Task GetInfoAsync_WithCacheException_ReturnsUnavailableInfo()
     {
         // Arrange
-        var service = new FileKnowledgeBaseService(_logger, _options);
-        // Note: Not calling InitializeAsync
+        _mockCache.GetContentAsync().Returns(Task.FromException<KnowledgeBaseContent>(new Exception("Cache error")));
+        var service = new FileKnowledgeBaseService(_mockCache, _logger);
 
         // Act
         var info = await service.GetInfoAsync();
@@ -115,7 +110,45 @@ public class FileKnowledgeBaseServiceTests
         // Assert
         Assert.NotNull(info);
         Assert.False(info.IsAvailable);
-        Assert.Equal(0, info.ContentLength);
     }
 
+    [Fact]
+    public async Task GetRawContentAsync_WithValidCache_ReturnsContent()
+    {
+        // Arrange
+        var expectedInfo = new KnowledgeBaseInfo
+        {
+            IsAvailable = true,
+            ContentLength = 1000,
+            FileSizeBytes = 1000,
+            Description = "Azure Managed Grafana knowledge base",
+            LastModified = DateTime.UtcNow
+        };
+        
+        var expectedContent = new KnowledgeBaseContent("Test raw content", expectedInfo);
+        
+        _mockCache.GetContentAsync().Returns(Task.FromResult(expectedContent));
+        var service = new FileKnowledgeBaseService(_mockCache, _logger);
+
+        // Act
+        var content = await service.GetRawContentAsync();
+
+        // Assert
+        Assert.Equal("Test raw content", content);
+        await _mockCache.Received(1).GetContentAsync();
+    }
+
+    [Fact]
+    public async Task GetRawContentAsync_WithCacheException_ReturnsEmptyString()
+    {
+        // Arrange
+        _mockCache.GetContentAsync().Returns(Task.FromException<KnowledgeBaseContent>(new Exception("Cache error")));
+        var service = new FileKnowledgeBaseService(_mockCache, _logger);
+
+        // Act
+        var content = await service.GetRawContentAsync();
+
+        // Assert
+        Assert.Equal(string.Empty, content);
+    }
 }

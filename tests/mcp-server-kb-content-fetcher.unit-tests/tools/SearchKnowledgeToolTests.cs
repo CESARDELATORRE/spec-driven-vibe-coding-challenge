@@ -1,1 +1,0 @@
-// (Legacy test file intentionally blank - search/excerpt prototype removed)

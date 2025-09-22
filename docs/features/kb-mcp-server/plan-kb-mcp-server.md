@@ -35,8 +35,11 @@ src/mcp-server-kb-content-fetcher/
   datasets/knowledge-base.txt
   services/IKnowledgeBaseService.cs
   services/FileKnowledgeBaseService.cs
+  services/IKnowledgeBaseContentCache.cs
+  services/FileKnowledgeBaseContentCache.cs
   tools/GetKbInfoTool.cs
   tools/GetKbContentTool.cs
+  models/KnowledgeBaseContent.cs (immutable record)
   configuration/ServerOptions.cs
   extensions/LoggingExtensions.cs (helper)
 tests/
@@ -74,7 +77,10 @@ All potential unknowns either explicitly deferred or rendered non-issues by cons
 - Host.CreateApplicationBuilder → add MCP server via fluent builder.
 - `WithStdioServerTransport()` for prototype transport simplicity.
 - Explicit manual tool registration using `McpServerTool.Create(...)` (chosen to avoid unintended discovery of deprecated or experimental tools and to keep the surface deterministic for anti-drift tests). Reflection-based auto discovery intentionally avoided for prototype to reduce surprise and simplify contract enforcement.
-- File-based knowledge base loaded once at startup into memory.
+- **Immutable Content Cache Pattern**: Thread-safe singleton cache (`IKnowledgeBaseContentCache`) loads and holds immutable content at startup.
+- **Scoped Service Layer**: Stateless scoped services (`IKnowledgeBaseService`) delegate to cache for thread safety and performance.
+- **Service Lifetimes**: Cache is singleton (shared immutable state), services are scoped (no shared mutable state).
+- File-based knowledge base loaded once at startup into memory via cache.
 - No search/indexing layer: raw text only.
 - Strongly-typed options + appsettings.json for file path.
 - All logging to stderr to avoid protocol contamination.
@@ -215,13 +221,12 @@ Future enhancements conditional on validated need:
 ### Extended Gates & Hardening
 Additional governance / quality items (mapped to `tasks-kb-mcp-server.md`):
 - [ ] Anti-drift tool enumeration test (T002)
-- [ ] Contract schema validation tests (T005, T006)
-- [ ] Model invariants test (T007)
-- [ ] Empty file edge test (T008)
-- [ ] Missing file edge test (T009)
-- [ ] Integration discovery test (T012)
-- [ ] Integration full content retrieval test (T013)
-- [ ] Integration unavailable path test (T014)
+- [ ] Model invariants test (T005)
+- [ ] Empty file edge test (T006)
+- [ ] Missing file edge test (T007)
+- [ ] Integration discovery test (T010)
+- [ ] Integration full content retrieval test (T011)
+- [ ] Integration unavailable path test (T012)
 - [x] Plan high-level simplification (T015 documentation)
 - [x] Tasks file registered in memory (T016 documentation)
 - [ ] Orchestrator quickstart cross-link (T017 doc link)
