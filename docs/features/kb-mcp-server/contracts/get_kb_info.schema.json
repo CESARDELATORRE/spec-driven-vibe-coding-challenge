@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mcp/kb/get_kb_info.schema.json",
+  "title": "get_kb_info Response",
+  "type": "object",
+  "required": ["status", "info"],
+  "properties": {
+    "status": { "type": "string", "enum": ["ok", "unavailable"] },
+    "info": {
+      "type": "object",
+      "required": ["fileSizeBytes", "contentLength", "isAvailable", "description", "lastModified"],
+      "properties": {
+        "fileSizeBytes": { "type": "number", "minimum": 0 },
+        "contentLength": { "type": "number", "minimum": 0 },
+        "isAvailable": { "type": "boolean" },
+        "description": { "type": "string" },
+        "lastModified": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1188,7 +1188,7 @@ Identified MCP Format Issue: The original integration tests were skipped because
 Updated Tool Return Types:
 
 Modified GetKbInfoTool.cs to return object[] with MCP content format [{ "type": "text", "text": "..." }]
-Modified SearchKnowledgeTool.cs to return object[] with MCP content format
+Deprecated earlier prototype excerpt/search tool (removed from codebase) and consolidated on two-tool minimal surface
 Both tools now serialize their responses as JSON within the MCP content structure
 Implemented Working Integration Tests:
 

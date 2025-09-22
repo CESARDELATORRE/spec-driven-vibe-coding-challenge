@@ -43,8 +43,12 @@ Features follow the Constitution's `/docs/features/<feature-name>/` structure.
 
 ### Knowledge Base MCP Server Feature (`/docs/features/kb-mcp-server/`)
 - `specs-kb-mcp-server.md`: Functional specification (journey, requirements, MCP tools: get_kb_info, get_kb_content; search deferred)
-- `implementation-plan-kb-mcp-server.md`: Step-by-step implementation guidance (services, tools, loading approach, tests)
-- (Future optional) `tasks-kb-mcp-server.md`, `tech-research-kb-mcp-server.md` (not yet created)
+- `plan-kb-mcp-server.md`: High-level implementation plan (detailed steps migrated out to tasks file)
+- `research-kb-mcp-server.md`: Unified Phase 0 unknowns + technology research (SDK selection, risks, roadmap)
+- `data-model-kb-mcp-server.md`: Minimal entity & payload schema documentation for tool responses
+- `contracts/`: JSON Schemas for `get_kb_info` and `get_kb_content` responses (prototype contract reference)
+- `quickstart.md` (project root `src/mcp-server-kb-content-fetcher/quickstart.md`): Developer run & integration guide (merged former README)
+- `tasks-kb-mcp-server.md`: Governance task list (retrofit) with anti-drift, contract tests, integration hardening tasks
 
 ### Orchestrator Agent Feature (`/docs/features/orchestrator-agent/`)
 - `specs-orchestrator-agent.md`: Functional specification (tools: ask_domain_question, get_orchestrator_status; coordination scope)

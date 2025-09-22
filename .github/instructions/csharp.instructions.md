@@ -66,7 +66,7 @@ tests/
 - **Examples**:
   - `IKnowledgeBaseService.cs`
   - `FileKnowledgeBaseService.cs`
-  - `SearchKnowledgeTool.cs`
+  - (search/excerpt prototype removed; not part of minimal scope)
 
 ### Namespace Conventions
 - **RULE**: Use PascalCase following .NET conventions

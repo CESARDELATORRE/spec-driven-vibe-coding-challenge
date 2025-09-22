@@ -40,7 +40,7 @@ Then, within each particular feature's folder (i.e. /docs/features/kb-mcp-server
 - **Tasks doc:**
 	- With the name format as `tasks-<FEATURE-NAME>.md` (Example: `tasks-kb-mcp-server.md`)
 - **Technology research:**
-	- With the name format as `tech-research-<FEATURE-NAME>.md`
+	- With the name format as `research-<FEATURE-NAME>.md`
 - **Implementation plan doc:**
 	- With the name format as `implementation-plan-<FEATURE-NAME>.md` (Example: `implementation-plan-kb-mcp-server.md`)
 - **Code examples (Optional):
@@ -51,7 +51,7 @@ Then, within each particular feature's folder (i.e. /docs/features/kb-mcp-server
  ```
 /docs/features/kb-mcp-server/specs-orchestrator-agent.md
 /docs/features/kb-mcp-server/tasks-orchestrator-agent
-/docs/features/kb-mcp-server/tech-research-<FEATURE-NAME>.md
+/docs/features/kb-mcp-server/research-<FEATURE-NAME>.md
 /docs/features/kb-mcp-server/implementation-plan-orchestrator-agent
 /docs/features/kb-mcp-server/example-program-semantic-kernel-orchestrator-mcp-server.cs
 ```
