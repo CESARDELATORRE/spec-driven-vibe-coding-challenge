@@ -1,12 +1,15 @@
 # Analysis: Constitution vs Copilot Instructions vs AGENTS.md
 
-Date: 2025-09-19  
+Date: 2025-09-22 (updated for Constitution v0.1.3)  
 Scope: Clarifies roles, precedence, and coordinated usage of three governance / guidance artifacts:  
 - `/.specify/memory/constitution.md` ("Constitution")  
 - `/.github/copilot-instructions.md` ("Copilot Instructions")  
 - `/AGENTS.md` ("Agents Guide")
 
 ---
+## 0. Priority Note (Authoritative Source)
+The Constitution (current version: v0.1.3, amended 2025-09-22) is the single authoritative governance layer. Any conflict in this analysis, `AGENTS.md`, or `.github/*` documents must defer to the Constitution until those documents are updated. This file is descriptive, not normative.
+
 ## 1. Purpose & Audience Summary
 | Document | Core Purpose | Primary Audience | Stability | Enforcement Style |
 |----------|--------------|------------------|----------|-------------------|
@@ -124,7 +127,7 @@ The Constitution defines the *why* and non-negotiables; AGENTS.md operationalize
 
 ---
 ## 14. Source Traceability
-Derived from repository state as of branch `features/gh-spec-kit-support` on 2025-09-19 and prior assistant analysis (no external network research invoked in this snapshot).  
+Original draft: 2025-09-19. Updated 2025-09-22 to align with Constitution v0.1.3 (restored explicit `/docs/features/<feature>` organizational vision for feature docs). Branch: `features/gh-spec-kit-support`. No external network research used in this revision.  
 
 ---
 ## 15. Maintenance Note

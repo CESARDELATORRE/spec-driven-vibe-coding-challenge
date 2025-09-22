@@ -27,8 +27,10 @@ The architecture implements a modular AI agent system built around **Model Conte
   - [`03-idea-vision-scope.md`](docs/03-idea-vision-scope.md) - Project vision, scope, and requirements
   - [`04-architecture-technologies.md`](docs/04-architecture-technologies.md) - Architecture patterns and technology stack
   - [`simplified-directions/`](docs/simplified-directions/) - Quick technical directions and architecture diagrams
-  - [`specs/`](docs/specs/) - Feature specifications for all components
-  - [`implementation-plans/`](docs/implementation-plans/) - Detailed implementation/coding plans for each component
+  - [`features/`](docs/features/) - Feature-specific documentation organized per feature:
+    - `kb-mcp-server/` (specs-kb-mcp-server.md, implementation-plan-kb-mcp-server.md, future tasks/tech-research docs)
+    - `orchestrator-agent/` (specs-orchestrator-agent.md, implementation-plan-orchestrator-agent.md, example-program-semantic-kernel-orchestrator-mcp-server.cs)
+    - `chat-agent/` (specs-chat-agent.md, implementation-plan-chat-agent.md)
 
 
 ### 🔧 Source Code
