@@ -21,7 +21,7 @@ RULES:
 
 FIRST:
 
-- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/04-architecture-technologies.md to understand an overview of the project, but focus mostly on the prototype/POC scope (functional, architecture and technologies for the prototype).
+- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/architecture-technologies.md to understand an overview of the project, but focus mostly on the prototype/POC scope (functional, architecture and technologies for the prototype).
 - Review the attached specs document (as context file) to understand the requirements and objectives.
 
 THEN:

@@ -5,9 +5,8 @@ End-to-end integration tests for the `mcp-server-kb-content-fetcher` project. Th
 ## Current Coverage
 All implemented tests are active (no skips):
 - ✅ MCP handshake (`initialize`)
-- ✅ Tool discovery (`tools/list` – asserts presence of `search_knowledge`, `get_kb_info`, `get_kb_content`)
+- ✅ Tool discovery (`tools/list` – asserts presence of `get_kb_info`, `get_kb_content`)
 - ✅ `get_kb_info` tool invocation (status + info fields)
-- ✅ `search_knowledge` tool invocation (zero-argument fixed query `pricing`)
 - ✅ `get_kb_content` tool invocation (verifies full content contains "Azure Managed Grafana")
 
 ## Project Layout
@@ -32,25 +31,7 @@ All implemented tests are active (no skips):
 {"jsonrpc":"2.0","method":"initialize","id":1,"params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"integration-tests","version":"1.0"}}}
 ```
 
-### Example Tool Call Request (`search_knowledge` – zero-arg simplified prototype)
-```json
-{"jsonrpc":"2.0","method":"tools/call","id":2,"params":{"name":"search_knowledge","arguments":{}}}
-```
-
-### MCP Tool Response (Shape Excerpt)
-```json
-{
-   "jsonrpc": "2.0",
-   "id": 2,
-   "result": {
-      "content": [
-         { "type": "text", "text": "{\"query\":\"pricing\", ...}" }
-      ]
-   }
-}
-```
-
-The inner `text` field itself contains JSON we re-parse (payload includes `query` – always `pricing` in this prototype – `totalMatches`, and result metadata). In this simplified iteration the tool accepts **no arguments**; a fixed representative query guarantees stable end-to-end protocol validation while earlier parameter binding issues are deferred.
+// (Search tool removed – no example retained for prototype)
 
 ### Example Tool Call Request (`get_kb_content` – raw content dump)
 ```json
@@ -76,7 +57,7 @@ dotnet test
 You should see three tests:
 - Initialize_Then_ListTools_Should_Discover_Expected_Tools
 - GetKbInfo_Tool_Should_Return_Knowledge_Base_Status
-- SearchKnowledge_Tool_Should_Return_Pricing_Results
+// (Search tool test removed after scope reduction)
 
 All are green when the server starts and datasets are present.
 
@@ -101,7 +82,7 @@ Responsibilities:
 | `FluentAssertions` adoption | Readable, intention-revealing assertions |
 | Layered project path resolution | Resilient across IDEs/CI environments |
 | Re-parsing inner tool JSON payload | Current prototype chooses JSON-in-text minimal path |
-| Zero-argument `search_knowledge` tool | Deterministic fixed query; parameter binding deferred |
+| (Removed) |
 | Raw dump tool `get_kb_content` | Fastest path for downstream embedding experiments |
 | Disabled apphost (`UseAppHost=false`) | Avoids Windows executable file locks in rapid test cycles |
 | Logs to STDERR only | Prevents STDOUT protocol corruption |
@@ -115,7 +96,7 @@ Responsibilities:
 | Hanging process after cancel | Tests slow to finish | Ensure no external debugger attached; client Dispose kills tree |
 
 ## Extending Tests (Next Candidates)
-- Reintroduce dynamic query + max_results parameters for `search_knowledge`
+- Introduce keyword or semantic search tool (future)
 - Add negative tool call (nonexistent tool → error)
 - Validate tool schema listing fields (names + descriptions not empty)
 - Add pagination/chunking variant for large content (future `get_kb_content` evolution)
@@ -124,10 +105,10 @@ Responsibilities:
 
 ## FAQ
 **Why parse JSON inside `content[0].text`?**  
-Current tools return a single MCP text item embedding a serialized JSON payload; we re-parse to assert semantic fields. This keeps server implementation minimal for the prototype.
+Current tools embed a serialized JSON payload for simplicity; may evolve to structured MCP content objects later.
 
-**Why is `search_knowledge` zero-argument now?**  
-We temporarily removed input parameters after repeated framework-level binding failures blocked test stability. A fixed representative query (`pricing`) preserves an end-to-end success path while isolating binding troubleshooting for a future iteration.
+**Where did search go?**  
+Removed deliberately for initial scope simplification. Future reintroduction will likely use semantic or embedding-backed retrieval instead of substring snippets.
 
 **Why not stream partial responses?**  
 Prototype scope keeps responses atomic; streaming can be explored later for large result sets.

@@ -507,7 +507,7 @@ I'll now save this comprehensive architecture document to the specified location
 The document has been created with all the requested sections covering the three architecture variants (Prototype/POC, MVP, and Scalable Production), technology stack evolution, testing strategies, and differentiators. The document includes the prototype architecture diagram reference and provides detailed analysis based on the research findings while staying within the 5-page guideline for focused, actionable content.
 ```
 
-**BUG:** However, here it appears there's a BUG, since it's not saving the .MD document but showing the text in the chat window, even when I'm asking to GHCP to explicetely save it as the "04-architecture-technologies.md" file...
+**BUG:** However, here it appears there's a BUG, since it's not saving the .MD document but showing the text in the chat window, even when I'm asking to GHCP to explicitly save it as the "architecture-technologies.md" file...
 
 I went ahead and created the file and copied/pasted the text in the .MD file...
 
@@ -819,7 +819,7 @@ RULES:
 
 FIRST:
 
-- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/04-architecture-technologies.md to file to understand an overview of the project, but focus mostly on the prototype/POC scope (functiona;, architecture and technologies for the prototype).
+- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/architecture-technologies.md to file to understand an overview of the project, but focus mostly on the prototype/POC scope (functional, architecture and technologies for the prototype).
 - Review the attached specs document (as context file) to understand the requirements and objectives.
 
 THEN:

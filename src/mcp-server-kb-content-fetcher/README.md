@@ -3,7 +3,7 @@
 ## 🎯 Overview
 MCP server that provides knowledge base access through standardized MCP tools. Part of the Architecture Variant 1 (Local Desktop) implementation, this server acts as a bridge between AI agents and domain-specific knowledge stored in text files.
 
-🏗️ **Architecture**: This component implements the Knowledge Base layer - see [Architecture & Technologies](../../docs/04-architecture-technologies.md) for complete system design and evolution path.
+🏗️ **Architecture**: This component implements the Knowledge Base layer - see [Architecture & Technologies](../../docs/architecture-technologies.md) for complete system design and evolution path.
 
 ## 📄 Knowledge Base Content
 **Current Status**: The prototype uses placeholder content about Azure Managed Grafana (AMG) for demonstration purposes. The text-based knowledge store approach aligns with the prototype scope, focusing on rapid development and demonstration capabilities.
@@ -22,16 +22,7 @@ dotnet build
 
 ## 🛠️ MCP Tools
 
-### 1. 🔍 search_knowledge
-Search knowledge base for keyword matches using intelligent substring matching.
-
-**Parameters**:
-- `query` (string, required): Search keywords
-- `max_results` (int, optional): Maximum results (default: 3, max: 5)
-
-**Returns**: Array of search results with content snippets and match context.
-
-### 2. 📊 get_kb_info
+### 1.  get_kb_info
 Retrieve knowledge base statistics and metadata for understanding available content.
 
 **Parameters**: None
@@ -105,11 +96,9 @@ mcp-server-kb-content-fetcher/
 │   ├── 📋 IKnowledgeBaseService.cs   # Service interface
 │   └── 🔧 FileKnowledgeBaseService.cs # File-based implementation
 ├── 🛠️ tools/                         
-│   ├── 🔍 SearchKnowledgeTool.cs     # Search functionality
 │   └── 📊 GetKbInfoTool.cs           # KB metadata tool
 └── 📦 models/                        
-    ├── 🎯 SearchResult.cs            # Search result model
-    └── 📈 KnowledgeBaseInfo.cs       # KB info model
+  └── 📈 KnowledgeBaseInfo.cs       # KB info model
 ```
 
 ## 🔧 Troubleshooting
@@ -118,9 +107,8 @@ mcp-server-kb-content-fetcher/
 - Check if `datasets/knowledge-base.txt` exists
 - Verify file permissions: `ls -la datasets/knowledge-base.txt`
 
-### 🔍 Search Returns No Results
-- Verify content exists: `cat datasets/knowledge-base.txt | grep -i "your-search-term"`
-- Search is case-insensitive substring matching
+### (Search Deferred)
+Search functionality intentionally deferred in initial prototype. Only metadata (`get_kb_info`) and full content retrieval (`get_kb_content`) are available.
 
 ### 🔌 MCP Client Issues
 - Ensure server outputs to stderr for logging (MCP uses stdio)

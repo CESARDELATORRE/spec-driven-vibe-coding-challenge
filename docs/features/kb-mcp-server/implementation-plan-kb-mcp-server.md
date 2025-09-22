@@ -3,12 +3,12 @@
 ## Overview
 This implementation plan outlines the steps to build a Knowledge Base MCP Server that provides Azure Managed Grafana (AMG) content to AI agents via the Model Context Protocol using STDIO transport. The implementation uses domain-agnostic code structure to enable reusability across different knowledge domains while targeting AMG as the specific content domain for this prototype.
 
-🏗️ **Architecture Reference**: This component implements the Knowledge Base layer as defined in [Architecture & Technologies](../04-architecture-technologies.md).
+🏗️ **Architecture Reference**: This component implements the Knowledge Base layer as defined in [Architecture & Technologies](../architecture-technologies.md).
 
 ## Architecture Approach
 - .NET/C# console application using Host.CreateApplicationBuilder pattern
 - MCP SDK for .NET with fluent configuration (AddMcpServer().WithStdioServerTransport().WithToolsFromAssembly())
-- File-based knowledge storage with in-memory search
+- File-based knowledge storage (no search in initial scope)
 - Configuration via appsettings.json for simplicity
 - Domain-agnostic code structure and naming for cross-domain reusability
 - Logging configured to stderr to avoid MCP STDIO conflicts
@@ -37,11 +37,11 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
   - **Configuration Reasoning**: Using appsettings.json is simplest because it follows standard .NET configuration patterns, requires no command-line parsing logic, and automatically binds to strongly-typed options classes
 
 - [x] Step 2: Create Knowledge Base Service
-  - **Task**: Implement service to load Azure Managed Grafana content from text file at startup and provide search functionality
+  - **Task**: Implement service to load Azure Managed Grafana content from text file at startup
   - **Files**:
-    - `src/mcp-server-kb-content-fetcher/services/IKnowledgeBaseService.cs`: Interface defining search and info operations
-    - `src/mcp-server-kb-content-fetcher/services/FileKnowledgeBaseService.cs`: Implementation that loads text file content at startup, performs case-insensitive partial search with context
-    - `src/mcp-server-kb-content-fetcher/models/SearchResult.cs`: Simple model containing matched content, surrounding context, and basic metadata
+    - `src/mcp-server-kb-content-fetcher/services/IKnowledgeBaseService.cs`: Interface defining info + raw content operations
+    - `src/mcp-server-kb-content-fetcher/services/FileKnowledgeBaseService.cs`: Implementation that loads text file content at startup
+    - `src/mcp-server-kb-content-fetcher/models/SearchResult.cs`: (Deprecated) removed with search deferral
   - **Dependencies**: System.IO for file operations
   - **Interface Pattern Reasoning**: Using `IKnowledgeBaseService` interface enables dependency injection and future knowledge base implementations without changing consuming code. Examples of future potential implementations:
     - `DatabaseKnowledgeBaseService`: Query SQL databases or document stores
@@ -59,8 +59,8 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
 - [x] Step 4: Implement MCP Tools Using Attributes
   - **Task**: Create MCP tool implementations using MCP SDK attributes for auto-discovery by WithToolsFromAssembly()
   - **Files**:
-    - `src/mcp-server-kb-content-fetcher/tools/SearchKnowledgeTool.cs`: MCP tool class with [McpTool] attribute implementing search_knowledge functionality
-    - `src/mcp-server-kb-content-fetcher/tools/GetKbInfoTool.cs`: MCP tool class with [McpTool] attribute implementing get_kb_info functionality
+    - `src/mcp-server-kb-content-fetcher/tools/GetKbInfoTool.cs`: MCP tool class implementing get_kb_info functionality
+    - `src/mcp-server-kb-content-fetcher/tools/GetKbContentTool.cs`: Prototype convenience tool returning full raw content
     - `src/mcp-server-kb-content-fetcher/models/ToolModels.cs`: Request/response models for MCP tool parameters and results
   - **Dependencies**: Microsoft MCP SDK tool attributes and interfaces
 
@@ -87,19 +87,19 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
   - **User Intervention**: Manually test with MCP client or compatible tool to verify STDIO communication and tool discovery works correctly
 
 - [x] Step 8: Write Unit Tests
-  - **Task**: Create unit tests for core search functionality, file loading, and MCP tool logic
+  - **Task**: Create unit tests for file loading and MCP tool logic
   - **Files**:
     - `tests/mcp-server-kb-content-fetcher.unit-tests/mcp-server-kb-content-fetcher.unit-tests.csproj`: Test project file with xUnit and testing utilities
     - `tests/mcp-server-kb-content-fetcher.unit-tests/services/FileKnowledgeBaseServiceTests.cs`: Tests for search functionality, file loading, and edge cases
-    - `tests/mcp-server-kb-content-fetcher.unit-tests/tools/SearchKnowledgeToolTests.cs`: Tests for search tool parameter validation and result formatting
     - `tests/mcp-server-kb-content-fetcher.unit-tests/tools/GetKbInfoToolTests.cs`: Tests for info tool functionality
+    - `tests/mcp-server-kb-content-fetcher.unit-tests/tools/GetKbContentToolTests.cs`: Tests for raw content functionality
   - **Dependencies**: xUnit framework, test data files
 
 - [x] Step 9: Write Integration Tests (Deferred - Unit tests provide sufficient coverage for prototype)
   - **Task**: Create basic integration tests for MCP protocol compliance via STDIO transport
   - **Files**:
     - `tests/mcp-server-kb-content-fetcher.integration-tests/mcp-server-kb-content-fetcher.integration-tests.csproj`: Integration test project file
-    - `tests/mcp-server-kb-content-fetcher.integration-tests/McpServerIntegrationTests.cs`: End-to-end tests simulating MCP client communication, tool discovery, and basic request/response cycles
+    - `tests/mcp-server-kb-content-fetcher.integration-tests/McpServerIntegrationTests.cs`: End-to-end tests simulating MCP client communication (info + content tools)
     - `tests/fixtures/test-knowledge-content.txt`: Smaller test content file for integration testing with Azure Managed Grafana sample data
   - **Dependencies**: Microsoft MCP SDK client components, test process hosting utilities
   - **Note**: For prototype scope, the comprehensive unit test suite (26 tests) provides adequate coverage
@@ -109,6 +109,26 @@ This implementation plan outlines the steps to build a Knowledge Base MCP Server
   - **Files**: No new files, verification step
   - **Dependencies**: .NET test runner, all test projects
   - **Result**: All 26 unit tests passing, covering all core functionality including error scenarios and edge cases
+
+## Tool Naming Conventions
+
+This implementation uses a deliberate two-level naming scheme for MCP tools:
+
+| Concern | External MCP Tool ID | C# Implementation Class |
+|---------|----------------------|-------------------------|
+| Metadata retrieval | `get_kb_info` | `GetKbInfoTool` |
+| Full raw content retrieval | `get_kb_content` | `GetKbContentTool` |
+
+Guidelines:
+1. Always document protocol (snake_case) IDs in specs—these are what MCP clients invoke.
+2. Implementation classes follow .NET PascalCase conventions with a `Tool` suffix for discoverability.
+3. Adding a new tool: choose the protocol ID first, then create the corresponding class.
+4. Keep protocol IDs stable; class names may be refactored if necessary without breaking clients.
+5. (Optional) Include both identifiers in logs for clearer traceability.
+
+Why not unify now? Keeping a separation lets us refactor internal structure or introduce decorators/adapters later (e.g., caching, authorization) without changing the protocol boundary. It also avoids accidental client breakage from internal renames.
+
+Future Hardening (Optional): Add a unit test asserting the discovered MCP tool set exactly matches the expected protocol IDs. This will detect accidental removal or renaming early.
 
 ## Key Design Principles
 
@@ -174,7 +194,7 @@ builder.Logging.AddConsole(options =>
 ## Success Criteria
 - KB MCP Server starts successfully and loads text file
 - MCP tools are discoverable and callable
-- Search functionality returns relevant results
+- Info and content tools return expected payload shapes
 - Integration with orchestrator works via STDIO transport
 
 ---

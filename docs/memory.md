@@ -42,7 +42,7 @@ This document provides a brief description of each file's purpose and relevant d
 Features follow the Constitution's `/docs/features/<feature-name>/` structure.
 
 ### Knowledge Base MCP Server Feature (`/docs/features/kb-mcp-server/`)
-- `specs-kb-mcp-server.md`: Functional specification (journey, requirements, MCP tools: search_knowledge, get_kb_info, constraints, rationale appendix)
+- `specs-kb-mcp-server.md`: Functional specification (journey, requirements, MCP tools: get_kb_info, get_kb_content; search deferred)
 - `implementation-plan-kb-mcp-server.md`: Step-by-step implementation guidance (services, tools, loading approach, tests)
 - (Future optional) `tasks-kb-mcp-server.md`, `tech-research-kb-mcp-server.md` (not yet created)
 

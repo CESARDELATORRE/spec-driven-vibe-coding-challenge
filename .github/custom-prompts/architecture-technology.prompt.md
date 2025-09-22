@@ -44,4 +44,4 @@ Include the following pivots in your research:
 
 - For the initial prototype/POC, include the diagram docs\simplified-directions\prototype-poc-architecture-diagram.png into the architecture .MD document.
 
-WHEN DONE, output to #file:../../docs/04-architecture-technologies.md or update the current ../../docs/03-architecture-technologies.md
+WHEN DONE, output to #file:../../docs/architecture-technologies.md or update the current ../../docs/03-architecture-technologies.md
