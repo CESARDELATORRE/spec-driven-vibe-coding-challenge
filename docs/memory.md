@@ -22,11 +22,12 @@ This document provides a brief description of each file's purpose and relevant d
 
 ### `/docs/architecture-technologies.md`  
 **Purpose**: Technical architecture and technology stack recommendations with evolution path
-**Details**: Defines four architecture variants from prototype to production, technology selections (.NET, MCP, Semantic Kernel), and testing strategies
+**Details**: Defines three architecture variants (Prototype, Dockerized Decoupled, Cloud-Native) after consolidation of prior four-stage model, plus technology selections (.NET 9 baseline, MCP, Semantic Kernel) and testing strategies with deferred triggers
 
 ### `/analisys-constitution-ghcp-instructions-agents.md`
 **Purpose**: Comparative analysis of Constitution, Copilot instructions, and AGENTS.md
 **Details**: Defines roles, precedence chain, usage workflow, conflict resolution patterns, and maintenance triggers for governance artifacts
+
 
 ### `/docs/tradeoffs.md`
 **Purpose**: Documents all technical and functional tradeoffs made during project development

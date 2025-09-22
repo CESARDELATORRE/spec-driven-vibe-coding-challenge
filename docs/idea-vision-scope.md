@@ -1,165 +1,127 @@
-# Idea and Vision Scope: Dedicated agentic system specific for AMG
+# Idea & Vision Scope: Dedicated Agentic System for Azure Managed Grafana (AMG)
 
-## Executive Summary
+This document defines the product vision, problem framing, phased evolution (horizons), and prototype scope for the dedicated AMG domain agent. It intentionally avoids deep technical / architectural detail (those belong in `architecture-technologies.md`). It aligns with the Constitution (Spec‑Driven, Simplicity, Traceability) and complements:
+- Original challenge definition (`01-original-challenge-definition.md`)
+- Goals & approaches (`02-plain-goals-and-approaches.md`)
+- Assumptions (`assumptions.md`)
+- Tradeoffs log (`tradeoffs.md`)
 
-This project develops a domain-specific AI agent for AMG marketing page that demonstrates how to move from hypothesis to prototype in an evidence-driven manner. Starting with Azure Managed Grafana (AMG) as the initial domain, the solution creates a specialized conversational agent that provides precise, domain-specific insights compared to generic chatbots. The system is designed with a modular, reusable architecture that can be adapted for other technical product domains, aiming for a scalable solution for organizations seeking to enhance their customer engagement through specialized AI agents, as part of the vision.
+## 1. Executive Summary
+We are building a domain‑specific conversational agent for Azure Managed Grafana (AMG) to replace or augment a generic, multi-service chatbot that lacks depth. The initiative demonstrates moving from hypothesis → validated prototype while establishing a reusable pattern for future domain agents. The prototype focuses on correctness, clarity, and domain value—not scale or production hardening.
 
-## Context: Customers and old solution situation
+## 2. Problem & Hypothesis
+Current generic chat-based assistance (assumed per exercise constraints) fails to deliver depth for AMG evaluators and practitioners. Hypothesis: A dedicated AMG agent providing precise, contextual, domain-grounded responses yields higher perceived usefulness and trust than a general-purpose Azure chatbot.
 
-### Current chat bot functionality summary
-The current Azure Managed Grafana marketing website utilizes a generic Azure agent/chatbot that serves multiple Azure services. This generic approach provides broad but shallow coverage across the entire Azure ecosystem, lacking the depth and specialization needed for specific service domains like AMG.
+## 3. Vision Statement
+Deliver a family of domain-specialized AI agents that:
+1. Provide authoritative, scoped answers grounded in curated domain knowledge.
+2. Are fast to instantiate for a new domain (low switching cost, high reuse of scaffolding).
+3. Evolve safely from local prototype → multi-domain platform without architectural churn.
 
-### Problem to be solved (feedback and pain points)
-Based on hypothetical customer feedback (exercise assumption - see assumptions.md), users experience the following pain points with the current generic chatbot:
-- **Limited domain expertise**: Generic responses lack specialized AMG knowledge
-- **Shallow knowledge depth**: Cannot provide detailed technical insights about AMG features and use cases
-- **Poor extensibility**: Current system cannot grow with additional domain-specific knowledge
+## 4. Strategic Outcomes (Why This Matters)
+- Reduce cognitive load for users evaluating AMG by surfacing concise, relevant answers.
+- Demonstrate a replicable pattern for other Azure (or non-Azure) product domains.
+- Establish disciplined, spec-driven product engineering practices (artifact lineage, traceability, test focus).
 
-**Note**: Since this is an exercise and we don't have real users to ask about the problem to be solved, we assume that we already have negative feedback and current customer pain-points about the generic chat-bot for AMG.
+## 5. Target Users (Proto-Personas)
+- DevOps / SRE Engineer evaluating managed visualization/observability options.
+- Technical Architect assessing integration fit & operational characteristics.
+- IT Decision Maker comparing managed service offerings.
+- (Future) Customer Success / Support augmentation scenarios.
 
-### Main hypothesis
-Customers and users will be better served by a dedicated agent specifically designed for Azure Managed Grafana, rather than relying on a generic Azure agent that covers all services superficially.
+## 6. Differentiators
+- Domain depth over breadth (precision > coverage).
+- Documentation/decision traceability from day 1 (Constitution compliance).
+- Explicit evolutionary path (horizons) reducing rework risk.
+- Reusable knowledge ingestion + orchestration pattern.
 
-### Hypothesis validation/invalidation
-For this exercise, we assume the hypothesis has been validated through hypothetical customer feedback and user research, indicating strong demand for domain-specific conversational agents that provide deeper, more relevant insights. (See assumptions.md for details on exercise constraints.)
+## 7. Horizons & Evolution Roadmap
+High-level phases (technology details deferred to architecture document):
 
-## Product Overview
+| Horizon | Goal Focus | Representative Milestones | Exit Signal |
+|---------|------------|---------------------------|-------------|
+| H1 Prototype (Current) | Prove domain value & basic agent workflow | Dedicated AMG agent, basic KB, single-turn Q&A, MCP integration in local dev tools | Consistent, relevant answers across curated test prompts |
+| H2 MVP | Multi-domain + context enrichment | Additional domain onboarded, light conversation context, improved KB ingestion pipeline | 2nd domain operational with comparable quality metrics |
+| H3 Platform | Scale + governance | Unified multi-domain management, observability, access policies, continuous content updates | Stable operations across domains with monitoring & quality gates |
+| H4 Ecosystem | Extensibility & advanced experience | Multi-channel (web, internal portals), escalation pathways, advanced analytics | External embedding & partner adoption |
 
-### Core value proposition:
-Instantly generate precise, domain-specific insights about Azure Managed Grafana through natural language conversations, providing users with expert-level guidance that generic chatbots cannot deliver.
+## 8. Prototype (H1) Scope
+In-scope (Must):
+- Single domain (AMG) focused knowledge base (curated sample content acceptable).
+- Single-turn Q&A: user input → orchestrated response.
+- Deterministic MCP tool surfaces (KB search / orchestrator status) for transparency.
+- Basic evaluation via manually defined prompt set.
 
-### Why this solution is the right next step
-1. **Specialized expertise**: Addresses the gap between generic AI assistance and deep domain knowledge
-2. **Reusable framework**: Creates a template for developing similar agents across other technical domains
-3. **Evidence-driven approach**: Demonstrates proper product development methodology from hypothesis to prototype
+Deferred (Conscious deferrals; document in `tradeoffs.md` where applicable):
+- Multi-turn conversational memory.
+- Full content coverage of AMG official documentation.
+- Performance optimization / scaling topology.
+- Advanced telemetry, analytics, and governance controls.
+- Multi-channel deployment (web embed, voice, mobile).
 
-### Target audience:
-- **Primary**: DevOps Engineers and Technical Architects evaluating monitoring and observability solutions
-- **Secondary**: IT Decision Makers comparing Azure services for organizational needs
-- **Tertiary**: Developers implementing monitoring dashboards and seeking technical guidance
+Out of Scope (Prototype will not attempt):
+- Human escalation workflows.
+- Compliance-grade security features.
+- Automated content freshness pipelines.
+- Autonomous multi-agent planning chains.
 
-### Key differentiators:
-- **Domain specialization**: Deep, expert-level knowledge in specific technical domains
-- **Architectural flexibility**: Modular design enabling rapid adaptation to new domains
-- **Rapid deployment**: The "easy to switch to other domains" approach enables quick time-to-market for new domain agents
+## 9. Functional Capabilities (Prototype Definition)
+Core functional pillars (kept high-level):
+1. Domain Query Handling – Accept natural language questions about AMG.
+2. Domain Grounding – Use constrained knowledge base to inform responses.
+3. Response Synthesis – Produce concise, relevant, scoped answers (avoid hallucinated breadth).
+4. Tool Transparency – Expose status/diagnostics for operator trust (e.g., orchestrator status tool).
+5. Extensibility Baseline – Knowledge base and orchestration pathways structured for domain substitution.
 
-### Prototype Implementation Note
-The current prototype implementation (September 2025) includes:
-- ✅ KB MCP Server with text file knowledge base
-- ✅ Orchestrator Agent with in-process Chat Agent
-- ✅ Basic AMG knowledge content for demonstrations
-- ⏳ Production-ready AMG content (using placeholder content)
-- ⏳ Multi-variant architecture (only Variant 1 implemented)
+## 10. Principles (Applied from Constitution)
+- Spec-first: Each new capability backed by spec or tradeoff entry before substantial implementation.
+- Deliberate Simplicity: Avoid preemptive abstractions (e.g., multi-domain registry logic) until Horizon trigger.
+- Traceability: All durable docs logged in `memory.md`; decisions recorded in `tradeoffs.md` when non-obvious.
+- Test Where It Matters: Unit tests around core logic; integration tests across MCP surfaces.
 
-## Functional Requirements
+## 11. Success Metrics (Directional for Prototype)
+We do NOT instrument full analytics in H1 but we define qualitative/structured evaluation axes:
+- Relevance: % of evaluation prompts judged “acceptably accurate” by reviewer.
+- Clarity: Responses within target length (concise—no rambling) and free of contradictory statements.
+- Domain Groundedness: References or implied context map to curated KB content (spot-checked).
+- Repeatability: Same prompt yields stable class of answer (expected minor variation in wording only).
+- Expansion Readiness: Effort estimate to onboard second domain ≤ predefined threshold (qualitative).
 
-### Core Capabilities
-1. **Natural Language Processing**: Process user queries in natural language and understand AMG-related context
-2. **Domain-Specific Responses**: Generate accurate, relevant responses based on AMG knowledge base
-3. **Knowledge Base Integration**: Interface with configurable knowledge sources through MCP protocol
-4. **Multi-Platform Integration**: Support integration with various chat environments (GitHub Copilot, etc.)
-5. **Response Quality**: Ensure responses are accurate, helpful, and appropriately scoped to AMG domain
+Future (H2+): add quantitative coverage %, drift detection, user satisfaction proxy, content freshness metrics.
 
-### Technical Implementation
-- Process natural language queries about Azure Managed Grafana
-- Generate contextually appropriate responses based on domain knowledge
-- Handle follow-up questions within conversation sessions
-- Interface with configurable knowledge base systems
-- Support knowledge base updates without system reconfiguration
-- Implement Model Context Protocol (MCP) for standardized integration
-- Support deployment across multiple chat environments
+## 12. Key Assumptions (Reference Only)
+See `assumptions.md` for the full list. Primary assumptions leveraged here:
+- Hypothesis already validated (exercise constraint).
+- Sufficient sample AMG content exists to meaningfully evaluate domain specificity.
+- Single-turn interaction is adequate to validate perceived value.
 
-## Vision and Scope
+## 13. Risks (Prototype Lens)
+| Risk | Type | Mitigation (Prototype) | Horizon Escalation |
+|------|------|------------------------|--------------------|
+| Insufficient KB depth weakens perceived value | Product | Curate representative slices (features, pricing, positioning) | H2: Expand ingestion strategy |
+| Hallucination / generic filler answers | Quality | Constrain prompting + review test set manually | H2: Add automated eval harness |
+| Over-engineering early | Execution | Constitution simplicity principle; peer/AI review gate | H2+: Justify abstractions via tradeoffs |
+| Difficulty adding 2nd domain | Strategic | Keep domain-specific content isolated; abstract only when 2nd domain planned | H2: Template extraction |
 
-### Long-term Vision
-**Architecture Evolution Path**: The system is designed to evolve through four distinct variants:
-- **Variant 1 (Current)**: Local desktop with STDIO transport
-- **Variant 2**: Containerized with HTTP+SSE transport
-- **Variant 3**: Cloud-native with managed services
-- **Variant 4**: Enterprise-grade with full Azure integration
+## 14. Tradeoffs (Pointers)
+Documented in `tradeoffs.md` (integration environment, KB simplicity, orchestrator embedding, etc.). This document does not restate them—use the canonical log.
 
-**Horizon 1 (Prototype/POC)**: Demonstrate working AMG-specific agent with basic conversational capabilities and simple knowledge base integration using Architecture Variant 1.
+## 15. Evolution Triggers (When to Advance to Next Horizon)
+- Advance to H2 when: (a) prototype functional goals met, AND (b) internal review deems >70% prompt relevance, AND (c) second domain candidate identified.
+- Advance to H3 when: multi-domain in use + need for governance/observability confirmed.
 
-**Horizon 2 (MVP to Production)**: 
-- Expand to multiple Azure service domains
-- Implement advanced conversation context management
-- Add comprehensive monitoring and analytics
-- Integrate with Azure support and sales systems
+## 16. Governance Alignment
+This document supplies “WHY & WHAT (high-level)” for the product. “HOW” details (architecture, specific technology choices, component responsibilities) intentionally deferred to `architecture-technologies.md`. Any divergence from Constitution principles requires a tradeoff entry + potential amendment pathway if systemic.
 
-**Horizon 3 (Platform Vision)**:
-- Multi-channel integration across web, mobile, and voice interfaces
-- Advanced escalation pathways to human support
-- Enterprise-grade security and compliance features
-- AI-powered knowledge base curation and updates
+## 17. Contact & Ownership
+Single-owner model (prototype phase):
+- Product / Technical / Delivery: Cesar De la Torre (consolidated role for exercise).
 
-### Prototype/POC Scope
-
-**Selection Criteria:**
-- **Simplicity**: Single agent, single domain (AMG), basic knowledge base
-- **Demonstrability**: Clear, working conversational interface
-- **Rapid Development**: Achievable within exercise timeframe
-
-**Implementation Plan:**
-1. **Phase 1**: Implement MCP server for surfacing a basic knowledge base example
-2. **Phase 2**: Set up basic agent consuming the previous content MCP server for answering
-3. **Phase 3**: Test conversations from selected MCP-compatible UIs/chats such as GH CoPilot, M365 CoPilot or Claude
-4. **Phase 4**: Document results and demonstrate functionality
-
-**Growth Path (POC to MVP):**
-- **Knowledge Base Expansion**: Migration from text files to comprehensive documentation sources
-- **Multi-Domain Support**: Extension to additional Azure services
-- **Enhanced Conversation**: Advanced context management and session persistence
-- **Quality Metrics**: Implementation of comprehensive testing and validation frameworks
-
-**Out of Scope for Prototype:**
-- Multi-channel integration (web, mobile, voice interfaces)
-- Advanced conversation context management across sessions
-- Escalation pathways to human support or sales teams
-- Enterprise security features for sensitive data handling
-- Advanced monitoring and analytics capabilities
-- Production-grade deployment infrastructure
-
-**Prototype Tradeoffs:**
-- **Integration Environment**: GitHub Copilot or similar instead of actual Azure marketing page integration (see tradeoffs.md)
-- **Knowledge Base**: Simple text file/sample content instead of comprehensive documentation integration (see tradeoffs.md)
-- **Content Scope**: Sample content from marketing and documentation rather than complete knowledge base
-- **Testing Environment**: Simulated rather than real customer interaction scenarios
-- **Domain Flexibility**: Designed for easy switching between domains to demonstrate architectural flexibility
-
-## Risk Assessment
-
-### Technical Risks
-- **Knowledge Base Quality**: Limited prototype content may not adequately demonstrate value proposition
-- **LLM Response Accuracy**: AI model may generate inaccurate or irrelevant responses without proper tuning
-- **Scalability Concerns**: Prototype architecture may not translate effectively to production requirements
-
-### Business Risks
-- **Market Validation**: Actual customer demand may differ from hypothetical feedback
-- **Competitive Response**: Existing solutions may evolve to address similar needs
-- **Technology Evolution**: Rapid changes in AI/LLM landscape may impact solution relevance
-- **Resource Requirements**: Production implementation may require significantly more resources than anticipated
-
-## Production Readiness Matrix
-
-| Aspect | Prototype Status | Production Requirements |
-|--------|-----------------|------------------------|
-| **Architecture** | ✅ Modular design proven | Scale-out capability needed |
-| **Performance** | ⚠️ Single-user adequate | Load balancing required |
-| **Security** | ❌ Basic secret handling | Azure Key Vault integration |
-| **Monitoring** | ❌ Console logging only | APM + distributed tracing |
-| **Content** | ⚠️ Placeholder data | Official documentation |
-| **Testing** | ⚠️ Basic coverage | Full regression suite |
-| **Operations** | ❌ Manual deployment | CI/CD pipeline |
-
-**Prototype proves the concept but requires significant hardening for production use.**
-
-## Contact Information
-- **Project Lead**: Cesar De la Torre
-- **Technical Lead**: Cesar De la Torre
-- **Product Owner**: Cesar De la Torre
+## 18. Status & Version
+**Current Horizon**: H1 Prototype (active)
+**Document Version**: 1.1  
+**Last Updated**: September 2025  
+**Status**: Vision defined; prototype implemented; consolidation for horizon advancement readiness.
 
 ---
-
-**Document Version**: 1.0  
-**Last Updated**: September 2025  
-**Status**: Vision defined, prototype implemented
+Intentional minimalism on implementation detail avoids duplication and prevents drift with `architecture-technologies.md`.

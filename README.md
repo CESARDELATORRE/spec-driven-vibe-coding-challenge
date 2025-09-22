@@ -388,7 +388,7 @@ This repository contains a prototype implementation of a domain-specific AI agen
 - ✅ Orchestrator Agent with in-process Chat Agent
 - ✅ Basic test coverage (unit and integration tests)
 - ⏳ Production AMG content (using placeholder data)
-- ⏳ Architecture Variants 2-4 (future iterations)
+- ⏳ Architecture Variants 2-3 (future iterations)
 
 ---
 
