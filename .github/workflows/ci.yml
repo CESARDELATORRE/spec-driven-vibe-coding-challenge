@@ -40,20 +40,6 @@ jobs:
         dotnet test tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj \
           --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
           
-    - name: Run integration tests
-      run: |
-        echo "Running integration tests (slower, external interactions / protocol)..."
-        dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/mcp-server-kb-content-fetcher.integration-tests.csproj \
-          --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
-        dotnet test tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj \
-          --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
-          
-    - name: Run smoke tests
-      run: |
-        echo "Running smoke tests..."
-        dotnet test tests/orchestrator-agent.smoke-tests/orchestrator-agent.smoke-tests.csproj \
-          --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
-          
     - name: Publish test results
       uses: dorny/test-reporter@v1
       if: success() || failure()

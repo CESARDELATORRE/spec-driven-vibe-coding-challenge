@@ -83,7 +83,7 @@ All newly added durable feature docs must be registered here and referenced in `
 
 ### `/.github/workflows/ci.yml`
 **Purpose**: GitHub Actions continuous integration workflow
-**Details**: Automated CI/CD pipeline that runs on push/PR to main, dev, and features/* branches. Executes unit tests, integration tests, smoke tests, code quality checks, and security scanning. Uses .NET 9.0, follows AGENTS.md test execution order, and uploads test artifacts
+**Details**: Automated CI/CD pipeline that runs on push/PR to main, dev, and features/* branches. Executes unit tests and code quality checks. Uses .NET 9.0. Integration tests and smoke tests excluded for faster CI runs
 
 ### `/.github/workflows/README.md`
 **Purpose**: Documentation for GitHub Actions workflows

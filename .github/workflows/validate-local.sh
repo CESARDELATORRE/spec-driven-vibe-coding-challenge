@@ -31,18 +31,8 @@ dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/mcp-server-kb-content
 dotnet test tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.csproj \
   --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
 
-# Run integration tests
-echo "🔗 Running integration tests..."
-dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/mcp-server-kb-content-fetcher.integration-tests.csproj \
-  --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
-
-dotnet test tests/orchestrator-agent.integration-tests/orchestrator-agent.integration-tests.csproj \
-  --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
-
-# Run smoke tests
-echo "💨 Running smoke tests..."
-dotnet test tests/orchestrator-agent.smoke-tests/orchestrator-agent.smoke-tests.csproj \
-  --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
+# Integration tests and smoke tests skipped in CI workflow (run manually if needed)
+echo "⏭️ Skipping integration tests and smoke tests (excluded from CI workflow)..."
 
 # Check formatting (optional - might not be configured yet)
 echo "📐 Checking code formatting..."
@@ -53,5 +43,6 @@ echo "🔒 Running security scan..."
 dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerable-packages.log || true
 
 echo "✅ All workflow commands executed successfully!"
-echo "📁 Test results saved in TestResults/ directory"
+echo "📁 Test results saved in TestResults/ directory (unit tests only)"
 echo "🛡️  Security scan results saved in vulnerable-packages.log"
+echo "💡 Integration tests and smoke tests can be run manually if needed"

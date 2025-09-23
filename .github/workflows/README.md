@@ -23,13 +23,8 @@ This directory contains GitHub Actions workflows for the spec-driven vibe coding
   5. **Run unit tests** - Executes fast unit tests first
      - `mcp-server-kb-content-fetcher.unit-tests`
      - `orchestrator-agent.unit-tests`
-  6. **Run integration tests** - Executes slower integration tests
-     - `mcp-server-kb-content-fetcher.integration-tests`
-     - `orchestrator-agent.integration-tests`
-  7. **Run smoke tests** - Executes smoke tests
-     - `orchestrator-agent.smoke-tests`
-  8. **Publish test results** - Creates test report summaries
-  9. **Upload test artifacts** - Saves test results for download
+  6. **Publish test results** - Creates test report summaries
+  7. **Upload test artifacts** - Saves test results for download
 
 #### 2. Code Quality Checks
 - **Platform:** Ubuntu Latest
@@ -49,12 +44,7 @@ Following the recommendations from `AGENTS.md`, tests are executed in this order
    - Knowledge Base unit tests
    - Orchestrator Agent unit tests
 
-2. **Integration Tests** (slower, external interactions)
-   - Knowledge Base integration tests  
-   - Orchestrator Agent integration tests
-
-3. **Smoke Tests**
-   - Orchestrator Agent smoke tests
+**Note:** Integration tests and smoke tests are currently excluded from the CI workflow and should be run manually when needed.
 
 ## Artifacts
 
