@@ -1,0 +1,51 @@
+- name: Home
+  href: index.md
+- name: Vision & Scope
+  href: 03-idea-vision-scope.md
+- name: Architecture & Technologies
+  href: 04-architecture-technologies.md
+- name: Simplified Directions
+  href: simplified-directions/
+  items:
+  - name: Architecture & Technology Directions
+    href: simplified-directions/architecture-and-technology-directions.md
+- name: Feature Specifications
+  href: specs/
+  items:
+  - name: KB MCP Server
+    href: specs/feature-specs-kb-mcp-server.md
+  - name: Orchestrator Agent
+    href: specs/feature-specs-orchestrator-agent.md
+  - name: Chat Agent
+    href: specs/feature-specs-chat-agent.md
+- name: Implementation Plans
+  href: implementation-plans/
+  items:
+  - name: KB MCP Server
+    href: implementation-plans/feature-implementation-plan-kb-mcp-server.md
+  - name: Orchestrator Agent
+    href: implementation-plans/feature-implementation-plan-orchestrator-agent.md
+  - name: Chat Agent
+    href: implementation-plans/feature-implementation-plan-chat-agent.md
+  - name: Demo Implementation Plan
+    href: implementation-plans/DEMO-feature-implementation-plan-orchestrator-agent.md
+- name: Research & Analysis
+  items:
+  - name: Assumptions
+    href: assumptions.md
+  - name: Tradeoffs
+    href: tradeoffs.md
+  - name: Metrics & Measurement Plan
+    href: metrics-measurement-plan.md
+  - name: Technical Research
+    href: research-technical.md
+  - name: Market Research
+    href: research-idea.md
+- name: Project Reference
+  items:
+  - name: Original Challenge Definition
+    href: 01-original-challenge-definition.md
+  - name: Goals & Approaches
+    href: 02-plain-goals-and-approaches.md
+  - name: Memory
+    href: memory.md

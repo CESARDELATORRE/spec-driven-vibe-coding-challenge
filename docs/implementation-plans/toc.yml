@@ -1,0 +1,8 @@
+- name: KB MCP Server
+  href: feature-implementation-plan-kb-mcp-server.md
+- name: Orchestrator Agent
+  href: feature-implementation-plan-orchestrator-agent.md
+- name: Chat Agent
+  href: feature-implementation-plan-chat-agent.md
+- name: Demo Implementation Plan
+  href: DEMO-feature-implementation-plan-orchestrator-agent.md

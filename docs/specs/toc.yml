@@ -1,0 +1,6 @@
+- name: KB MCP Server
+  href: feature-specs-kb-mcp-server.md
+- name: Orchestrator Agent
+  href: feature-specs-orchestrator-agent.md
+- name: Chat Agent
+  href: feature-specs-chat-agent.md

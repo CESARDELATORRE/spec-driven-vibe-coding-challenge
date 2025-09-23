@@ -1,0 +1,44 @@
+{
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml,yaml}"
+        ],
+        "exclude": [
+          "_site/**",
+          "obj/**",
+          "api/**.yml",
+          "api/index.md"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "_images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": [
+      "default",
+      "modern"
+    ],
+    "postProcessors": [],
+    "keepFileLink": false,
+    "disableGitFeatures": false,
+    "globalMetadata": {
+      "_appTitle": "Spec-Driven Vibe Coding Challenge",
+      "_appName": "Spec-Driven Vibe Coding Challenge",
+      "_enableSearch": true,
+      "_gitContribute": {
+        "repo": "https://github.com/CESARDELATORRE/spec-driven-vibe-coding-challenge",
+        "branch": "main"
+      },
+      "_gitUrlPattern": "github"
+    }
+  }
+}
