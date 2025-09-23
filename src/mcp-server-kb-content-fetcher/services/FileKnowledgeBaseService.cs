@@ -13,7 +13,7 @@ public class FileKnowledgeBaseContentCache : IKnowledgeBaseContentCache
     private readonly ILogger<FileKnowledgeBaseContentCache> _logger;
     private readonly KnowledgeBaseOptions _options;
     private readonly object _initLock = new object();
-    
+
     private volatile KnowledgeBaseContent? _cachedContent;
     private volatile bool _isInitialized = false;
 
@@ -55,7 +55,7 @@ public class FileKnowledgeBaseContentCache : IKnowledgeBaseContentCache
 
                 var fileInfo = new FileInfo(filePath);
                 var content = File.ReadAllText(filePath);
-                
+
                 var info = new KnowledgeBaseInfo
                 {
                     IsAvailable = true,

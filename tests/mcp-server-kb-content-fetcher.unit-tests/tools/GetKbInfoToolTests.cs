@@ -48,7 +48,7 @@ public class GetKbInfoToolTests
         Assert.NotNull(result);
         var root = SerializeToJsonElement(result);
 
-    Assert.Equal("ok", root.GetProperty("status").GetString());
+        Assert.Equal("ok", root.GetProperty("status").GetString());
         var info = root.GetProperty("info");
         Assert.True(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(1000, info.GetProperty("contentLength").GetInt32());
@@ -135,7 +135,7 @@ public class GetKbInfoToolTests
         Assert.NotNull(result);
         var root = SerializeToJsonElement(result);
 
-    Assert.Equal("ok", root.GetProperty("status").GetString());
+        Assert.Equal("ok", root.GetProperty("status").GetString());
         var info = root.GetProperty("info");
         Assert.True(info.GetProperty("isAvailable").GetBoolean());
         Assert.Equal(500, info.GetProperty("contentLength").GetInt32());

@@ -141,7 +141,7 @@ try
 
     // Run the MCP server
     await app.RunAsync();
-    
+
     logger.LogInformation("KB MCP Server stopped.");
     return 0;
 }

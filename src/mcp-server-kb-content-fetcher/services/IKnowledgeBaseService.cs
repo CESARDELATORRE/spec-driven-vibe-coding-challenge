@@ -34,12 +34,12 @@ public interface IKnowledgeBaseContentCache
     /// Get the cached knowledge base content (thread-safe, immutable)
     /// </summary>
     Task<KnowledgeBaseContent> GetContentAsync();
-    
+
     /// <summary>
     /// Initialize the cache by loading content from the configured source
     /// </summary>
     Task<bool> InitializeAsync();
-    
+
     /// <summary>
     /// Check if the cache has been successfully initialized
     /// </summary>

@@ -56,7 +56,8 @@ public class OrchestratorServerIntegrationTests
         await using var client = await StdioMcpClient.StartAsync(path);
         await client.InitializeAsync();
 
-        var response = await client.SendRequestAsync(new {
+        var response = await client.SendRequestAsync(new
+        {
             jsonrpc = "2.0",
             method = "tools/call",
             @params = new { name = "ask_domain_question", arguments = new { question = "hello orchestrator agent", includeKb = true, maxKbResults = 3 } }

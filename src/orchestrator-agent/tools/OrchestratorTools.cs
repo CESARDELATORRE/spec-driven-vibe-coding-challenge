@@ -136,9 +136,9 @@ public static class OrchestratorTools
         string? deploymentName = config["AzureOpenAI:DeploymentName"]; // AzureOpenAI__DeploymentName
         string? apiKey = config["AzureOpenAI:ApiKey"]; // AzureOpenAI__ApiKey
 
-    // Heuristic (enhanced in Step 5): skip KB for greeting-like questions (not short ones — those already validated above)
-    bool heuristicSkipKb = ShouldSkipKb(question, config);
-    bool attemptKb = includeKb && !heuristicSkipKb;
+        // Heuristic (enhanced in Step 5): skip KB for greeting-like questions (not short ones — those already validated above)
+        bool heuristicSkipKb = ShouldSkipKb(question, config);
+        bool attemptKb = includeKb && !heuristicSkipKb;
 
         // Placeholder arrays for future KB & answer data
         var kbResults = new List<object>();
@@ -161,134 +161,134 @@ public static class OrchestratorTools
                 }
                 else
                 {
-                            if (!kbResolution.Resolved || kbResolution.Command is null)
+                    if (!kbResolution.Resolved || kbResolution.Command is null)
+                    {
+                        disclaimers.Add($"KB executable not found after probing {kbResolution.ProbedPaths.Count} paths");
+                        disclaimers.Add("Probed paths sample: " + string.Join(" | ", kbResolution.ProbedPaths.Take(5)) + (kbResolution.ProbedPaths.Count > 5 ? " ..." : string.Empty));
+                    }
+                    else
+                    {
+                        try
+                        {
+                            await using IMcpClient kbClient = await McpClientFactory.CreateAsync(
+                                new StdioClientTransport(new()
+                                {
+                                    Name = "kb-mcp-server",
+                                    Command = kbResolution.Command!,
+                                    Arguments = kbResolution.Arguments
+                                }));
+
+                            var kbToolList = await kbClient.ListToolsAsync().ConfigureAwait(false);
+                            var contentTool = kbToolList.FirstOrDefault(t => t.Name == "get_kb_content" || t.Name == "search_knowledge");
+                            if (contentTool is null)
                             {
-                                disclaimers.Add($"KB executable not found after probing {kbResolution.ProbedPaths.Count} paths");
-                                disclaimers.Add("Probed paths sample: " + string.Join(" | ", kbResolution.ProbedPaths.Take(5)) + (kbResolution.ProbedPaths.Count > 5 ? " ..." : string.Empty));
+                                disclaimers.Add("KB tools available but no recognized content tool (get_kb_content/search_knowledge)");
                             }
-                            else
+                            else if (contentTool.Name == "get_kb_content")
                             {
                                 try
                                 {
-                                    await using IMcpClient kbClient = await McpClientFactory.CreateAsync(
-                                        new StdioClientTransport(new()
-                                        {
-                                            Name = "kb-mcp-server",
-                                            Command = kbResolution.Command!,
-                                            Arguments = kbResolution.Arguments
-                                        }));
+                                    var invocation = await kbClient.CallToolAsync(contentTool.Name, new Dictionary<string, object?>()).ConfigureAwait(false);
 
-                                    var kbToolList = await kbClient.ListToolsAsync().ConfigureAwait(false);
-                                    var contentTool = kbToolList.FirstOrDefault(t => t.Name == "get_kb_content" || t.Name == "search_knowledge");
-                                    if (contentTool is null)
+                                    // Reflective extraction of first text content entry following MCP spec shape:
+                                    // { content: [ { type: "text", text: "..." } ] }
+                                    string? extracted = null;
+                                    try
                                     {
-                                        disclaimers.Add("KB tools available but no recognized content tool (get_kb_content/search_knowledge)");
-                                    }
-                                    else if (contentTool.Name == "get_kb_content")
-                                    {
-                                        try
+                                        if (invocation is not null)
                                         {
-                                            var invocation = await kbClient.CallToolAsync(contentTool.Name, new Dictionary<string, object?>()).ConfigureAwait(false);
-
-                                            // Reflective extraction of first text content entry following MCP spec shape:
-                                            // { content: [ { type: "text", text: "..." } ] }
-                                            string? extracted = null;
-                                            try
+                                            var contentProp = invocation.GetType().GetProperty("Content", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                                            var contentVal = contentProp?.GetValue(invocation);
+                                            if (contentVal is System.Collections.IEnumerable enumerable)
                                             {
-                                                if (invocation is not null)
+                                                foreach (var item in enumerable)
                                                 {
-                                                    var contentProp = invocation.GetType().GetProperty("Content", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                                                    var contentVal = contentProp?.GetValue(invocation);
-                                                    if (contentVal is System.Collections.IEnumerable enumerable)
+                                                    if (item is null) continue;
+                                                    // Try common property names
+                                                    string? candidate = null;
+                                                    var itemType = item.GetType();
+                                                    var textProp = itemType.GetProperty("Text", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                                                    if (textProp?.GetValue(item) is string tp) candidate = tp;
+                                                    else if (item is string s) candidate = s;
+                                                    // Fallback: serialize item to JSON and attempt to parse {"text":"..."}
+                                                    if (candidate is null)
                                                     {
-                                                        foreach (var item in enumerable)
+                                                        try
                                                         {
-                                                            if (item is null) continue;
-                                                            // Try common property names
-                                                            string? candidate = null;
-                                                            var itemType = item.GetType();
-                                                            var textProp = itemType.GetProperty("Text", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                                                            if (textProp?.GetValue(item) is string tp) candidate = tp;
-                                                            else if (item is string s) candidate = s;
-                                                            // Fallback: serialize item to JSON and attempt to parse {"text":"..."}
-                                                            if (candidate is null)
+                                                            var json = JsonSerializer.Serialize(item);
+                                                            using var doc = JsonDocument.Parse(json);
+                                                            if (doc.RootElement.TryGetProperty("text", out var tEl) && tEl.ValueKind == JsonValueKind.String)
                                                             {
-                                                                try
-                                                                {
-                                                                    var json = JsonSerializer.Serialize(item);
-                                                                    using var doc = JsonDocument.Parse(json);
-                                                                    if (doc.RootElement.TryGetProperty("text", out var tEl) && tEl.ValueKind == JsonValueKind.String)
-                                                                    {
-                                                                        candidate = tEl.GetString();
-                                                                    }
-                                                                }
-                                                                catch { /* swallow */ }
+                                                                candidate = tEl.GetString();
                                                             }
-                                                            if (!string.IsNullOrWhiteSpace(candidate))
+                                                        }
+                                                        catch { /* swallow */ }
+                                                    }
+                                                    if (!string.IsNullOrWhiteSpace(candidate))
+                                                    {
+                                                        extracted = candidate;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            // Additional fallback: attempt full object JSON + search for first long string
+                                            if (extracted is null)
+                                            {
+                                                try
+                                                {
+                                                    var json = JsonSerializer.Serialize(invocation);
+                                                    using var doc = JsonDocument.Parse(json);
+                                                    if (doc.RootElement.TryGetProperty("content", out var contentArray) && contentArray.ValueKind == JsonValueKind.Array)
+                                                    {
+                                                        foreach (var el in contentArray.EnumerateArray())
+                                                        {
+                                                            if (el.ValueKind == JsonValueKind.Object && el.TryGetProperty("text", out var t) && t.ValueKind == JsonValueKind.String)
                                                             {
-                                                                extracted = candidate;
+                                                                extracted = t.GetString();
                                                                 break;
                                                             }
                                                         }
                                                     }
-                                                    // Additional fallback: attempt full object JSON + search for first long string
-                                                    if (extracted is null)
-                                                    {
-                                                        try
-                                                        {
-                                                            var json = JsonSerializer.Serialize(invocation);
-                                                            using var doc = JsonDocument.Parse(json);
-                                                            if (doc.RootElement.TryGetProperty("content", out var contentArray) && contentArray.ValueKind == JsonValueKind.Array)
-                                                            {
-                                                                foreach (var el in contentArray.EnumerateArray())
-                                                                {
-                                                                    if (el.ValueKind == JsonValueKind.Object && el.TryGetProperty("text", out var t) && t.ValueKind == JsonValueKind.String)
-                                                                    {
-                                                                        extracted = t.GetString();
-                                                                        break;
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                        catch { /* ignore */ }
-                                                    }
                                                 }
+                                                catch { /* ignore */ }
                                             }
-                                            catch (Exception exExtract)
-                                            {
-                                                Console.Error.WriteLine($"KB snippet extraction reflection error: {exExtract.Message}");
-                                            }
+                                        }
+                                    }
+                                    catch (Exception exExtract)
+                                    {
+                                        Console.Error.WriteLine($"KB snippet extraction reflection error: {exExtract.Message}");
+                                    }
 
-                                            if (!string.IsNullOrWhiteSpace(extracted))
-                                            {
-                                                const int cap = 3000;
-                                                bool trunc = extracted!.Length > cap;
-                                                string snippet = trunc ? extracted.Substring(0, cap) + "...[truncated]" : extracted;
-                                                kbResults.Add(new { snippet, truncated = trunc, source = Path.GetFileName(kbResolution.ResolvedPath) });
-                                                usedKb = true;
-                                            }
-                                            else
-                                            {
-                                                disclaimers.Add("KB content tool returned no textual content (extraction failed)");
-                                            }
-                                        }
-                                        catch (Exception exContent)
-                                        {
-                                            Console.Error.WriteLine($"KB content invocation failed: {exContent.Message}");
-                                            disclaimers.Add("Failed to retrieve KB content");
-                                        }
+                                    if (!string.IsNullOrWhiteSpace(extracted))
+                                    {
+                                        const int cap = 3000;
+                                        bool trunc = extracted!.Length > cap;
+                                        string snippet = trunc ? extracted.Substring(0, cap) + "...[truncated]" : extracted;
+                                        kbResults.Add(new { snippet, truncated = trunc, source = Path.GetFileName(kbResolution.ResolvedPath) });
+                                        usedKb = true;
                                     }
                                     else
                                     {
-                                        disclaimers.Add("search_knowledge tool detected but query invocation deferred to later step");
+                                        disclaimers.Add("KB content tool returned no textual content (extraction failed)");
                                     }
                                 }
-                                catch (Exception exLaunch)
+                                catch (Exception exContent)
                                 {
-                                    Console.Error.WriteLine($"KB launch/integration error: {exLaunch.Message}");
-                                    disclaimers.Add("Answer generated without knowledge base due to KB launch error");
+                                    Console.Error.WriteLine($"KB content invocation failed: {exContent.Message}");
+                                    disclaimers.Add("Failed to retrieve KB content");
                                 }
                             }
+                            else
+                            {
+                                disclaimers.Add("search_knowledge tool detected but query invocation deferred to later step");
+                            }
+                        }
+                        catch (Exception exLaunch)
+                        {
+                            Console.Error.WriteLine($"KB launch/integration error: {exLaunch.Message}");
+                            disclaimers.Add("Answer generated without knowledge base due to KB launch error");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -300,10 +300,10 @@ public static class OrchestratorTools
 
         // Chat / LLM not yet invoked (Step 4). Provide placeholder answer.
         // Step 4: Attempt answer synthesis using Azure OpenAI via Semantic Kernel.
-    string answer;
-    int tokensEstimate;
-    bool chatAgentReady = false;
-    bool fakeLlmMode = string.Equals(config["Orchestrator:UseFakeLlm"], "true", StringComparison.OrdinalIgnoreCase);
+        string answer;
+        int tokensEstimate;
+        bool chatAgentReady = false;
+        bool fakeLlmMode = string.Equals(config["Orchestrator:UseFakeLlm"], "true", StringComparison.OrdinalIgnoreCase);
         try
         {
             if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(deploymentName) || string.IsNullOrWhiteSpace(apiKey))
@@ -403,7 +403,7 @@ public static class OrchestratorTools
                             deployment = "Azure OpenAI deployment name (maps to a specific model + configuration in your Azure resource).",
                             temperature = "Sampling variability 0..2; lower is more deterministic and focused."
                         }
-                    };                    
+                    };
                 }
             }
         }

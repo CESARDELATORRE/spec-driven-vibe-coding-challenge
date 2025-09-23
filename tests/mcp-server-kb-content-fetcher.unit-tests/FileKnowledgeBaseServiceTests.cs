@@ -17,7 +17,7 @@ public class FileKnowledgeBaseServiceTests
     {
         _mockCache = Substitute.For<IKnowledgeBaseContentCache>();
         _logger = Substitute.For<ILogger<FileKnowledgeBaseService>>();
-        
+
         // Use test data file that should be copied to output directory
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         _testDataPath = Path.Combine(baseDir, "test-data", "test-knowledge-base.txt");
@@ -29,9 +29,9 @@ public class FileKnowledgeBaseServiceTests
         // This test is to debug the file path issue
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         var testDataPath = Path.Combine(baseDir, "test-data", "test-knowledge-base.txt");
-        
+
         Assert.True(File.Exists(testDataPath), $"Test data file should exist at: {testDataPath}");
-        
+
         var content = File.ReadAllText(testDataPath);
         Assert.True(content.Length > 0, "Test data file should not be empty");
         Assert.Contains("Azure Managed Grafana", content);
@@ -79,9 +79,9 @@ public class FileKnowledgeBaseServiceTests
             Description = "Azure Managed Grafana knowledge base",
             LastModified = DateTime.UtcNow
         };
-        
+
         var expectedContent = new KnowledgeBaseContent("Test content", expectedInfo);
-        
+
         _mockCache.GetContentAsync().Returns(Task.FromResult(expectedContent));
         var service = new FileKnowledgeBaseService(_mockCache, _logger);
 
@@ -124,9 +124,9 @@ public class FileKnowledgeBaseServiceTests
             Description = "Azure Managed Grafana knowledge base",
             LastModified = DateTime.UtcNow
         };
-        
+
         var expectedContent = new KnowledgeBaseContent("Test raw content", expectedInfo);
-        
+
         _mockCache.GetContentAsync().Returns(Task.FromResult(expectedContent));
         var service = new FileKnowledgeBaseService(_mockCache, _logger);
 

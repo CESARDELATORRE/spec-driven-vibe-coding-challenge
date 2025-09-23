@@ -32,7 +32,7 @@ public class OrchestratorServerPositiveLlmIntegrationTests
     public async Task AskDomainQuestion_Should_Produce_Fake_LLM_Answer_When_Fake_Mode_Enabled()
     {
         var path = Path.GetFullPath(ServerProjectPath);
-        var env = new System.Collections.Generic.Dictionary<string,string>
+        var env = new System.Collections.Generic.Dictionary<string, string>
         {
             ["AzureOpenAI__Endpoint"] = "https://fake-endpoint.example.com/",
             ["AzureOpenAI__DeploymentName"] = "gpt-fake-test",
@@ -43,7 +43,8 @@ public class OrchestratorServerPositiveLlmIntegrationTests
         await client.InitializeAsync();
 
         // Act
-        var response = await client.SendRequestAsync(new {
+        var response = await client.SendRequestAsync(new
+        {
             jsonrpc = "2.0",
             method = "tools/call",
             @params = new { name = "ask_domain_question", arguments = new { question = "Explain the configuration layering", includeKb = false, maxKbResults = 2 } }
@@ -57,7 +58,7 @@ public class OrchestratorServerPositiveLlmIntegrationTests
         var text = content[0].GetProperty("text").GetString();
         text.Should().NotBeNull();
         using var inner = JsonDocument.Parse(text!);
-    inner.RootElement.GetProperty("answer").GetString()!.Should().StartWith("FAKE_LLM_ANSWER:");
+        inner.RootElement.GetProperty("answer").GetString()!.Should().StartWith("FAKE_LLM_ANSWER:");
         var diags = inner.RootElement.GetProperty("diagnostics");
         diags.GetProperty("fakeLlmMode").GetBoolean().Should().BeTrue();
         diags.GetProperty("chatAgentReady").GetBoolean().Should().BeTrue();

@@ -27,7 +27,7 @@ internal sealed class StdioMcpClient : IAsyncDisposable
         _stdout = stdout;
     }
 
-    public static async Task<StdioMcpClient> StartAsync(string serverProjectCsprojPath, CancellationToken ct = default, IDictionary<string,string>? extraEnvironment = null)
+    public static async Task<StdioMcpClient> StartAsync(string serverProjectCsprojPath, CancellationToken ct = default, IDictionary<string, string>? extraEnvironment = null)
     {
         if (!File.Exists(serverProjectCsprojPath))
         {
@@ -38,7 +38,7 @@ internal sealed class StdioMcpClient : IAsyncDisposable
         var projectName = Path.GetFileNameWithoutExtension(serverProjectCsprojPath);
 
         string? dllPath = Directory.GetFiles(projectDir, projectName + ".dll", SearchOption.AllDirectories)
-            .FirstOrDefault(p => p.Contains(Path.Combine("bin","Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
+            .FirstOrDefault(p => p.Contains(Path.Combine("bin", "Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
         if (dllPath is null)
         {
             throw new FileNotFoundException("Could not locate built orchestrator assembly (.dll). Build project before tests.");
@@ -93,7 +93,7 @@ internal sealed class StdioMcpClient : IAsyncDisposable
             JsonSerializer.Serialize(request, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))
             ?? new();
         if (!dict.ContainsKey("id")) dict["id"] = _nextId++;
-        var id = dict["id"];        
+        var id = dict["id"];
         var json = JsonSerializer.Serialize(dict, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         Console.WriteLine($"=> {json}");
         await _stdin.WriteLineAsync(json);
@@ -123,11 +123,12 @@ internal sealed class StdioMcpClient : IAsyncDisposable
     }
 
     public Task<string> InitializeAsync(string protocolVersion = "2024-11-05", CancellationToken ct = default) =>
-        SendRequestAsync(new {
+        SendRequestAsync(new
+        {
             jsonrpc = "2.0",
             method = "initialize",
             @params = new { protocolVersion, capabilities = new { }, clientInfo = new { name = "orch-int-tests", version = "1.0" } }
-    }, ct: ct);
+        }, ct: ct);
 
     public async ValueTask DisposeAsync()
     {

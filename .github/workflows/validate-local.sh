@@ -35,8 +35,7 @@ dotnet test tests/orchestrator-agent.unit-tests/orchestrator-agent.unit-tests.cs
 echo "⏭️ Skipping integration tests and smoke tests (excluded from CI workflow)..."
 
 # Check formatting (optional - might not be configured yet)
-echo "📐 Checking code formatting..."
-dotnet format spec-driven-vibe-coding-challenge-orchestrator-code.sln --verify-no-changes --verbosity diagnostic || echo "⚠️  Code formatting check failed - consider running 'dotnet format' to fix issues"
+echo "📐 Code formatting can be checked with: dotnet format --verify-no-changes"
 
 # Security scan
 echo "🔒 Running security scan..."

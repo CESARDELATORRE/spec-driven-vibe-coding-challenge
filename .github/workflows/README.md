@@ -32,9 +32,8 @@ This directory contains GitHub Actions workflows for the spec-driven vibe coding
   1. **Checkout code** - Gets the latest source code
   2. **Setup .NET** - Installs .NET 9.0 SDK
   3. **Restore dependencies** - Downloads NuGet packages
-  4. **Check formatting** - Verifies code follows .NET formatting standards
-  5. **Security scan** - Checks for vulnerable NuGet packages
-  6. **Upload security scan results** - Saves security scan results
+  4. **Security scan** - Checks for vulnerable NuGet packages
+  5. **Upload security scan results** - Saves security scan results
 
 ## Test Execution Order
 

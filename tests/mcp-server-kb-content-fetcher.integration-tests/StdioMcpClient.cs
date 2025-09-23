@@ -51,7 +51,7 @@ internal sealed class StdioMcpClient : IAsyncDisposable
 
         // We intentionally disable apphost (UseAppHost=false), so always run via 'dotnet <dll>' to avoid locked exe copy issues.
         string? dllPath = Directory.GetFiles(projectDir, projectName + ".dll", SearchOption.AllDirectories)
-            .FirstOrDefault(p => p.Contains(Path.Combine("bin","Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
+            .FirstOrDefault(p => p.Contains(Path.Combine("bin", "Debug"), StringComparison.OrdinalIgnoreCase) && p.Contains("net9.0"));
         if (dllPath == null)
         {
             throw new FileNotFoundException("Could not locate built server assembly (.dll). Ensure project is built before running integration tests.");
@@ -92,8 +92,8 @@ internal sealed class StdioMcpClient : IAsyncDisposable
         var stdin = new StreamWriter(proc.StandardInput.BaseStream, new UTF8Encoding(false)) { AutoFlush = true };
         var stdout = new StreamReader(proc.StandardOutput.BaseStream, Encoding.UTF8);
 
-    // Allow warm-up; occasionally first request raced process startup in CI.
-    await Task.Delay(1250, cancellationToken);
+        // Allow warm-up; occasionally first request raced process startup in CI.
+        await Task.Delay(1250, cancellationToken);
 
         return new StdioMcpClient(proc, stdin, stdout);
     }

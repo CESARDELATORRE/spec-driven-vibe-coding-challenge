@@ -31,11 +31,11 @@ public class McpServerProtocolTests
     [Fact(Timeout = 30000)]
     public async Task Initialize_Then_ListTools_Should_Discover_Expected_Tools()
     {
-    var path = Path.GetFullPath(ServerProjectPath);
-    Console.Error.WriteLine($"[TEST] Using server project path: {path}");
-    path.Should().NotBeNull();
-    File.Exists(path).Should().BeTrue("Server project file must exist for integration test to run");
-    await using var client = await StdioMcpClient.StartAsync(path);
+        var path = Path.GetFullPath(ServerProjectPath);
+        Console.Error.WriteLine($"[TEST] Using server project path: {path}");
+        path.Should().NotBeNull();
+        File.Exists(path).Should().BeTrue("Server project file must exist for integration test to run");
+        await using var client = await StdioMcpClient.StartAsync(path);
 
         var init = await client.InitializeAsync();
 
@@ -63,10 +63,10 @@ public class McpServerProtocolTests
     [Fact(Timeout = 30000)]
     public async Task GetKbInfo_Tool_Should_Return_Knowledge_Base_Status()
     {
-    var path = Path.GetFullPath(ServerProjectPath);
-    Console.Error.WriteLine($"[TEST] Using server project path: {path}");
-    File.Exists(path).Should().BeTrue();
-    await using var client = await StdioMcpClient.StartAsync(path);
+        var path = Path.GetFullPath(ServerProjectPath);
+        Console.Error.WriteLine($"[TEST] Using server project path: {path}");
+        File.Exists(path).Should().BeTrue();
+        await using var client = await StdioMcpClient.StartAsync(path);
 
         await client.InitializeAsync();
 
