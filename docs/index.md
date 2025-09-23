@@ -63,4 +63,4 @@ This project aims to demonstrate:
 
 ---
 
-*This documentation is automatically generated and deployed to GitHub Pages. Last updated: {{ site.time }}*
+*This documentation is automatically generated and deployed to GitHub Pages using DocFX.*
