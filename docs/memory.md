@@ -52,9 +52,13 @@ Features follow the Constitution's `/docs/features/<feature-name>/` structure.
 
 ### Orchestrator Agent Feature (`/docs/features/orchestrator-agent/`)
 - `specs-orchestrator-agent.md`: Functional specification (tools: ask_domain_question, get_orchestrator_status; coordination scope)
-- `implementation-plan-orchestrator-agent.md`: Implementation plan (MCP client wiring, Semantic Kernel orchestration, testing strategy)
+- `plan-orchestrator-agent.md`: Implementation plan following plan.prompt.md template (MCP client wiring, Semantic Kernel orchestration, testing strategy)
+- `research-orchestrator-agent.md`: Phase 0 technical decision consolidation from architecture documents  
+- `data-model-orchestrator-agent.md`: Phase 1 entity and data structure design (DomainQuestion, DomainResponse, OrchestratorStatus, KnowledgeSnippet)
+- `quickstart-orchestrator-agent.md`: Phase 1 end-to-end validation scenarios with 5 comprehensive test cases
+- `contracts/`: JSON Schema definitions for MCP tool validation (ask_domain_question, get_orchestrator_status)
+- `tasks-orchestrator-agent.md`: Phase 2 implementation task breakdown (26 ultra-simplified tasks following TDD approach with dependency ordering and parallel execution optimization)
 - `example-program-semantic-kernel-orchestrator-mcp-server.cs`: Example code illustrating orchestration pattern
-- (Future optional) tasks / tech research docs
 
 ### Chat Agent Feature (`/docs/features/chat-agent/`)
 - `specs-chat-agent.md`: Functional specification (single-turn scope, out-of-scope futures, success metrics)
@@ -76,6 +80,14 @@ All newly added durable feature docs must be registered here and referenced in `
 ### `/.github/instructions/tests.instructions.md`
 **Purpose**: Testing guidelines and rules for the project
 **Details**: Defines rules for creating and running unit tests, UI tests, and maintaining test quality
+
+### `/.github/workflows/ci.yml`
+**Purpose**: GitHub Actions continuous integration workflow
+**Details**: Automated CI/CD pipeline that runs on push/PR to main, dev, and features/* branches. Executes unit tests, integration tests, smoke tests, code quality checks, and security scanning. Uses .NET 9.0, follows AGENTS.md test execution order, and uploads test artifacts
+
+### `/.github/workflows/README.md`
+**Purpose**: Documentation for GitHub Actions workflows
+**Details**: Comprehensive guide explaining CI workflow jobs, test execution order, artifacts, environment variables, security considerations, and monitoring capabilities
 
 ### `/AGENTS.md`
 **Purpose**: Repository map and development guidelines for agents and workflow

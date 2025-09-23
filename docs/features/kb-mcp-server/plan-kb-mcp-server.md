@@ -6,7 +6,7 @@
 ## Summary
 Provide a minimal MCP STDIO server that exposes two tools: `get_kb_info` (metadata) and `get_kb_content` (full text) backed by a single plain text file loaded at startup. Scope explicitly defers search, segmentation, ranking, and multi-source aggregation to future iterations—prioritizing simplicity, fast turnaround, and clear external contract stability. Implementation uses .NET Host builder + MCP SDK fluent configuration with stderr-only logging to protect STDIO protocol stream.
 
-🏗️ **Architecture Reference**: Implements Knowledge Base layer from [Architecture & Technologies](../architecture-technologies.md) prototype variant.
+🏗️ **Architecture Reference**: Implements Knowledge Base layer from [Architecture & Technologies](../../architecture-technologies.md) prototype variant.
 
 ## Technical Context
 **Language/Version**: .NET 9 (compatible with .NET 10 Preview)  

@@ -1,9 +1,11 @@
 # Feature Specification: Orchestrator Agent
 
-**Feature Branch**: `001-orchestrator-agent`  
+**Feature Branch**: `features/gh-spec-kit-support`  
 **Created**: September 23, 2025  
 **Status**: Draft  
 **Input**: User description: "orchestrator-agent"
+
+🏗️ **Architecture Reference**: The Orchestrator Agent design and integration patterns are detailed in [Architecture & Technologies](../../architecture-technologies.md).
 
 ## Execution Flow (main)
 ```

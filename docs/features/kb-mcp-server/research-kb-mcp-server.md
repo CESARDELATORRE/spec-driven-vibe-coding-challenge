@@ -1,5 +1,7 @@
 # Research (Phase 0 + Technology) - kb-mcp-server
 
+🏗️ **Architecture Reference**: The KB MCP Server design and integration patterns are detailed in [Architecture & Technologies](../../architecture-technologies.md).
+
 Unified research document combining Phase 0 unknowns resolution and detailed technology evaluation (formerly in `tech-research-kb-mcp-server.md`). Prototype scope intentionally minimized; technology choices validated for stability and future evolution.
 
 ## 1. Unknowns Resolution

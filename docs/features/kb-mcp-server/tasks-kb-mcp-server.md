@@ -3,6 +3,8 @@
 **Input Sources**: `plan-kb-mcp-server.md`, `research-kb-mcp-server.md`, `data-model-kb-mcp-server.md`, `contracts/`, `quickstart.md` (usage scenarios), existing code (retroactive alignment).
 **Feature Goal**: Minimal MCP STDIO server exposing two tools (`get_kb_info`, `get_kb_content`) backed by a single text knowledge base file.
 
+🏗️ **Architecture Reference**: The KB MCP Server design and integration patterns are detailed in [Architecture & Technologies](../../architecture-technologies.md).
+
 > NOTE: Implementation exists; tasks retrofitted for governance, regression hardening, and forward consistency (future incremental work can reference IDs).
 
 ## Conventions

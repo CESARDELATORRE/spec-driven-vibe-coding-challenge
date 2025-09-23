@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ask Domain Question Tool",
+  "description": "MCP tool schema for asking domain-specific questions about Azure Managed Grafana",
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "type": "string",
+          "description": "Natural language question about Azure Managed Grafana domain",
+          "minLength": 1,
+          "maxLength": 2000,
+          "pattern": "^(?!\\s*$).+"
+        }
+      },
+      "required": ["question"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string",
+          "description": "Synthesized response to the domain question",
+          "minLength": 1
+        },
+        "usedKb": {
+          "type": "boolean",
+          "description": "Indicates whether knowledge base was consulted for this response"
+        },
+        "kbResults": {
+          "type": "array",
+          "description": "Array of knowledge base snippets used in response generation",
+          "items": {
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "Retrieved content text"
+              },
+              "source": {
+                "type": "string",
+                "description": "Identifier for content source"
+              },
+              "truncated": {
+                "type": "boolean",
+                "description": "Whether content was truncated due to size limits"
+              },
+              "originalLength": {
+                "type": "integer",
+                "description": "Original content length before truncation",
+                "minimum": 0
+              },
+              "retrievalTimestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When content was retrieved"
+              }
+            },
+            "required": ["content", "source", "truncated", "retrievalTimestamp"],
+            "additionalProperties": false
+          }
+        },
+        "disclaimers": {
+          "type": "array",
+          "description": "Warnings or limitations about response quality",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tokensEstimate": {
+          "type": "integer",
+          "description": "Approximate token usage for transparency",
+          "minimum": 0
+        },
+        "diagnostics": {
+          "type": "object",
+          "description": "Technical debugging information",
+          "properties": {
+            "environment": {
+              "type": "string",
+              "enum": ["Production", "Development", "Test"]
+            },
+            "endpointConfigured": {
+              "type": "boolean",
+              "description": "Azure AI endpoint availability"
+            },
+            "deploymentConfigured": {
+              "type": "boolean",
+              "description": "Model deployment availability"
+            },
+            "apiKeyConfigured": {
+              "type": "boolean",
+              "description": "Authentication status"
+            },
+            "attemptedKb": {
+              "type": "boolean",
+              "description": "Whether KB lookup was attempted"
+            },
+            "heuristicSkipKb": {
+              "type": "boolean",
+              "description": "Whether KB was skipped by heuristic"
+            },
+            "chatAgentReady": {
+              "type": "boolean",
+              "description": "Chat agent initialization status"
+            },
+            "requestedMaxKbResults": {
+              "type": "integer",
+              "description": "Maximum KB results requested",
+              "minimum": 1,
+              "maximum": 3
+            },
+            "effectiveMaxKbResults": {
+              "type": "integer",
+              "description": "Actual maximum KB results used",
+              "minimum": 1,
+              "maximum": 3
+            },
+            "kbResultsClamped": {
+              "type": "boolean",
+              "description": "Whether KB results were limited"
+            },
+            "fakeLlmMode": {
+              "type": "boolean",
+              "description": "Whether using mock LLM for testing"
+            }
+          },
+          "required": [
+            "environment",
+            "endpointConfigured", 
+            "deploymentConfigured",
+            "apiKeyConfigured",
+            "attemptedKb",
+            "heuristicSkipKb",
+            "chatAgentReady"
+          ],
+          "additionalProperties": false
+        },
+        "provenance": {
+          "type": "object",
+          "description": "Source and generation tracking information",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "LLM provider identifier",
+              "examples": ["azure-openai", "openai"]
+            },
+            "serviceId": {
+              "type": "string",
+              "description": "Service identifier within the provider"
+            },
+            "deployment": {
+              "type": "string",
+              "description": "Model deployment name"
+            },
+            "temperature": {
+              "type": "number",
+              "description": "Generation temperature setting",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "mode": {
+              "type": "string",
+              "description": "Generation mode",
+              "examples": ["agent", "completion", "chat"]
+            },
+            "kbGrounded": {
+              "type": "boolean",
+              "description": "Whether response used knowledge base content"
+            },
+            "explanations": {
+              "type": "object",
+              "description": "Additional explanatory information",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["provider", "mode", "kbGrounded"],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "string",
+          "description": "Response generation status",
+          "enum": ["success", "partial", "error", "scaffold"]
+        }
+      },
+      "required": [
+        "answer",
+        "usedKb", 
+        "kbResults",
+        "disclaimers",
+        "tokensEstimate",
+        "diagnostics",
+        "provenance",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": ["input", "output"]
+}

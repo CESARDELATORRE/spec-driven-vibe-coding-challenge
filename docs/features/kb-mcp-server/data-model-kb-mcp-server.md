@@ -1,5 +1,7 @@
 # Data Model - kb-mcp-server
 
+🏗️ **Architecture Reference**: The KB MCP Server design and integration patterns are detailed in [Architecture & Technologies](../../architecture-technologies.md).
+
 Scope is intentionally minimal; no complex relational structures. Entities are implicit in service/tool responses.
 
 ## 1. Entities
