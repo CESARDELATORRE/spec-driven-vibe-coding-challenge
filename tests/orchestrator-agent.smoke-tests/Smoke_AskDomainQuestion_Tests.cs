@@ -5,6 +5,8 @@ using Xunit;
 using FluentAssertions;
 using System.Linq;
 
+namespace SmokeTests.OrchestratorAgent;
+
 // NOTE: These are lightweight smoke tests (not exhaustive unit tests) to validate
 // the current scaffold behavior of AskDomainQuestionAsync without requiring
 // real Azure OpenAI or KB server configuration.
