@@ -48,18 +48,12 @@ As a domain expert evaluating Azure Managed Grafana (AMG), I want to ask specifi
 2. **Given** I need to check if the system is working, **When** I request the orchestrator status, **Then** I receive current health information about the orchestrator and its connected services
 3. **Given** I ask a question that requires domain knowledge, **When** the knowledge base is available, **Then** my answer is grounded in AMG-specific content rather than generic responses
 4. **Given** I ask a question when the knowledge base is unavailable, **When** the system processes my request, **Then** I receive a response indicating the knowledge base wasn't used and get a disclaimer about the response quality
-5. **Given** I submit an empty question, **When** the system validates the input, **Then** I receive a clear validation error message stating "Question is required"
-6. **Given** I ask a valid AMG question, **When** the system processes it successfully, **Then** I receive a structured response containing the answer, knowledge base usage indicator, and source information
-7. **Given** the knowledge base returns very large content, **When** the system processes the response, **Then** the content is automatically truncated with a clear indication of truncation
 
 ### Edge Cases
 - What happens when I ask an empty or very short question?
 - How does the system handle knowledge base connection failures?
 - What occurs when I ask questions outside the AMG domain scope?
 - How does the system respond to very long or complex questions?
-- What happens when knowledge base returns oversized content?
-- How does the system handle downstream LLM service failures?
-- What occurs when multiple concurrent requests are made?
 
 ## Requirements
 
@@ -69,19 +63,11 @@ As a domain expert evaluating Azure Managed Grafana (AMG), I want to ask specifi
 - **FR-003**: System MUST provide status information about orchestrator health and connected services
 - **FR-004**: System MUST return responses within 10 seconds for typical domain questions
 - **FR-005**: System MUST indicate when responses are grounded in knowledge base content versus general knowledge
-- **FR-006**: System MUST validate input questions and reject empty or invalid requests with clear error messages
+- **FR-006**: System MUST validate input questions and reject empty or invalid requests
 - **FR-007**: System MUST continue operating when knowledge base is unavailable, providing appropriate disclaimers
 - **FR-008**: System MUST limit knowledge base results to prevent overwhelming response generation
 - **FR-009**: System MUST provide concise responses (target 50-200 words) suitable for decision-making
 - **FR-010**: System MUST log all interactions for debugging and monitoring purposes
-- **FR-011**: System MUST use the simplest protocol approach suitable for local execution and testing with MCP clients such as GitHub Copilot or Claude
-- **FR-012**: System MUST expose both primary tools (ask_domain_question and get_orchestrator_status) in MCP tool discovery
-- **FR-013**: System MUST automatically decide when knowledge base lookup is needed without requiring user configuration
-- **FR-014**: System MUST truncate oversized knowledge base content and indicate truncation to prevent system overload
-- **FR-015**: System MUST return structured responses containing answer, usage indicators, and source information
-- **FR-016**: System MUST handle downstream service errors gracefully without system failure
-- **FR-017**: System MUST provide real-time status information without triggering external service calls
-- **FR-018**: System MUST maintain stateless operation with no persistence between user interactions
 
 ### Key Entities
 - **Domain Question**: Natural language query about AMG capabilities, features, or configuration

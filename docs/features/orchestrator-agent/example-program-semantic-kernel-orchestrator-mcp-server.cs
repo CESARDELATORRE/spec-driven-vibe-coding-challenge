@@ -113,41 +113,12 @@ public static class WorkflowOrchestratorTool
                 c.AddConsole(); // Add console logging
             });
 
-        kernelBuilder.Services.AddAzureOpenAIChatCompletion(
-            endpoint: endpoint,
-            deploymentName: deploymentName,
-            apiKey: apiKey);
-
         Kernel kernel = kernelBuilder.Build();
 
         // Add Step1Tools to Semantic Kernel
 #pragma warning disable SKEXP0001
         kernel.Plugins.AddFromFunctions("Step1Tools", step1Tools.Select(tool => tool.AsKernelFunction()));
 #pragma warning restore SKEXP0001
-
-        // Enable automatic function calling
-#pragma warning disable SKEXP0001
-        OpenAIPromptExecutionSettings executionSettings = new()
-        {
-            Temperature = 0,
-            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(options: new() { RetainArgumentTypes = true })
-        };
-#pragma warning restore SKEXP0001
-
-        // 1. Run InvokePrompt to summarize what's returned by Step1Tools.ExecuteStep1 tool
-        var prompt = "Summarize in ten words the content returned by Step1Tools.ExecuteStep1 tool: ";
-        var promptResult = await kernel.InvokePromptAsync(prompt, new(executionSettings)).ConfigureAwait(false);
-        result.AppendLine($"Prompt: {prompt}");
-        result.AppendLine($"Prompt's result against Step1Tool: {promptResult}");
-
-
-        // 2.
-
-        // Using a prompt to make a question about the content returned by Step1Tools.ExecuteStep1
-        var promptQA = "Answer questions about content returned by the tool Step1Tools.ExecuteStep1. What's the name of the Job Position?";
-        var promptQAResult = await kernel.InvokePromptAsync(promptQA, new(executionSettings)).ConfigureAwait(false);
-        result.AppendLine($"Prompt QA: {promptQA}");
-        result.AppendLine($"Prompt QA result against Step1Tool: {promptQAResult}");
 
 
         // 3. 
@@ -182,16 +153,11 @@ public static class WorkflowOrchestratorTool
         
 
         // Define the other steps of the workflow
-        var step1 = "Step 1 execution: " + promptResult.ToString();
-        var step2 = "Step 2 execution: " + promptQAResult.ToString();
         var step3 = "Step 3 execution: " + qaAgentResponse;
-        //var step3 = "Step 3 execution";
 
         // Concatenate the outputs in an understandable way
         //var result = new StringBuilder();
         result.AppendLine("Workflow Orchestration Output:");
-        result.AppendLine(step1); 
-        result.AppendLine(step2);
         result.AppendLine(step3);
 
         // Ensure results are returned for VS Code Chat Agent Mode
