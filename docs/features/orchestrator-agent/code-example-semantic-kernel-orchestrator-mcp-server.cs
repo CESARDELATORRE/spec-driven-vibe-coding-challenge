@@ -104,7 +104,7 @@ public static class WorkflowOrchestratorTool
             //Console.WriteLine($"Tool Name: {tool.Name}, Description: {tool.Description}");
         }
 
-        // Create a Semantic Kernel instance 
+        // Create a Semantic Kernel instance with Azure OpenAI configuration
         var kernelBuilder = Kernel.CreateBuilder();
         kernelBuilder.Services
             .AddLogging(c =>
@@ -113,6 +113,9 @@ public static class WorkflowOrchestratorTool
                 c.AddConsole(); // Add console logging
             });
 
+        // Add Azure OpenAI chat completion service
+        kernelBuilder.AddAzureOpenAIChatCompletion(deploymentName, endpoint, apiKey);
+        
         Kernel kernel = kernelBuilder.Build();
 
         // Add Step1Tools to Semantic Kernel
@@ -120,6 +123,13 @@ public static class WorkflowOrchestratorTool
         kernel.Plugins.AddFromFunctions("Step1Tools", step1Tools.Select(tool => tool.AsKernelFunction()));
 #pragma warning restore SKEXP0001
 
+        // Configure execution settings for ChatCompletionAgent
+        var executionSettings = new OpenAIPromptExecutionSettings()
+        {
+            Temperature = 0.1,
+            MaxTokens = 2000,
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+        };
 
         // 3. 
         // Use ChatCompletionAgent to answer questions about the content returned by Step1Tools.ExecuteStep1

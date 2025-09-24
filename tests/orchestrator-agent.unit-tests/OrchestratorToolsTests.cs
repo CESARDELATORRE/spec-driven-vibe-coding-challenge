@@ -112,27 +112,5 @@ public class OrchestratorToolsTests
         root.GetProperty("correlationId").GetString().Should().NotBeNullOrWhiteSpace();
     }
 
-    [Fact]
-    public void OrchestratorToolsShared_IsGreeting_DetectsGreetings()
-    {
-        // Act & Assert
-        OrchestratorToolsShared.IsGreeting("hello").Should().BeTrue();
-        OrchestratorToolsShared.IsGreeting("Hi there").Should().BeTrue();
-        OrchestratorToolsShared.IsGreeting("hey").Should().BeTrue();
-        OrchestratorToolsShared.IsGreeting("greetings").Should().BeTrue();
-        OrchestratorToolsShared.IsGreeting("What is Azure?").Should().BeFalse();
-        OrchestratorToolsShared.IsGreeting("").Should().BeFalse();
-    }
 
-    [Fact]
-    public void OrchestratorToolsShared_IsPunctuationOnly_DetectsPunctuationOnlyStrings()
-    {
-        // Act & Assert
-        OrchestratorToolsShared.IsPunctuationOnly("???").Should().BeTrue();
-        OrchestratorToolsShared.IsPunctuationOnly("!!!").Should().BeTrue();
-        OrchestratorToolsShared.IsPunctuationOnly("...").Should().BeTrue();
-        OrchestratorToolsShared.IsPunctuationOnly("!!! ???").Should().BeTrue();
-        OrchestratorToolsShared.IsPunctuationOnly("hello?").Should().BeFalse();
-        OrchestratorToolsShared.IsPunctuationOnly("").Should().BeTrue(); // Empty string contains no non-punctuation
-    }
 }

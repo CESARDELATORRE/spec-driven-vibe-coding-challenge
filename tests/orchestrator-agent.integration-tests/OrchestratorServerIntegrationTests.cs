@@ -134,9 +134,9 @@ public class OrchestratorServerIntegrationTests
     }
 
     [Fact(Timeout = 30000)]
-    public async Task AskDomainQuestion_Should_Return_Greeting_Response_For_Hello()
+    public async Task AskDomainQuestion_Should_Process_All_Questions_Through_SinglePath()
     {
-        // This test uses real Azure OpenAI configuration from environment variables
+        // Test that all questions (including greetings) go through the single execution path
         var path = Path.GetFullPath(ServerProjectPath);
         await using var client = await StdioMcpClient.StartAsync(path);
         await client.InitializeAsync();
@@ -157,11 +157,10 @@ public class OrchestratorServerIntegrationTests
 
         using var inner = JsonDocument.Parse(textPayload!);
         var root = inner.RootElement;
-        root.GetProperty("answer").GetString().Should().Be("Hello! I'm ready to help you with Azure Managed Grafana questions.");
-        root.GetProperty("confidence").GetString().Should().Be("high");
-        root.GetProperty("kbUsed").GetBoolean().Should().BeFalse();
-        root.TryGetProperty("disclaimers", out var disclaimersEl).Should().BeTrue();
-        disclaimersEl.EnumerateArray().Any(e => e.GetString()!.Contains("KB lookup skipped")).Should().BeTrue();
+        root.GetProperty("answer").GetString().Should().NotBeNullOrEmpty();
+        root.GetProperty("confidence").GetString().Should().NotBeNull();
+        root.GetProperty("kbUsed").GetBoolean().Should().BeTrue(); // Now KB is used for all questions
+        root.TryGetProperty("disclaimers", out _).Should().BeTrue();
     }
 
     [Fact(Timeout = 30000)]
@@ -194,9 +193,9 @@ public class OrchestratorServerIntegrationTests
     }
 
     [Fact(Timeout = 30000)]
-    public async Task AskDomainQuestion_SmokeTest_Should_Return_Greeting_For_Short_Question_With_Real_LLM()
+    public async Task AskDomainQuestion_SmokeTest_Should_Process_Short_Questions_With_Real_LLM()
     {
-        // SMOKE TEST: Validates greeting logic using real Azure OpenAI configuration from environment
+        // SMOKE TEST: Validates that short questions go through single execution path
         var path = Path.GetFullPath(ServerProjectPath);
         await using var client = await StdioMcpClient.StartAsync(path);
         await client.InitializeAsync();
@@ -217,15 +216,16 @@ public class OrchestratorServerIntegrationTests
 
         using var inner = JsonDocument.Parse(textPayload!);
         var root = inner.RootElement;
-        // For "hi" greeting, it should be handled as a greeting and return normal response
-        root.GetProperty("answer").GetString().Should().Be("Hello! I'm ready to help you with Azure Managed Grafana questions.");
-        root.GetProperty("confidence").GetString().Should().Be("high");
+        // All questions now go through the same path and use KB + LLM
+        root.GetProperty("answer").GetString().Should().NotBeNullOrEmpty();
+        root.GetProperty("confidence").GetString().Should().NotBeNull();
+        root.GetProperty("kbUsed").GetBoolean().Should().BeTrue();
     }
 
     [Fact(Timeout = 30000)]
-    public async Task AskDomainQuestion_SmokeTest_Should_Skip_Kb_Heuristically_For_Greeting_With_Real_LLM()
+    public async Task AskDomainQuestion_SmokeTest_Should_Process_Conversational_Questions_With_Real_LLM()
     {
-        // SMOKE TEST: Validates greeting heuristic logic using real Azure OpenAI configuration from environment
+        // SMOKE TEST: Validates that conversational questions go through single execution path
         var path = Path.GetFullPath(ServerProjectPath);
         await using var client = await StdioMcpClient.StartAsync(path);
         await client.InitializeAsync();
@@ -246,17 +246,16 @@ public class OrchestratorServerIntegrationTests
 
         using var inner = JsonDocument.Parse(textPayload!);
         var root = inner.RootElement;
-        root.GetProperty("answer").GetString().Should().Be("Hello! I'm ready to help you with Azure Managed Grafana questions.");
-        root.GetProperty("confidence").GetString().Should().Be("high");
-        root.GetProperty("kbUsed").GetBoolean().Should().BeFalse();
-        var disclaimers = root.GetProperty("disclaimers");
-        disclaimers.EnumerateArray().Any(e => e.GetString()!.Contains("KB lookup skipped")).Should().BeTrue();
+        root.GetProperty("answer").GetString().Should().NotBeNullOrEmpty();
+        root.GetProperty("confidence").GetString().Should().NotBeNull();
+        root.GetProperty("kbUsed").GetBoolean().Should().BeTrue(); // Now KB is used for all questions
+        root.TryGetProperty("disclaimers", out _).Should().BeTrue();
     }
 
     [Fact(Timeout = 30000)]
-    public async Task AskDomainQuestion_SmokeTest_Should_Trigger_Skip_For_Configured_Greeting_Pattern_With_Real_LLM()
+    public async Task AskDomainQuestion_SmokeTest_Should_Process_Mixed_Questions_With_Real_LLM()
     {
-        // SMOKE TEST: Validates configured greeting pattern recognition using real Azure OpenAI configuration from environment
+        // SMOKE TEST: Validates that mixed greeting/question patterns go through single execution path
         var path = Path.GetFullPath(ServerProjectPath);
         await using var client = await StdioMcpClient.StartAsync(path);
         await client.InitializeAsync();
@@ -277,9 +276,11 @@ public class OrchestratorServerIntegrationTests
 
         using var inner = JsonDocument.Parse(textPayload!);
         var root = inner.RootElement;
-        root.GetProperty("answer").GetString().Should().Be("Hello! I'm ready to help you with Azure Managed Grafana questions.");
-        var disclaimers = root.GetProperty("disclaimers");
-        disclaimers.EnumerateArray().Any(e => e.GetString()!.Contains("KB lookup skipped")).Should().BeTrue();
+        root.GetProperty("answer").GetString().Should().NotBeNullOrEmpty();
+        root.GetProperty("confidence").GetString().Should().NotBeNull();
+        // With single execution path, KB is always used but ChatCompletionAgent handles appropriateness
+        root.GetProperty("kbUsed").GetBoolean().Should().BeTrue();
+        root.TryGetProperty("disclaimers", out _).Should().BeTrue();
     }
 
     /// <summary>

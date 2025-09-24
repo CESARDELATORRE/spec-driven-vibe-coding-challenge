@@ -3,6 +3,9 @@ using System.Text.Json;
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using ModelContextProtocol.Server;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace OrchestratorAgent.Tools;
 
@@ -32,20 +35,6 @@ public static class AskDomainQuestionTool
 
             var config = OrchestratorToolsShared.BuildBaseConfiguration();
             var disclaimers = new List<string>();
-
-            // Handle greetings quickly
-            if (OrchestratorToolsShared.ShouldSkipKb(question, config))
-            {
-                var greeting = new
-                {
-                    answer = "Hello! I'm ready to help you with Azure Managed Grafana questions.",
-                    confidence = "high",
-                    kbUsed = false,
-                    disclaimers = new[] { "KB lookup skipped (greeting/punctuation/fake mode)" },
-                    correlationId = Guid.NewGuid().ToString()
-                };
-                return OrchestratorToolsShared.ToJson(greeting);
-            }
 
             // Get KB content if available
             string kbContent = await GetKnowledgeBaseContentAsync(config, disclaimers);
@@ -184,7 +173,35 @@ public static class AskDomainQuestionTool
 
         try
         {
-            var kernel = OrchestratorToolsShared.CreateKernel(config);
+            // Get Azure OpenAI configuration
+            string? endpoint = config["AzureOpenAI:Endpoint"];
+            string? deploymentName = config["AzureOpenAI:DeploymentName"];
+            string? apiKey = config["AzureOpenAI:ApiKey"];
+
+            if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(deploymentName) || string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new InvalidOperationException("Azure OpenAI configuration is incomplete");
+            }
+
+            // Create ChatCompletionAgent directly with Azure OpenAI configuration
+            var executionSettings = new OpenAIPromptExecutionSettings
+            {
+                Temperature = 0.1,
+                MaxTokens = 2000
+            };
+
+            var builder = Kernel.CreateBuilder();
+            builder.AddAzureOpenAIChatCompletion(deploymentName, endpoint, apiKey);
+            var kernel = builder.Build();
+
+            var agent = new ChatCompletionAgent
+            {
+                Instructions = "You are an expert on Azure Managed Grafana. Provide comprehensive, accurate answers focusing on Azure Managed Grafana specifics.",
+                Name = "AzureManagedGrafanaExpert",
+                Kernel = kernel,
+                Arguments = new KernelArguments(executionSettings)
+            };
+
             string prompt = $@"Answer the following question based on the provided knowledge base content.
 
 Question: {question}
@@ -198,7 +215,8 @@ Instructions:
 - If the knowledge base doesn't contain relevant information for this specific question, say so clearly
 - Be direct and specific in your response, don't provide comprehensive overviews unless specifically asked";
 
-            return await OrchestratorToolsShared.ExecuteChatCompletionAsync(kernel, prompt);
+            var response = await agent.InvokeAsync(prompt).FirstAsync();
+            return response.Message.Content ?? "No response generated";
         }
         catch (Exception ex)
         {
