@@ -41,8 +41,7 @@ The architecture implements a modular AI agent system built around **Model Conte
 - [`tests/mcp-server-kb-content-fetcher.unit-tests/`](tests/mcp-server-kb-content-fetcher.unit-tests/) - Unit tests for KB server
 - [`tests/mcp-server-kb-content-fetcher.integration-tests/`](tests/mcp-server-kb-content-fetcher.integration-tests/) - Integration tests for KB server
 - [`tests/orchestrator-agent.unit-tests/`](tests/orchestrator-agent.unit-tests/) - Unit tests for orchestrator
-- [`tests/orchestrator-agent.integration-tests/`](tests/orchestrator-agent.integration-tests/) - Integration tests for orchestrator
-- [`tests/orchestrator-agent.smoke-tests/`](tests/orchestrator-agent.smoke-tests/) - Smoke tests for orchestrator
+- [`tests/orchestrator-agent.integration-tests/`](tests/orchestrator-agent.integration-tests/) - Integration tests (includes smoke test scenarios without real dependencies)
 
 ### ⚙️ Configuration
 - [`.vscode/mcp.json`](.vscode/mcp.json) - VS Code MCP server configuration
@@ -269,12 +268,9 @@ dotnet test --collect:"XPlat Code Coverage"
 
 ### Option C: Integration Tests
 ```bash
-# Test MCP protocol compliance
+# Test MCP protocol compliance (includes smoke test scenarios)
 dotnet test tests/mcp-server-kb-content-fetcher.integration-tests/
 dotnet test tests/orchestrator-agent.integration-tests/
-
-# Smoke tests
-dotnet test tests/orchestrator-agent.smoke-tests/
 ```
 
 You can also run the tests from VS Code and the TEST EXPLORER.
@@ -319,8 +315,7 @@ tests/
 ├── mcp-server-kb-content-fetcher.unit-tests/     # Fast, isolated tests
 ├── mcp-server-kb-content-fetcher.integration-tests/ # Protocol compliance
 ├── orchestrator-agent.unit-tests/               # Component tests
-├── orchestrator-agent.integration-tests/        # End-to-end tests
-└── orchestrator-agent.smoke-tests/              # Basic functionality
+└── orchestrator-agent.integration-tests/        # End-to-end tests (includes smoke test scenarios)
 ```
 
 ### Contributing Guidelines

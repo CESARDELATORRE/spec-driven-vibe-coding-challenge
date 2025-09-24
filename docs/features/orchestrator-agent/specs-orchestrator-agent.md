@@ -77,7 +77,7 @@ As a domain expert evaluating Azure Managed Grafana (AMG), I want to ask specifi
 - **FR-009**: System MUST provide concise responses (target 50-200 words) suitable for decision-making
 - **FR-010**: System MUST log all interactions for debugging and monitoring purposes
 - **FR-011**: System MUST use the simplest protocol approach suitable for local execution and testing with MCP clients such as GitHub Copilot or Claude
-- **FR-012**: System MUST expose both primary tools (ask_domain_question and get_orchestrator_status) in MCP tool discovery
+- **FR-012**: System MUST expose all three tools (ask_domain_question, get_orchestrator_status, and get_orchestrator_diagnostics_information) in MCP tool discovery
 - **FR-013**: System MUST automatically decide when knowledge base lookup is needed without requiring user configuration
 - **FR-014**: System MUST truncate oversized knowledge base content and indicate truncation to prevent system overload
 - **FR-015**: System MUST return structured responses containing answer, usage indicators, and source information
@@ -90,6 +90,11 @@ As a domain expert evaluating Azure Managed Grafana (AMG), I want to ask specifi
 - **Domain Response**: Synthesized answer combining knowledge base content and conversational generation
 - **Orchestrator Status**: Health and connectivity information for the orchestrator and its dependencies
 - **Knowledge Snippet**: Relevant domain content retrieved to ground the response
+
+### MCP Tools
+- **ask_domain_question**: Primary tool for processing user questions about the AMG domain with optional knowledge base lookup
+- **get_orchestrator_status**: Simple health check returning basic "Alive" status
+- **get_orchestrator_diagnostics_information**: Detailed diagnostics including configuration status, environment variables, and system state
 
 ---
 

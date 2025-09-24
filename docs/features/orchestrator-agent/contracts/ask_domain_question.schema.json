@@ -185,7 +185,7 @@
         "status": {
           "type": "string",
           "description": "Response generation status",
-          "enum": ["success", "partial", "error", "scaffold"]
+          "enum": ["success", "error"]
         }
       },
       "required": [

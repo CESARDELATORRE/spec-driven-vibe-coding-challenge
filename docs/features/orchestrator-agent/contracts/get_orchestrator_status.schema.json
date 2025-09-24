@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Get Orchestrator Status Tool",
-  "description": "MCP tool schema for retrieving orchestrator health and connectivity status",
+  "description": "MCP tool schema for retrieving simple orchestrator status",
   "type": "object",
   "properties": {
     "input": {
@@ -13,172 +13,14 @@
     "output": {
       "type": "object",
       "properties": {
-        "orchestratorHealth": {
+        "status": {
           "type": "string",
-          "description": "Overall orchestrator health status",
-          "enum": ["Healthy", "Degraded", "Unhealthy"]
-        },
-        "kbServerStatus": {
-          "type": "string",
-          "description": "Knowledge base MCP server connectivity status",
-          "enum": ["Connected", "Disconnected", "Error"]
-        },
-        "chatAgentStatus": {
-          "type": "string", 
-          "description": "In-process chat agent availability status",
-          "enum": ["Ready", "ConfigError", "Unavailable"]
-        },
-        "version": {
-          "type": "string",
-          "description": "Application version information",
-          "pattern": "^\\d+\\.\\d+\\.\\d+(-.+)?$"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Status check timestamp in ISO 8601 format"
-        },
-        "environment": {
-          "type": "string",
-          "description": "Runtime environment indicator",
-          "enum": ["Production", "Development", "Test"]
-        },
-        "uptime": {
-          "type": "string",
-          "description": "Application uptime in human-readable format",
-          "examples": ["00:05:23", "1d 2h 30m"]
-        },
-        "dependencies": {
-          "type": "object",
-          "description": "Detailed dependency status information",
-          "properties": {
-            "azureOpenAI": {
-              "type": "object",
-              "properties": {
-                "configured": {
-                  "type": "boolean",
-                  "description": "Whether Azure OpenAI is properly configured"
-                },
-                "endpoint": {
-                  "type": "string",
-                  "description": "Azure OpenAI endpoint (masked for security)"
-                },
-                "deployment": {
-                  "type": "string",
-                  "description": "Model deployment name"
-                },
-                "lastSuccessfulCall": {
-                  "type": ["string", "null"],
-                  "format": "date-time",
-                  "description": "Timestamp of last successful API call"
-                }
-              },
-              "required": ["configured"],
-              "additionalProperties": false
-            },
-            "kbMcpServer": {
-              "type": "object",
-              "properties": {
-                "connected": {
-                  "type": "boolean",
-                  "description": "Whether KB MCP server connection is active"
-                },
-                "serverPath": {
-                  "type": "string",
-                  "description": "Path to KB MCP server executable"
-                },
-                "lastSuccessfulQuery": {
-                  "type": ["string", "null"],
-                  "format": "date-time",
-                  "description": "Timestamp of last successful KB query"
-                },
-                "availableTools": {
-                  "type": "array",
-                  "description": "List of available tools from KB server",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              },
-              "required": ["connected"],
-              "additionalProperties": false
-            }
-          },
-          "required": ["azureOpenAI", "kbMcpServer"],
-          "additionalProperties": false
-        },
-        "performance": {
-          "type": "object",
-          "description": "Performance metrics and statistics",
-          "properties": {
-            "averageResponseTime": {
-              "type": "number",
-              "description": "Average response time in milliseconds",
-              "minimum": 0
-            },
-            "totalRequests": {
-              "type": "integer",
-              "description": "Total number of requests processed",
-              "minimum": 0
-            },
-            "successfulRequests": {
-              "type": "integer",
-              "description": "Number of successful requests",
-              "minimum": 0
-            },
-            "failedRequests": {
-              "type": "integer",
-              "description": "Number of failed requests",
-              "minimum": 0
-            },
-            "lastRequestTimestamp": {
-              "type": ["string", "null"],
-              "format": "date-time",
-              "description": "Timestamp of last processed request"
-            }
-          },
-          "required": [
-            "averageResponseTime",
-            "totalRequests", 
-            "successfulRequests",
-            "failedRequests"
-          ],
-          "additionalProperties": false
-        },
-        "configuration": {
-          "type": "object",
-          "description": "Non-sensitive configuration information",
-          "properties": {
-            "maxKbResults": {
-              "type": "integer",
-              "description": "Maximum knowledge base results per query",
-              "minimum": 1,
-              "maximum": 3
-            },
-            "responseTimeoutMs": {
-              "type": "integer",
-              "description": "Response timeout in milliseconds",
-              "minimum": 1000
-            },
-            "logLevel": {
-              "type": "string",
-              "description": "Current logging level",
-              "enum": ["Trace", "Debug", "Information", "Warning", "Error", "Critical"]
-            }
-          },
-          "additionalProperties": false
+          "description": "Simple orchestrator status indicator",
+          "enum": ["Alive"]
         }
       },
       "required": [
-        "orchestratorHealth",
-        "kbServerStatus", 
-        "chatAgentStatus",
-        "version",
-        "timestamp",
-        "environment",
-        "uptime",
-        "dependencies",
-        "performance"
+        "status"
       ],
       "additionalProperties": false
     }

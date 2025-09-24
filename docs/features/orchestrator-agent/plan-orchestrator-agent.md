@@ -84,7 +84,7 @@ src/
 tests/
 ├── orchestrator-agent.unit-tests/          # Fast unit tests
 ├── orchestrator-agent.integration-tests/   # MCP protocol tests
-└── orchestrator-agent.smoke-tests/         # End-to-end validation
+# Note: Smoke test scenarios integrated into integration tests
 ```
 
 ## Phase 0: Outline & Research
