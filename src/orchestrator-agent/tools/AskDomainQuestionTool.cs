@@ -1,8 +1,9 @@
 using System.ComponentModel;
 using System.Text.Json;
-using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using ModelContextProtocol.Server;
+using ModelContextProtocol.Client;
+using ModelContextProtocol.Protocol;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -36,7 +37,7 @@ public static class AskDomainQuestionTool
             var config = OrchestratorToolsShared.BuildBaseConfiguration();
             var disclaimers = new List<string>();
 
-            // Get KB content if available
+            // Get KB content if available by using the decoupled KB MCP server
             string kbContent = await GetKnowledgeBaseContentAsync(config, disclaimers);
             bool kbUsed = !kbContent.StartsWith("No knowledge base");
 
@@ -65,94 +66,40 @@ public static class AskDomainQuestionTool
         try
         {
             var kbResolution = OrchestratorToolsShared.ResolveKbExecutable(config);
-            if (!kbResolution.Configured)
+            if (!kbResolution.Configured || !kbResolution.Resolved || kbResolution.Command is null)
             {
-                disclaimers.Add("KB server not configured");
+                disclaimers.Add("KB server not available");
                 return "No knowledge base content available";
             }
 
-            if (!kbResolution.Resolved || kbResolution.Command is null)
+            // Use MCP client factory - the proper way
+            await using var mcpClient = await McpClientFactory.CreateAsync(new StdioClientTransport(new()
             {
-                disclaimers.Add("KB executable not found");
-                return "No knowledge base content available";
-            }
+                Name = "kb-content-fetcher",
+                Command = kbResolution.Command,
+                Arguments = kbResolution.Arguments.ToArray()
+            }));
 
-            // Use proper MCP communication with JSON RPC
-            using var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = kbResolution.Command,
-                    UseShellExecute = false,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                }
-            };
-
-            foreach (var arg in kbResolution.Arguments)
-            {
-                process.StartInfo.ArgumentList.Add(arg);
-            }
-
-            process.Start();
-
-            // Send initialize request first
-            var initRequest = new
-            {
-                jsonrpc = "2.0",
-                method = "initialize",
-                @params = new
-                {
-                    protocolVersion = "2024-11-05",
-                    capabilities = new { },
-                    clientInfo = new { name = "orchestrator-agent", version = "1.0" }
-                },
-                id = 1
-            };
-
-            await process.StandardInput.WriteLineAsync(JsonSerializer.Serialize(initRequest));
-            var initResponse = await process.StandardOutput.ReadLineAsync();
+            // Call the KB tool and extract the raw content directly
+            var result = await mcpClient.CallToolAsync("get_kb_content", new Dictionary<string, object?>());
+            var contentBlock = result.Content.FirstOrDefault();
             
-            if (string.IsNullOrWhiteSpace(initResponse))
+            if (contentBlock != null)
             {
-                disclaimers.Add("KB initialization failed");
-                return "No knowledge base content available";
-            }
-
-            // Send tool call request
-            var toolRequest = new
-            {
-                jsonrpc = "2.0",
-                method = "tools/call",
-                @params = new { name = "get_kb_content", arguments = new { } },
-                id = 2
-            };
-
-            await process.StandardInput.WriteLineAsync(JsonSerializer.Serialize(toolRequest));
-            var toolResponse = await process.StandardOutput.ReadLineAsync();
-
-            if (string.IsNullOrWhiteSpace(toolResponse))
-            {
-                disclaimers.Add("KB tool call failed");
-                return "No knowledge base content available";
-            }
-
-            // Parse the response
-            using var doc = JsonDocument.Parse(toolResponse);
-            if (doc.RootElement.TryGetProperty("result", out var result) &&
-                result.TryGetProperty("content", out var content) &&
-                content.GetArrayLength() > 0)
-            {
-                var textContent = content[0].GetProperty("text").GetString();
-                if (!string.IsNullOrWhiteSpace(textContent))
+                // Access the Text property directly from TextContentBlock
+                if (contentBlock is ModelContextProtocol.Protocol.TextContentBlock textBlock)
                 {
-                    return textContent;
+                    var jsonResponse = textBlock.Text;
+                    if (!string.IsNullOrWhiteSpace(jsonResponse))
+                    {
+                        using var doc = JsonDocument.Parse(jsonResponse);
+                        if (doc.RootElement.TryGetProperty("content", out var rawContent))
+                        {
+                            return rawContent.GetString() ?? "No knowledge base content available";
+                        }
+                    }
                 }
             }
-
-            disclaimers.Add("KB lookup failed");
             return "No knowledge base content available";
         }
         catch (Exception ex)
@@ -203,17 +150,16 @@ public static class AskDomainQuestionTool
             };
 
             string prompt = $@"Answer the following question based on the provided knowledge base content.
+                            Question: {question}
 
-Question: {question}
+                            Knowledge Base Content:
+                            {kbContent}
 
-Knowledge Base Content:
-{kbContent}
-
-Instructions:
-- Answer the specific question asked, using information from the knowledge base
-- If the answer is directly available in the knowledge base, provide it clearly
-- If the knowledge base doesn't contain relevant information for this specific question, say so clearly
-- Be direct and specific in your response, don't provide comprehensive overviews unless specifically asked";
+                            Instructions:
+                            - Answer the specific question asked, using information from the knowledge base
+                            - If the answer is directly available in the knowledge base, provide it clearly
+                            - If the knowledge base doesn't contain relevant information for this specific question, say so clearly
+                            - Be direct and specific in your response, don't provide comprehensive overviews unless specifically asked";
 
             var response = await agent.InvokeAsync(prompt).FirstAsync();
             return response.Message.Content ?? "No response generated";
