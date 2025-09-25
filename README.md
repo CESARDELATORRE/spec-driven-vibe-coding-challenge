@@ -1,12 +1,33 @@
 # 🚀 From Vibes to Value: A Spec-Driven AI Development Journey
 
-## The Evolution of Vibe-Coding: From Chaos to Professional Zen
+## The Evolution of Vibe-Coding: From Chaos to Professional Zen: Spec-Driven Development
 
 Welcome to the **Spec-Driven Vibe Coding Challenge** – where we transform ambiguous ideas into production-ready AI systems through a revolutionary development approach. This project demonstrates the journey from "YOLO Vibes" (fast, creative, chaotic) through "Structured Vibes" (balanced and sustainable) to achieve **"Spec-Driven Vibes"** – the pinnacle of engineering excellence where creativity meets precision.
 
-In traditional development, we often jump straight into coding, letting the "vibes" guide us without clear direction. This leads to technical debt, misaligned features, and costly iterations. **Spec-Driven Vibing** flips this paradigm: we start with comprehensive specifications, leverage AI to draft from artifacts (transcripts, tickets, requirements), front-load review steps with tests and API schemas before any code exists, and maintain living documentation that evolves with the product. This approach enables us to build with the speed of creativity while maintaining the rigor of enterprise engineering.
+In unstructured AI-driven development, we often jump straight into coding, letting the "vibes" guide us without clear direction. This leads to technical debt, misaligned features, and costly iterations. **Spec-Driven Development** flips this paradigm: we start with comprehensive specifications, leverage AI to draft from artifacts (transcripts, tickets, requirements), front-load review steps with tests and API schemas before any code exists, and maintain living documentation that evolves with the product. This approach enables us to build with the speed of creativity while maintaining the rigor of enterprise engineering.
+
+### What is Spec-Driven Development?
+Spec-Driven Development flips the script on traditional software development. For decades, code has been king — specifications were just scaffolding we built and discarded once the "real work" of coding began. Spec-Driven Development changes this: specifications become executable, directly generating working implementations rather than just guiding them.
 
 ![Vibe Coding Journey](docs/simplified-directions/vibe-coding-journey.png)
+
+
+### Based on GitHub 🌱 Spec Kit
+
+<img src="/docs/_images/github-logo.png" alt="GitHub Logo" style="width: 100px; height: auto;">
+
+This project uses **GitHub Spec-Kit**, which is an open-source toolkit to support spec-driven development, where specifications are treated as executable artifacts that guide and generate code. 
+
+**GitHub Spec-Kit** provides a structured workflow (specify → plan → tasks → implement) that integrates with AI coding agents like Copilot, Claude, Gemini, etc.
+
+Although it's a very simple kit, it provides an oppinionated and "GitHub official" (still in Preview) way of doing **Spec-Driven Development**, by making available the following assets and value
+
+- Built-in pre-written prompt templates, helper scripts, and project “constitution” support to enforce team norms, policies, and technical constraints. 
+
+- A CLI tool (“Specify”) that scaffolds project structure, enforces phases, and ties specs, plans, and tasks together. However, the CLI is optional. You can simply copy/paste the templates in your repo, as well.
+
+
+### What offers this repository?
 
 This repository showcases an example implementation of Spec-Driven Vibes, taking an ambiguous challenge – "build a better chatbot for Azure Managed Grafana" – and systematically transforming it into a modular, scalable AI agent system. Through detailed specifications, architectural planning, and iterative development, we demonstrate how to achieve **"Professional Zen"** – where rapid prototyping meets production readiness, enabling teams to scale reliably while maintaining velocity.
 
@@ -28,10 +49,18 @@ The architecture implements a modular AI agent system built around **Model Conte
   - [`architecture-technologies.md`](docs/architecture-technologies.md) - Architecture patterns and technology stack
   - [`simplified-directions/`](docs/simplified-directions/) - Quick technical directions and architecture diagrams
   - [`features/`](docs/features/) - Feature-specific documentation organized per feature:
-    - `kb-mcp-server/` (specs-kb-mcp-server.md, implementation-plan-kb-mcp-server.md, future tasks/tech-research docs)
-    - `orchestrator-agent/` (specs-orchestrator-agent.md, implementation-plan-orchestrator-agent.md, example-program-semantic-kernel-orchestrator-mcp-server.cs)
-    - `chat-agent/` (specs-chat-agent.md, implementation-plan-chat-agent.md)
-
+    - **Knowledge Base MCP Server** (`kb-mcp-server/`):
+      - [`specs-kb-mcp-server.md`](docs/features/kb-mcp-server/specs-kb-mcp-server.md) - Functional specifications
+      - [`plan-kb-mcp-server.md`](docs/features/kb-mcp-server/plan-kb-mcp-server.md) - Implementation plan
+      - [`tasks-kb-mcp-server.md`](docs/features/kb-mcp-server/tasks-kb-mcp-server.md) - Development tasks
+      - [`research-kb-mcp-server.md`](docs/features/kb-mcp-server/research-kb-mcp-server.md) - Technical research
+      - [`quickstart.md`](docs/features/kb-mcp-server/quickstart.md) - Developer guide
+    - **Orchestrator Agent** (`orchestrator-agent/`):
+      - [`specs-orchestrator-agent.md`](docs/features/orchestrator-agent/specs-orchestrator-agent.md) - Functional specifications
+      - [`plan-orchestrator-agent.md`](docs/features/orchestrator-agent/plan-orchestrator-agent.md) - Implementation plan
+      - [`tasks-orchestrator-agent.md`](docs/features/orchestrator-agent/tasks-orchestrator-agent.md) - Development tasks
+      - [`research-orchestrator-agent.md`](docs/features/orchestrator-agent/research-orchestrator-agent.md) - Technical research
+      - [`quickstart-orchestrator-agent.md`](docs/features/orchestrator-agent/quickstart-orchestrator-agent.md) - Developer guide
 
 ### 🔧 Source Code
 - [`src/mcp-server-kb-content-fetcher/`](src/mcp-server-kb-content-fetcher/) - Knowledge Base MCP Server
