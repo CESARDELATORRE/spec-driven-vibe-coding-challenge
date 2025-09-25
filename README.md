@@ -14,7 +14,16 @@ Spec-Driven Development flips the script on traditional software development. Fo
 
 ### Based on GitHub 🌱 Spec Kit
 
-<img src="/docs/_images/github-logo.png" alt="GitHub Logo" style="width: 100px; height: auto;">
+<table>
+  <tr>
+    <td align="center">
+      <img src="/docs/_images/github-logo.png" alt="GitHub Logo" style="width: 100px; height: auto;">
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/github/spec-kit/main/media/logo_small.webp" alt="Spec-Kit Logo" style="width: 100px; height: auto;">
+    </td>
+  </tr>
+</table>
 
 This project uses **GitHub Spec-Kit**, which is an open-source toolkit to support spec-driven development, where specifications are treated as executable artifacts that guide and generate code. 
 
