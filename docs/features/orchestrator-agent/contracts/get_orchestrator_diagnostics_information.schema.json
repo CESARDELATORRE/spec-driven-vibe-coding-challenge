@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Get Orchestrator Diagnostics Information Tool",
+  "description": "MCP tool schema for retrieving detailed orchestrator diagnostics",
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "object",
+      "description": "No input parameters required for diagnostics check",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Overall status indicator",
+          "enum": ["Alive"]
+        },
+        "environment": {
+          "type": "string",
+          "description": "Runtime environment",
+          "enum": ["Production", "Development", "Test"]
+        },
+        "azureConfigured": {
+          "type": "boolean",
+          "description": "Whether Azure OpenAI is configured"
+        },
+        "kbConfigured": {
+          "type": "boolean",
+          "description": "Whether KB MCP Server path is configured"
+        },
+        "kbResolved": {
+          "type": "boolean",
+          "description": "Whether KB executable was found"
+        },
+        "fakeLlmMode": {
+          "type": "boolean",
+          "description": "Whether fake LLM mode is enabled"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Diagnostics timestamp"
+        },
+        "environmentVariables": {
+          "type": "array",
+          "description": "Relevant environment variables",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "value"]
+          }
+        }
+      },
+      "required": [
+        "status",
+        "environment",
+        "azureConfigured",
+        "kbConfigured",
+        "kbResolved",
+        "fakeLlmMode",
+        "timestamp",
+        "environmentVariables"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": ["input", "output"]
+}

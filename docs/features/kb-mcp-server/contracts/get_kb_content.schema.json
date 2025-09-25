@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mcp/kb/get_kb_content.schema.json",
+  "title": "get_kb_content Response",
+  "type": "object",
+  "required": ["status"],
+  "properties": {
+    "status": { "type": "string", "enum": ["ok", "empty", "error"] },
+    "contentLength": { "type": "number", "minimum": 0 },
+    "content": { "type": "string" },
+    "error": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "error" } } },
+      "then": { "required": ["error"] }
+    },
+    {
+      "if": { "properties": { "status": { "enum": ["ok", "empty"] } } },
+      "then": { "required": ["contentLength"] }
+    }
+  ],
+  "additionalProperties": false
+}

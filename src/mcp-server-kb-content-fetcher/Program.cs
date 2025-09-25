@@ -42,14 +42,19 @@ builder.Logging.AddConsole(options =>
 
 // Configure strongly-typed options
 builder.Services.Configure<ServerOptions>(
-    builder.Configuration);
+    builder.Configuration.GetSection("MCP"));
 
-// Register knowledge base service
-builder.Services.AddSingleton<IKnowledgeBaseService, FileKnowledgeBaseService>();
+// Register cache service as singleton (thread-safe, immutable content)
+// The cache handles content loading and provides thread-safe access
+builder.Services.AddSingleton<IKnowledgeBaseContentCache, FileKnowledgeBaseContentCache>();
 
-// Register tool classes for dependency injection (singletons sharing the SAME service instances as the host)
-builder.Services.AddSingleton<GetKbInfoTool>();
-builder.Services.AddSingleton<GetKbContentTool>();
+// Register knowledge base service as scoped to avoid shared mutable state
+// This prevents thread safety issues and makes testing easier
+builder.Services.AddScoped<IKnowledgeBaseService, FileKnowledgeBaseService>();
+
+// Register tool classes as scoped - no state, better for testing and concurrency
+builder.Services.AddScoped<GetKbInfoTool>();
+builder.Services.AddScoped<GetKbContentTool>();
 
 // We'll resolve the concrete tool instances AFTER the host is built so that we do not create a second
 // independent service provider (the previous approach caused a second IKnowledgeBaseService instance
@@ -118,25 +123,25 @@ if (cliMode && useCliGetInfo)
 
 // Initialize knowledge base service
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-var knowledgeBaseService = app.Services.GetRequiredService<IKnowledgeBaseService>();
+var knowledgeBaseCache = app.Services.GetRequiredService<IKnowledgeBaseContentCache>();
 
 logger.LogInformation("Starting KB MCP Server...");
 
 try
 {
-    // Initialize the knowledge base
-    var initialized = await knowledgeBaseService.InitializeAsync();
+    // Initialize the knowledge base cache
+    var initialized = await knowledgeBaseCache.InitializeAsync();
     if (!initialized)
     {
-        logger.LogError("Failed to initialize knowledge base. Exiting.");
+        logger.LogError("Failed to initialize knowledge base cache. Exiting.");
         return 1;
     }
 
-    logger.LogInformation("Knowledge base initialized successfully. Starting MCP server...");
+    logger.LogInformation("Knowledge base cache initialized successfully. Starting MCP server...");
 
     // Run the MCP server
     await app.RunAsync();
-    
+
     logger.LogInformation("KB MCP Server stopped.");
     return 0;
 }

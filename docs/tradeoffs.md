@@ -105,11 +105,11 @@
 
 # Tradeoff 14: Search vs. Full Content Exposure
 
-**Decision**: Removed the prototype `search_knowledge` excerpt tool and associated search DTOs in favor of a single `get_kb_content` tool returning full raw text.
+**Decision**: Removed (and later physically deleted) the prototype `search_knowledge` excerpt tool and associated DTOs in favor of a single `get_kb_content` tool returning full raw text.
 
 **Reason**: Prototype scope prioritized simplicity and reduced round-trips; excerpt logic added maintenance overhead without delivering materially different value for a small text corpus.
 
-**Impact**: Codebase is smaller (fewer models, tests, and tool wiring). Future reintroduction of search/semantic retrieval can start clean with an embedding-based design rather than repurposed excerpt semantics.
+**Impact**: Codebase smaller (fewer models, tests, and tool wiring). Future reintroduction of search/semantic retrieval will start clean with an embedding-based design rather than repurposed excerpt semantics.
 
 # Tradeoff 15: Path Resolution Complexity vs. Maintainability
 
@@ -204,11 +204,19 @@ The prototype implementation reflects these tradeoffs as follows:
 - No production Azure integration (Tradeoff #2)
 - Manual knowledge updates (Tradeoff #10)
 
+# Tradeoff 14: Single-file tool structure vs. modular separation for prototype
+
+**Decision**: Implement all three MCP tools (`ask_domain_question`, `get_orchestrator_status`, `get_orchestrator_diagnostics_information`) in a single `OrchestratorTools.cs` static class instead of separate files per tool.
+
+**Reason**: Prototype simplicity - reduces file management overhead, simplifies imports, and keeps related functionality co-located for rapid development and testing.
+
+**Impact**: Violates traditional separation-of-concerns principles but significantly reduces complexity for prototype phase. Tool logic remains functionally independent. Future production versions can easily extract tools into separate classes if needed.
+
 These tradeoffs enable rapid prototype development while maintaining a clear path to production capabilities.
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 1.1  
 **Last Updated**: September 2025  
 **Next Review**: After each major implementation milestone
 

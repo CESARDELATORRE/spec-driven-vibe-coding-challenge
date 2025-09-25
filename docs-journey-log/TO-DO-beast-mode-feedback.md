@@ -25,7 +25,7 @@ Key improvement themes:
 | 01-original-challenge-definition.md | Origin brief + checklist | Overlaps with 02/03 | Trim to origin summary only |
 | 02-plain-goals-and-approaches.md | Goals + philosophy | Redundant with 03 | Merge essential parts into 03 or archive |
 | 03-idea-vision-scope.md | Vision, scope, personas | Contains status + architecture bits | Canonical vision & scope only |
-| 04-architecture-technologies.md | Architecture, variants, testing | Duplicates status + some research | Canonical architecture + variants + testing strategy |
+| architecture-technologies.md | Architecture, variants, testing | Duplicates status + some research | Canonical architecture + variants + testing strategy |
 | assumptions.md | Prototype assumptions | OK | Keep; link from 03 |
 | tradeoffs.md | Tradeoff register + alignment | Misreference + duplicated status | Keep decisions; fix refs; link to status file |
 | metrics-measurement-plan.md | Mixed prototype + future KPIs | Over-specified for prototype | Split into tiers (Prototype/MVP/Production) |
@@ -53,7 +53,7 @@ Key improvement themes:
 ## 4. Proposed Consolidation Actions
 ### Canonical Sources
 - Vision, scope, personas, hypothesis → `03-idea-vision-scope.md` only.
-- Architecture variants, evolution path, test strategy → `04-architecture-technologies.md` only.
+- Architecture variants, evolution path, test strategy → `architecture-technologies.md` only.
 - Current implementation state → new `STATUS.md` (linked elsewhere).
 - Tradeoffs remain single source in `tradeoffs.md` (remove embedded status duplication).
 

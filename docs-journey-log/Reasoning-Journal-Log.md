@@ -54,9 +54,9 @@ The main goal is to *demonstrate end‑to‑end PM + developer craft: problem fr
 
 Therefore, this is not just about YOLO VIBE CODING, but having a solid approach starting from the requirements, idea and specs docs, moving later to the coding/implementation. 
 
-So, I know how I'll probably tackle the challenge following practices I've been using in the last months which is basically having a new mindset as "AI-Native PM/developer" where the PM component is important, so no YOLO vide coding but I believe engineering excellence must be based on a "Spec-driven Vibes", but having a single "living/evolving" repo with idea, specs docs and implementation code.
+So, I know how I'll probably tackle the challenge following practices I've been using in the last months which is basically having a new mindset as "AI-Native PM/developer" where the PM component is important, so no YOLO vide coding but I believe engineering excellence must be based on a "Spec-Driven Development", but having a single "living/evolving" repo with idea, specs docs and implementation code.
 
-For the "Spec-driven Vibes I have a good idea on how to move based on written instructions in files in the repo for GHCP (.github/copilot-instructions.md, AGENTS.MD, .github/instructions folder, and pre-defined templates for well defined prompts within the .github/prompts folder), then generating my idea/architecture docs, specs docs and finally the implementation code, by iterating with CoPilot. I've done that approach for several projects in the last months (Multi-Agent workflow POC and a VB6 application migration/modernization research for a customer) and I think that's the right way to go. 
+For the "Spec-Driven Development I have a good idea on how to move based on written instructions in files in the repo for GHCP (.github/copilot-instructions.md, AGENTS.MD, .github/instructions folder, and pre-defined templates for well defined prompts within the .github/prompts folder), then generating my idea/architecture docs, specs docs and finally the implementation code, by iterating with CoPilot. I've done that approach for several projects in the last months (Multi-Agent workflow POC and a VB6 application migration/modernization research for a customer) and I think that's the right way to go. 
 
 This is going to be my approach, all within the same GitHub repo with the code and created by co-reasoning with iterations with GH CoPilot prompts:
 
@@ -74,7 +74,7 @@ Prompt -> Copilot output -> My action
 
 ### Prompt 1 - What approach to go for reasoning process logging
 
-For most of the project and specs-driven vibes, I'll be using GitHub CoPilot, but for this initial brainstorming about approaches for journal logging, I'm starting to ask to several tools:
+For most of the project and Spec-Driven Development, I'll be using GitHub CoPilot, but for this initial brainstorming about approaches for journal logging, I'm starting to ask to several tools:
 - M365 CoPilot with Researcher Agent
 - ChatGPT
 - Claude
@@ -507,7 +507,7 @@ I'll now save this comprehensive architecture document to the specified location
 The document has been created with all the requested sections covering the three architecture variants (Prototype/POC, MVP, and Scalable Production), technology stack evolution, testing strategies, and differentiators. The document includes the prototype architecture diagram reference and provides detailed analysis based on the research findings while staying within the 5-page guideline for focused, actionable content.
 ```
 
-**BUG:** However, here it appears there's a BUG, since it's not saving the .MD document but showing the text in the chat window, even when I'm asking to GHCP to explicetely save it as the "04-architecture-technologies.md" file...
+**BUG:** However, here it appears there's a BUG, since it's not saving the .MD document but showing the text in the chat window, even when I'm asking to GHCP to explicitly save it as the "architecture-technologies.md" file...
 
 I went ahead and created the file and copied/pasted the text in the .MD file...
 
@@ -819,7 +819,7 @@ RULES:
 
 FIRST:
 
-- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/04-architecture-technologies.md to file to understand an overview of the project, but focus mostly on the prototype/POC scope (functiona;, architecture and technologies for the prototype).
+- Review the global docs such as #file:../../docs/03-idea-vision-scope.md and #file:../../docs/architecture-technologies.md to file to understand an overview of the project, but focus mostly on the prototype/POC scope (functional, architecture and technologies for the prototype).
 - Review the attached specs document (as context file) to understand the requirements and objectives.
 
 THEN:
@@ -1188,7 +1188,7 @@ Identified MCP Format Issue: The original integration tests were skipped because
 Updated Tool Return Types:
 
 Modified GetKbInfoTool.cs to return object[] with MCP content format [{ "type": "text", "text": "..." }]
-Modified SearchKnowledgeTool.cs to return object[] with MCP content format
+Deprecated earlier prototype excerpt/search tool (removed from codebase) and consolidated on two-tool minimal surface
 Both tools now serialize their responses as JSON within the MCP content structure
 Implemented Working Integration Tests:
 

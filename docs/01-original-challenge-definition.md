@@ -61,7 +61,7 @@ We should include a concise rationale of the hypothesis and prototype and how it
         
         [X] Tradeoffs - Make and explain
         
-        [X] Develop prototype (Spec-driven vibe approach)
+        [X] Develop prototype (Spec-Driven Development approach)
         
         [X] Create/save journal log with all prompts, co-reasoning and actions
 

@@ -32,7 +32,7 @@ public class GetKbInfoTool
             _logger.LogInformation("GetKbInfo tool called");
 
             var info = await _knowledgeBaseService.GetInfoAsync();
-            
+
             var payload = new
             {
                 status = info.IsAvailable ? "ok" : "unavailable",

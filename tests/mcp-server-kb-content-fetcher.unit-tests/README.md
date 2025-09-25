@@ -19,7 +19,7 @@ These tests run in-memory (except for one controlled file-read scenario) and avo
 | Layer | Component(s) | Responsibility | Test Focus |
 |-------|--------------|----------------|------------|
 | Service | `FileKnowledgeBaseService` | Load & hold KB content, execute searches, provide metadata | File existence handling, initialization states, search result constraints, availability info |
-| MCP Tools | `SearchKnowledgeTool`, `GetKbInfoTool` | Expose service functionality via MCP tool contract | Input validation, result shaping, defensive behavior, error translation |
+| MCP Tools | `GetKbInfoTool` | Expose service functionality via MCP tool contract | Result shaping, defensive behavior, error translation |
 
 ### 1.3 Why Separate Tests for Service vs Tools?
 - **Isolation of Failure Domains**: A failure in file parsing or search algorithm should not break tests concerned only with formatting tool responses.
@@ -31,7 +31,6 @@ These tests run in-memory (except for one controlled file-read scenario) and avo
 | File | Scope | Key Behaviors Validated |
 |------|-------|-------------------------|
 | `services/FileKnowledgeBaseServiceTests.cs` | Service initialization & search | Valid + invalid file path, pre/post initialization behavior, empty/null query handling, case-insensitive search, max results limiting, metadata correctness |
-| `tools/SearchKnowledgeToolTests.cs` | Search MCP tool adapter | Input sanitation (null/empty), max results clamping, delegation correctness, error wrapping, formatting (Match strength / Position), unchanged service call count |
 | `tools/GetKbInfoToolTests.cs` | Info MCP tool adapter | Availability status mapping, error shielding, partial info resilience, single invocation guarantee |
 | `tools/GetKbContentToolTests.cs` | Raw content dump tool | Full content retrieval, empty content handling, error propagation (status=error) |
 
@@ -102,9 +101,7 @@ They launch the built DLL (not `dotnet run`) to avoid file locking and validate 
 | Startup loading | Knowledge base must load file at startup | `FileKnowledgeBaseServiceTests.InitializeAsync_WithValidFile_ReturnsTrue` |
 | Availability reporting | Provide KB info state | `GetKbInfoToolTests.*` (available/unavailable/error) |
 | Raw content retrieval | Provide full content for downstream embedding | `GetKbContentToolTests.*` |
-| Search capability | Case-insensitive partial search | Service search tests (valid query, case variant) |
-| Result limiting | Enforce max results | Service (max results limit) + Tool clamping tests |
-| Defensive input | Null/empty queries safe | Tool tests for empty/null query |
+| (Deprecated prototype search) | (Removed) | (Not applicable) |
 | Error resilience | Graceful on exceptions | Tool tests: service throws → error response |
 
 ---
@@ -114,12 +111,6 @@ From repository root:
 
 ```bash
 dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/
-```
-
-Run a single test class:
-
-```bash
-dotnet test tests/mcp-server-kb-content-fetcher.unit-tests/ --filter ClassName=SearchKnowledgeToolTests
 ```
 
 Collect coverage:

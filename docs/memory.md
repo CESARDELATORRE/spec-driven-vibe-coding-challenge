@@ -1,24 +1,33 @@
 # 📝 Memory: File Reference Guide
 
-This document provides a brief description of each file's purpose and relevant details for the spec-driven vibe coding challenge project.
+This document provides a brief description of each file's purpose and relevant details for the Spec-Driven Development challenge project.
 
 ## 📚 Global Project Documentation
 
+### `/.specify/memory/constitution.md`
+**Purpose**: Project Constitution (minimal non-negotiable principles & governance)
+**Details**: Defines precedence order, core principles (spec-first, simplicity, test focus, traceability, security, naming consistency, lightweight observability), workflow gates, and amendment process. Overrides other guidance when conflicts arise unless amended.
+
 ### `/docs/01-original-challenge-definition.md`
 **Purpose**: Original challenge definition and requirements document
-**Details**: Contains the original problem statement, objectives, and requirements for the spec-driven vibe coding challenge
+**Details**: Contains the original problem statement, objectives, and requirements for the Spec-Driven Development challenge
 
 ### `/docs/02-plain-goals-and-approaches.md`
 **Purpose**: North-star document defining fundamental project goals and approaches
 **Details**: Baseline document for generating detailed idea/vision-scope, architecture definition and implementation code. Contains product goals, technical specifications, and project philosophy
 
-### `/docs/03-idea-vision-scope.md`
+### `/docs/idea-vision-scope.md`
 **Purpose**: Comprehensive project vision and scope document defining the AMG-specific AI agent concept
 **Details**: Contains executive summary, problem definition, functional requirements, and prototype scope with clear horizon planning
 
-### `/docs/04-architecture-technologies.md`  
+### `/docs/architecture-technologies.md`  
 **Purpose**: Technical architecture and technology stack recommendations with evolution path
-**Details**: Defines four architecture variants from prototype to production, technology selections (.NET, MCP, Semantic Kernel), and testing strategies
+**Details**: Defines three architecture variants (Prototype, Dockerized Decoupled, Cloud-Native) after consolidation of prior four-stage model, plus technology selections (.NET 9 baseline, MCP, Semantic Kernel) and testing strategies with deferred triggers
+
+### `/analisys-constitution-ghcp-instructions-agents.md`
+**Purpose**: Comparative analysis of Constitution, Copilot instructions, and AGENTS.md
+**Details**: Defines roles, precedence chain, usage workflow, conflict resolution patterns, and maintenance triggers for governance artifacts
+
 
 ### `/docs/tradeoffs.md`
 **Purpose**: Documents all technical and functional tradeoffs made during project development
@@ -30,33 +39,33 @@ This document provides a brief description of each file's purpose and relevant d
 
 ## 🎯 Features Documentation
 
-### 📋 Specs documentation
+Features follow the Constitution's `/docs/features/<feature-name>/` structure.
 
-#### `/docs/specs/feature-specs-kb-mcp-server.md`
-**Purpose**: Detailed functional specification for the Knowledge Base MCP Server feature
-**Details**: Complete feature specification including user journey, functional requirements, MCP tools (search_knowledge, get_kb_info), prototype constraints, and startup loading rationale appendix
+### Knowledge Base MCP Server Feature (`/docs/features/kb-mcp-server/`)
+- `specs-kb-mcp-server.md`: Functional specification (journey, requirements, MCP tools: get_kb_info, get_kb_content; search deferred)
+- `plan-kb-mcp-server.md`: High-level implementation plan (detailed steps migrated out to tasks file)
+- `research-kb-mcp-server.md`: Unified Phase 0 unknowns + technology research (SDK selection, risks, roadmap)
+- `data-model-kb-mcp-server.md`: Minimal entity & payload schema documentation for tool responses
+- `contracts/`: JSON Schemas for `get_kb_info` and `get_kb_content` responses (prototype contract reference)
+- `quickstart.md` (project root `src/mcp-server-kb-content-fetcher/quickstart.md`): Developer run & integration guide (merged former README)
+- `tasks-kb-mcp-server.md`: Governance task list (retrofit) with anti-drift, contract tests, integration hardening tasks
 
-#### `/docs/specs/feature-specs-chat-agent.md`
-**Purpose**: Functional specification for the Chat Agent component providing conversational AI capabilities
-**Details**: Defines user journey, functional requirements for prototype/POC scope, extensive out-of-scope items for future development, success metrics, and additional considerations for testing, configuration, and integration
+### Orchestrator Agent Feature (`/docs/features/orchestrator-agent/`)
+- `specs-orchestrator-agent.md`: Functional specification (tools: ask_domain_question, get_orchestrator_status; coordination scope)
+- `plan-orchestrator-agent.md`: Implementation plan following plan.prompt.md template (MCP client wiring, Semantic Kernel orchestration, testing strategy)
+- `research-orchestrator-agent.md`: Phase 0 technical decision consolidation from architecture documents  
+- `data-model-orchestrator-agent.md`: Phase 1 entity and data structure design (DomainQuestion, DomainResponse, OrchestratorStatus, KnowledgeSnippet)
+- `quickstart-orchestrator-agent.md`: Phase 1 end-to-end validation scenarios with 5 comprehensive test cases
+- `contracts/`: JSON Schema definitions for MCP tool validation (ask_domain_question, get_orchestrator_status)
+- `tasks-orchestrator-agent.md`: Phase 2 implementation task breakdown (26 ultra-simplified tasks following TDD approach with dependency ordering and parallel execution optimization)
+- `example-program-semantic-kernel-orchestrator-mcp-server.cs`: Example code illustrating orchestration pattern
 
-#### `/docs/specs/feature-specs-orchestrator-agent.md`
-**Purpose**: Functional specification for the Orchestration Agent MCP server
-**Details**: Defines user journey, MCP tools (ask_domain_question, get_orchestrator_status), functional requirements, success criteria, prototype constraints, and future evolution considerations. Scope limited to single-turn coordination of Chat Agent + KB MCP Server
+### Chat Agent Feature (`/docs/features/chat-agent/`)
+- `specs-chat-agent.md`: Functional specification (single-turn scope, out-of-scope futures, success metrics)
+- `implementation-plan-chat-agent.md`: Implementation path for in-process prototype with future extraction strategy
+- (Planned) tasks / tech research docs as feature evolves
 
-### 🛠️ Implementation plans documentation
-
-#### `/docs/implementation-plans/feature-implementation-plan-kb-mcp-server.md`
-**Purpose**: Detailed implementation plan for the KB MCP Server feature
-**Details**: Step-by-step implementation guide with 10 steps covering project setup, services, MCP tools, testing, and configuration. Uses domain-agnostic naming following coding rules for reusability across different knowledge domains
-
-#### `/docs/implementation-plans/feature-implementation-plan-orchestrator-agent.md`
-**Purpose**: Detailed implementation plan for the Orchestration Agent MCP Server feature
-**Details**: Step-by-step implementation guide with 12 steps covering project setup, MCP client integration, Semantic Kernel ChatCompletionAgent coordination, KB server communication via STDIO, and testing. Updated to prioritize environment variables for secrets/config (portable to containers & cloud) with optional local User Secrets layering only in Development; anticipates future Azure Key Vault integration without refactoring tool code
-
-#### `/docs/implementation-plans/feature-implementation-plan-chat-agent.md`
-**Purpose**: Implementation plan for the Chat Agent feature with in-process prototype approach
-**Details**: Step-by-step guide that recommends in-process implementation within Orchestrator for prototype simplicity, with path for future extraction to separate MCP server. Covers Semantic Kernel integration, chat service implementation, and testing strategies
+All newly added durable feature docs must be registered here and referenced in `docs/memory.md` upon creation.
 
 ## 🔧 Development Guidelines
 
@@ -72,25 +81,13 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Testing guidelines and rules for the project
 **Details**: Defines rules for creating and running unit tests, UI tests, and maintaining test quality
 
-### `/.github/prompts/feature.specs.kb-mcp-server.prompt.md`
-**Purpose**: Template prompt for generating KB MCP Server feature specifications
-**Details**: Reusable prompt template with embedded rules for prototype/POC focus and specification generation guidelines
+### `/.github/workflows/ci.yml`
+**Purpose**: GitHub Actions continuous integration workflow
+**Details**: Automated CI/CD pipeline that runs on push/PR to main, dev, and features/* branches. Executes unit tests and code quality checks. Uses .NET 9.0. Integration tests and smoke tests excluded for faster CI runs
 
-### `/.github/prompts/feature.specs.chat-agent.prompt.md`
-**Purpose**: Template prompt for generating Chat Agent feature specifications
-**Details**: Reusable prompt template with embedded rules for prototype/POC focus, simple user journey design, and functional requirements structuring
-
-### `/.github/prompts/feature.implementation-plan.prompt.md`
-**Purpose**: Template prompt for generating feature implementation plans
-**Details**: Generic prompt template for creating detailed implementation plans from feature specifications, with rules for prototype/POC simplicity and references to updated coding rules
-
-### `/.github/prompts/new.idea.vision.scope.prompt.md`
-**Purpose**: Template prompt for creating new project idea and vision scope documents
-**Details**: Comprehensive prompt template that guides the creation of idea documents with structured sections including executive summary, context, product overview, and risk assessment
-
-### `/.github/prompts/architecture-technology.prompt.md`
-**Purpose**: Template prompt for generating architecture and technology decision documents
-**Details**: Prompt template for creating comprehensive architecture documents with technology stack recommendations, evolution paths, and integration with Perplexity MCP server for research
+### `/.github/workflows/README.md`
+**Purpose**: Documentation for GitHub Actions workflows
+**Details**: Comprehensive guide explaining CI workflow jobs, test execution order, artifacts, environment variables, security considerations, and monitoring capabilities
 
 ### `/AGENTS.md`
 **Purpose**: Repository map and development guidelines for agents and workflow
@@ -112,7 +109,7 @@ This document provides a brief description of each file's purpose and relevant d
 **Purpose**: Template of environment variables for local development
 **Details**: Non-secret example values for Azure OpenAI and orchestrator flags; users copy to `dev.env` (ignored) to load variables easily. Note: Currently, only the Orchestrator Agent project uses environment variables; the KB MCP Server does not require any environment configuration in the prototype implementation
 
-## 💻 Implementation Documentation
+## 💻 Getting started Documentation
 
 ### `/src/orchestrator-agent/README.md`
 **Purpose**: Usage and integration guide for the Orchestrator MCP Server
