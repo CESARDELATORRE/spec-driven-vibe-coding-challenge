@@ -1,4 +1,4 @@
-# Constitution of Spec-Driven Vibe Coding Challenge 
+# Constitution of Spec-Driven Development Challenge 
 
 This document establishes the minimal non-negotiable principles and governance rules for the current prototype / POC phase. It is intentionally lean: it defines WHAT must stay true; secondary documents (e.g. `AGENTS.md`, `.github/copilot-instructions.md`, `.github/instructions/*`) define HOW. When tension exists, this Constitution prevails unless explicitly amended.
 

@@ -2,9 +2,9 @@
 
 ## The Evolution of Vibe-Coding: From Chaos to Professional Zen: Spec-Driven Development
 
-Welcome to the **Spec-Driven Vibe Coding Challenge** – where we transform ambiguous ideas into production-ready AI systems through a revolutionary development approach. This project demonstrates the journey from "YOLO Vibes" (fast, creative, chaotic) through "Structured Vibes" (balanced and sustainable) to achieve **"Spec-Driven Vibes"** – the pinnacle of engineering excellence where creativity meets precision.
+Welcome to the **Spec-Driven Development Challenge** – where we transform ambiguous ideas into production-ready AI systems through a revolutionary development approach. This project demonstrates the journey from "YOLO Vibes" (fast, creative, chaotic) through "Structured Vibes" (balanced and sustainable) to achieve **"Spec-Driven Development"** – the pinnacle of engineering excellence where creativity meets precision.
 
-In unstructured AI-driven development, we often jump straight into coding, letting the "vibes" guide us without clear direction. This leads to technical debt, misaligned features, and costly iterations. **Spec-Driven Development** flips this paradigm: we start with comprehensive specifications, leverage AI to draft from artifacts (transcripts, tickets, requirements), front-load review steps with tests and API schemas before any code exists, and maintain living documentation that evolves with the product. This approach enables us to build with the speed of creativity while maintaining the rigor of enterprise engineering.
+In unstructured AI-driven development (i.e. YOLO Vibes Coding), we often jump straight into coding, letting the "vibes" guide us without clear direction. This leads to technical debt, misaligned features, and costly iterations. **Spec-Driven Development** flips this paradigm: we start with comprehensive specifications, leverage AI to draft from artifacts (transcripts, tickets, requirements), front-load review steps with tests and API schemas before any code exists, and maintain living documentation that evolves with the product. This approach enables us to build with the speed of creativity while maintaining the rigor of enterprise engineering.
 
 ### What is Spec-Driven Development?
 Spec-Driven Development flips the script on traditional software development. For decades, code has been king — specifications were just scaffolding we built and discarded once the "real work" of coding began. Spec-Driven Development changes this: specifications become executable, directly generating working implementations rather than just guiding them.
@@ -25,7 +25,7 @@ Spec-Driven Development flips the script on traditional software development. Fo
   </tr>
 </table>
 
-This project uses **GitHub Spec-Kit**, which is an open-source toolkit to support spec-driven development, where specifications are treated as executable artifacts that guide and generate code. 
+This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit/)**, which is an open-source toolkit, created by GitHub, to support spec-driven development, where specifications are treated as executable artifacts that guide and generate code. 
 
 **GitHub Spec-Kit** provides a structured workflow (specify → plan → tasks → implement) that integrates with AI coding agents like Copilot, Claude, Gemini, etc.
 
@@ -38,7 +38,7 @@ Although it's a very simple kit, it provides an oppinionated and "GitHub officia
 
 ### What offers this repository?
 
-This repository showcases an example implementation of Spec-Driven Vibes, taking an ambiguous challenge – "build a better chatbot for Azure Managed Grafana" – and systematically transforming it into a modular, scalable AI agent system. Through detailed specifications, architectural planning, and iterative development, we demonstrate how to achieve **"Professional Zen"** – where rapid prototyping meets production readiness, enabling teams to scale reliably while maintaining velocity.
+This repository showcases an example implementation of Spec-Driven Development, taking an ambiguous challenge – "build a better chatbot for Azure Managed Grafana" – and systematically transforming it into a modular, scalable AI agent system. Through detailed specifications, architectural planning, and iterative development, we demonstrate how to achieve **"Professional Zen"** – where rapid prototyping meets production readiness, enabling teams to scale reliably while maintaining velocity.
 
 ## 🎯 Project's summary
 
@@ -410,7 +410,7 @@ This prototype demonstrates the core concepts. Future evolution paths include:
 
 ---
 
-# Spec-Driven Vibe Coding Challenge
+# Spec-Driven Development Challenge
 
 ## Overview
 This repository contains a prototype implementation of a domain-specific AI agent system using the Model Context Protocol (MCP). The prototype demonstrates an Azure Managed Grafana (AMG) expert agent that can answer technical questions by combining knowledge base lookup with LLM-powered conversational abilities.

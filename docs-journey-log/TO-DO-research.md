@@ -57,8 +57,8 @@ DONE:
 
 - (DONE) - Add Coding-Rules.md file before generating code.
         ---> DONE with csharp.instructions.md
-- (DONE) Add a summary of the SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
-- (DONE) Add a visual about SPECS-DRIVEN VIBE CODING at the begining of the repo README.md.
+- (DONE) Add a summary of the Spec-Driven Development at the begining of the repo README.md.
+- (DONE) Add a visual about Spec-Driven Development at the begining of the repo README.md.
 - (DONE) Try it with Claude.
 - (DONE) Add "measurement planning".
 - (DONE) What **metrics** to use for **decision making**.
@@ -105,6 +105,6 @@ FEATURE:
         
         [X] Tradeoffs - Make and explain
         
-        [X] Develop prototype (Spec-driven vibe approach)
+        [X] Develop prototype (Spec-Driven Development approach)
         
         [X] Create/save journal log with all prompts, co-reasoning and actions

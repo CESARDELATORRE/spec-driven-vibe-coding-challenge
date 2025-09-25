@@ -1,6 +1,6 @@
 # 📝 Memory: File Reference Guide
 
-This document provides a brief description of each file's purpose and relevant details for the spec-driven vibe coding challenge project.
+This document provides a brief description of each file's purpose and relevant details for the Spec-Driven Development challenge project.
 
 ## 📚 Global Project Documentation
 
@@ -10,7 +10,7 @@ This document provides a brief description of each file's purpose and relevant d
 
 ### `/docs/01-original-challenge-definition.md`
 **Purpose**: Original challenge definition and requirements document
-**Details**: Contains the original problem statement, objectives, and requirements for the spec-driven vibe coding challenge
+**Details**: Contains the original problem statement, objectives, and requirements for the Spec-Driven Development challenge
 
 ### `/docs/02-plain-goals-and-approaches.md`
 **Purpose**: North-star document defining fundamental project goals and approaches

@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This directory contains GitHub Actions workflows for the spec-driven vibe coding challenge project.
+This directory contains GitHub Actions workflows for the Spec-Driven Development challenge project.
 
 ## Workflows
 

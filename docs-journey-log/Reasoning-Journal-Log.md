@@ -54,9 +54,9 @@ The main goal is to *demonstrate end‑to‑end PM + developer craft: problem fr
 
 Therefore, this is not just about YOLO VIBE CODING, but having a solid approach starting from the requirements, idea and specs docs, moving later to the coding/implementation. 
 
-So, I know how I'll probably tackle the challenge following practices I've been using in the last months which is basically having a new mindset as "AI-Native PM/developer" where the PM component is important, so no YOLO vide coding but I believe engineering excellence must be based on a "Spec-driven Vibes", but having a single "living/evolving" repo with idea, specs docs and implementation code.
+So, I know how I'll probably tackle the challenge following practices I've been using in the last months which is basically having a new mindset as "AI-Native PM/developer" where the PM component is important, so no YOLO vide coding but I believe engineering excellence must be based on a "Spec-Driven Development", but having a single "living/evolving" repo with idea, specs docs and implementation code.
 
-For the "Spec-driven Vibes I have a good idea on how to move based on written instructions in files in the repo for GHCP (.github/copilot-instructions.md, AGENTS.MD, .github/instructions folder, and pre-defined templates for well defined prompts within the .github/prompts folder), then generating my idea/architecture docs, specs docs and finally the implementation code, by iterating with CoPilot. I've done that approach for several projects in the last months (Multi-Agent workflow POC and a VB6 application migration/modernization research for a customer) and I think that's the right way to go. 
+For the "Spec-Driven Development I have a good idea on how to move based on written instructions in files in the repo for GHCP (.github/copilot-instructions.md, AGENTS.MD, .github/instructions folder, and pre-defined templates for well defined prompts within the .github/prompts folder), then generating my idea/architecture docs, specs docs and finally the implementation code, by iterating with CoPilot. I've done that approach for several projects in the last months (Multi-Agent workflow POC and a VB6 application migration/modernization research for a customer) and I think that's the right way to go. 
 
 This is going to be my approach, all within the same GitHub repo with the code and created by co-reasoning with iterations with GH CoPilot prompts:
 
@@ -74,7 +74,7 @@ Prompt -> Copilot output -> My action
 
 ### Prompt 1 - What approach to go for reasoning process logging
 
-For most of the project and specs-driven vibes, I'll be using GitHub CoPilot, but for this initial brainstorming about approaches for journal logging, I'm starting to ask to several tools:
+For most of the project and Spec-Driven Development, I'll be using GitHub CoPilot, but for this initial brainstorming about approaches for journal logging, I'm starting to ask to several tools:
 - M365 CoPilot with Researcher Agent
 - ChatGPT
 - Claude
