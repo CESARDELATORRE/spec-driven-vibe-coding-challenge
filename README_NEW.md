@@ -26,8 +26,9 @@ This repository implements a **domain-specific AI agent for Azure Managed Grafan
 - 🔄 Complete specification-to-implementation workflow
 - 🧪 Comprehensive testing patterns (unit & integration)
 
+---
 
-### Based on GitHub 🌱 Spec Kit
+## 🌱 Built with GitHub Spec-Kit
 
 <table>
   <tr>
@@ -40,30 +41,43 @@ This repository implements a **domain-specific AI agent for Azure Managed Grafan
   </tr>
 </table>
 
-This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit/)**, which is an open-source toolkit, created by GitHub, to support spec-driven development, where specifications are treated as executable artifacts that guide and generate code. 
+This project leverages **[GitHub Spec-Kit](https://github.com/github/spec-kit/)**, an open-source toolkit from GitHub (currently in Preview) that supports spec-driven development where specifications are executable artifacts that guide code generation.
 
-**GitHub Spec-Kit** provides a structured workflow (specify → plan → tasks → implement) that integrates with AI coding agents like Copilot, Claude, Gemini, etc.
+**Key Features:**
+- 📋 Structured workflow: specify → plan → tasks → implement
+- 🤖 Integrates with AI coding agents (Copilot, Claude, Gemini)
+- 📝 Pre-written prompt templates and helper scripts
+- 🏛️ Project "constitution" support for team norms and constraints
+- ⚙️ Optional CLI tool ("Specify") for scaffolding and enforcement
 
-Although it's a very simple kit, it provides an oppinionated and "GitHub official" (still in Preview) way of doing **Spec-Driven Development**, by making available the following assets and value
+---
 
-- Built-in pre-written prompt templates, helper scripts, and project “constitution” support to enforce team norms, policies, and technical constraints. 
-
-- A CLI tool (“Specify”) that scaffolds project structure, enforces phases, and ties specs, plans, and tasks together. However, the CLI is optional. You can simply copy/paste the templates in your repo, as well.
-
-
-### What offers this repository?
-
-This repository showcases an example implementation of Spec-Driven Development, taking an ambiguous challenge – "build a better chatbot for Azure Managed Grafana" – and systematically transforming it into a modular, scalable AI agent system. Through detailed specifications, architectural planning, and iterative development, we demonstrate how to achieve **"Professional Zen"** – where rapid prototyping meets production readiness, enabling teams to scale reliably while maintaining velocity.
-
-## 🎯 Project's summary
-
-This project develops a **domain-specific AI agent for Azure Managed Grafana (AMG)** that demonstrates how to move from hypothesis to prototype in an evidence-driven manner. The solution creates a specialized conversational agent that provides precise, domain-specific insights compared to generic chatbots, addressing the gap between generic AI assistance and deep domain knowledge. The system is designed with a modular, reusable architecture that can be adapted for other technical product domains, providing a scalable foundation for organizations seeking to enhance their customer engagement through specialized AI agents.
+## 🏗️ System Architecture
 
 ![Prototype/POC Architecture Diagram](docs/_images/v0.1-prototype-poc-architecture-diagram.png)
 
-🏗️ **Detailed Architecture**: For comprehensive architecture documentation, technology stack details, and evolution roadmap, see [Architecture & Technologies](docs/architecture-technologies.md).
+The architecture implements a modular AI agent system built around **Model Context Protocol (MCP)**, **Semantic Kernel**, and **Azure AI Foundry**. Starting with a lightweight prototype using STDIO transport and file-based knowledge storage, the system prioritizes rapid development and validation over scalability.
 
-The architecture implements a modular AI agent system built around **Model Context Protocol (MCP)**, **Semantic Kernel**, and **Azure AI Foundry**. Starting with a lightweight prototype using STDIO transport and file-based knowledge storage, the system prioritizes rapid development and validation over scalability. The solution consists of three core components: a **Knowledge Base MCP Server** for domain-specific information access, an **Orchestration Agent** for conversation coordination using Semantic Kernel, and integration with MCP-compatible clients like GitHub Copilot and Claude Desktop for natural language interaction.
+### Core Components
+
+| Component | Purpose | Technology Stack |
+|-----------|---------|------------------|
+| **KB MCP Server** | Domain knowledge access via MCP protocol | .NET 9, MCP SDK, File-based storage |
+| **Orchestration Agent** | Conversation coordination and multi-step planning | .NET 9, Semantic Kernel, MCP SDK |
+| **Chat Agent** | LLM interaction and response processing (in-process) | Semantic Kernel, Azure AI Foundry |
+| **MCP Clients** | User interface (VS Code, Claude Desktop) | GitHub Copilot, Claude Desktop |
+
+### Communication Flow
+
+1. **User Query** → MCP Client (VS Code/Claude)
+2. **MCP Client** → Orchestration Agent (via STDIO MCP)
+3. **Orchestration Agent** → Chat Agent (in-process Semantic Kernel)
+4. **Orchestration Agent** → KB MCP Server (via STDIO MCP)
+5. **Response** ← Synthesized and coordinated back to user
+
+🏗️ **Complete Architecture Documentation**: For detailed architectural patterns, technology decisions, and evolution roadmap, see [Architecture & Technologies](docs/architecture-technologies.md).
+
+---
 
 ## 🏗️ Repository Structure
 
@@ -100,6 +114,8 @@ The architecture implements a modular AI agent system built around **Model Conte
 - [`.vscode/mcp.json`](.vscode/mcp.json) - VS Code MCP server configuration
 - [`dev.env.example`](dev.env.example) - Environment variables template
 
+---
+
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
@@ -122,6 +138,37 @@ dotnet build
 
 # 3. Verify build output
 ls -la src/*/bin/Debug/net*/
+```
+
+### 🔑 Environment Configuration
+
+> **💡 IMPORTANT**: Ensure your `dev.env` is configured with Azure AI Foundry credentials before testing the orchestrator.
+
+```bash
+# 1. Copy environment template
+cp dev.env.example dev.env
+
+# 2. Edit dev.env with your Azure AI Foundry credentials
+# AzureOpenAI__Endpoint=https://your-resource.openai.azure.com/
+# AzureOpenAI__DeploymentName=gpt-4o-mini
+# AzureOpenAI__ApiKey=YOUR_ACTUAL_API_KEY
+```
+
+**Set environment variables:**
+
+**PowerShell:**
+```powershell
+Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
+
+# Verify
+$env:AzureOpenAI__DeploymentName
+$env:AzureOpenAI__Endpoint
+$env:AzureOpenAI__ApiKey
+```
+
+**Bash/Linux/macOS:**
+```bash
+export $(cat dev.env | xargs)
 ```
 
 ### 🔧 MCP Servers Setup
@@ -165,36 +212,28 @@ To directly access the Knowledge-Base MCP Server from GitHub Copilot (for raw da
 }
 ```
 
+#### 🏠 Claude Desktop Integration
 
-### 🔑 Environment Configuration
+Add to your Claude Desktop configuration file:
 
-> **💡 IMPORTANT**: Ensure your `dev.env` is configured with Azure AI Foundry credentials before testing the orchestrator.
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-```bash
-# 1. Copy environment template
-cp dev.env.example dev.env
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
-# 2. Edit dev.env with your Azure AI Foundry credentials
-# AzureOpenAI__Endpoint=https://your-resource.openai.azure.com/
-# AzureOpenAI__DeploymentName=gpt-4o-mini
-# AzureOpenAI__ApiKey=YOUR_ACTUAL_API_KEY
+```json
+{
+  "mcpServers": {
+    "orchestrator-agent": {
+      "command": "dotnet",
+      "args": ["run", "--project", "/absolute/path/to/your/project/src/orchestrator-agent"]
+    }
+  }
+}
 ```
 
-**Set environment variables:**
-
-**PowerShell:**
-```powershell
-Get-Content dev.env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { $n=$matches[1]; $v=$matches[2]; [Environment]::SetEnvironmentVariable($n,$v) } }
-
-# Verify
-$env:AzureOpenAI__DeploymentName
-$env:AzureOpenAI__Endpoint
-$env:AzureOpenAI__ApiKey
+**Note for Claude Code**: Use `claude_code_config.json` instead:
 ```
-
-**Bash/Linux/macOS:**
-```bash
-export $(cat dev.env | xargs)
+Windows: %APPDATA%\Claude Code\claude_code_config.json
 ```
 
 ### 🧪 Testing Your Setup
@@ -215,38 +254,12 @@ Use my orchestrator to give me a short definition of Azure Managed Grafana as we
 
 ![GHCP Prompt Example](/docs/_images/ghcp-vscode-ui-prompt-example.png)
 
-
-
-### 🏠 Claude Desktop Integration
-
-Add to your Claude Desktop configuration file:
-
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "orchestrator-agent": {
-      "command": "dotnet",
-      "args": ["run", "--project", "/absolute/path/to/your/project/src/orchestrator-agent"]
-    }
-  }
-}
-```
-
 **Example prompt for Claude:**
 ```
 Use my orchestrator to give me a short definition of Azure Managed Grafana as well as a short description of its pricing.
 ```
 
 ![Claude Prompt Example](/docs/_images/claude-ui-prompt-example.png)
-
-**Note for Claude Code**: Use `claude_code_config.json` instead:
-```
-Windows: %APPDATA%\Claude Code\claude_code_config.json
-```
 
 ---
 
@@ -323,7 +336,7 @@ tests/
 ├── mcp-server-kb-content-fetcher.unit-tests/     # Fast, isolated tests
 ├── mcp-server-kb-content-fetcher.integration-tests/ # Protocol compliance
 ├── orchestrator-agent.unit-tests/               # Component tests
-└── orchestrator-agent.integration-tests/        # End-to-end tests (includes smoke test scenarios)
+└── orchestrator-agent.integration-tests/        # End-to-end tests
 ```
 
 ### Contributing Guidelines
@@ -341,7 +354,7 @@ tests/
 
 **🚫 Server Won't Start**
 - Check .NET 9 is installed: `dotnet --version`
-- Verify environment variables are loaded: `echo $AzureOpenAI__ApiKey`
+- Verify environment variables are loaded: `echo $AzureOpenAI__ApiKey` (or `$env:AzureOpenAI__ApiKey` in PowerShell)
 - Check build artifacts exist: `ls src/*/bin/Debug/net*/`
 
 **🔌 MCP Connection Issues**
@@ -367,6 +380,8 @@ tests/
 - 🔍 Review [feature documentation](docs/features/)
 - 📋 Check [architecture documentation](docs/architecture-technologies.md)
 
+---
+
 ## 🎯 What's Next?
 
 This prototype demonstrates the core concepts. Future evolution paths include:
@@ -375,10 +390,6 @@ This prototype demonstrates the core concepts. Future evolution paths include:
 - **📚 Knowledge Expansion**: Integration with comprehensive documentation sources
 - **🔄 Multi-Domain Support**: Extension to additional Azure services
 - **🏢 Enterprise Features**: Advanced security, monitoring, and scalability
-
----
-
-**🚀 Ready to get started?** Follow the [Quick Start Guide](#-quick-start-guide) above, or dive into the [detailed documentation](docs/) for more comprehensive guidance.
 
 ---
 
@@ -391,5 +402,9 @@ This prototype demonstrates the core concepts. Future evolution paths include:
 - ✅ Basic test coverage (unit and integration tests)
 - ⏳ Production AMG content (using placeholder data)
 - ⏳ Architecture Variants 2-3 (future iterations)
+
+---
+
+**🚀 Ready to get started?** Follow the [Quick Start Guide](#-quick-start-guide) above, or dive into the [detailed documentation](docs/) for more comprehensive guidance.
 
 **📅 Last Updated**: September 2025
